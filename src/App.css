@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+
+/* Custom scrollbar matching your dark aesthetic */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0B0F19;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1F2937;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #374151;
+}
+
+/* Eliminate tap highlight delays on mobile */
+html,
+body {
+    background-color: #0B0F19;
+    -webkit-tap-highlight-color: transparent;
+}

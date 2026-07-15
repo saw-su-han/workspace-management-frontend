@@ -1,0 +1,55 @@
+/* src/index.css */
+/* src/index.css */
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Add these premium colors inside the Tailwind v4 @theme directive */
+@theme {
+    /* The deep water backdrop layers */
+    --color-marine-950: #070b14;
+    --color-marine-900: #0b121f;
+    --color-marine-800: #121d30;
+
+    /* The perfect crisp, modern Ocean Blue accent color */
+    --color-ocean-primary: #0284c7;
+    --color-ocean-hover: #0369a1;
+    --color-ocean-glow: #e0f2fe;
+
+    /* Luxury slate tints for typography and borders */
+    --color-arctic-slate: #f3f6f9;
+    --color-arctic-frost: #f8fafc;
+}
+
+@layer base {
+    body {
+        background-color: var(--color-arctic-slate);
+        color: #1e293b;
+        font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        transition-property: background-color, border-color, color;
+        transition-duration: 200ms;
+    }
+
+    .dark body {
+        background-color: var(--color-marine-900);
+        color: #f1f5f9;
+    }
+}
+
+/* 3. Your custom animations */
+@keyframes oceanicPop {
+    from {
+        opacity: 0;
+        transform: scale(0.99) translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-ocean {
+    animation: oceanicPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
