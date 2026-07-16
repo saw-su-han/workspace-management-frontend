@@ -8,6 +8,7 @@ import { Register } from './pages/Register';
 import { DashboardLayout } from './pages/DashboardLayout'; // ⚡ Imported your complete workspace dashboard
 import { ThemeToggle } from './Components/ThemeToggle';
 import { WorkspaceDetail } from './pages/WorkspacePage';
+import { ProfilePage } from './pages/Profile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, user, isLoading } = useAuthContext();
@@ -54,6 +55,14 @@ function App() {
           element={
             <ProtectedRoute>
               <WorkspaceDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

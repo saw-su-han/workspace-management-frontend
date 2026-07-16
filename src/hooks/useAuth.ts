@@ -18,7 +18,12 @@ export interface WorkspaceInfo {
     userName: string;
 }
 
-// --- AUTHENTICATION HOOKS ---
+export interface UserProfile {
+    name?: string | null;
+    avatar?: string | null;
+    avatarUpdatedAt?: string | number | null;
+    updatedAt?: string | number | null;
+}
 
 export const useLogin = () => {
     const queryClient = useQueryClient();
@@ -28,7 +33,7 @@ export const useLogin = () => {
             const res = await api.post("/auth/login", credentials);
             const responseData = res.data;
 
-            const token = responseData?.data?.accessToken || responseData?.accessToken || responseData?.token;
+            const token = responseData?.data?.accessToken || responseData?.data?.token || responseData?.token;
 
             if (token) {
                 localStorage.setItem("token", token);
@@ -37,17 +42,34 @@ export const useLogin = () => {
             return responseData;
         },
         onSuccess: (responseData) => {
-            const userData = responseData?.data?.user || responseData?.user;
+            const userData = responseData?.data?.user;
             if (userData) {
+                // Now sets the complete, rich user payload structure securely!
                 queryClient.setQueryData(["profile"], userData);
             }
-
             queryClient.invalidateQueries({ queryKey: ["profile"] });
         }
     });
 };
 
-export const useRegister = () => {
+export const useUpdateProfile = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (formData: FormData) => {
+            const res = await api.patch("/auth/profile", formData);
+            return res.data.data; // This returns the updated getProfileService object footprint
+        },
+        onSuccess: (updatedData) => {
+            // 🔥 THE ULTIMATE FIX: Force-overwrite the UI data cache state immediately
+            // This forces React to re-render without relying on network sync delays!
+            queryClient.setQueryData(["profile"], updatedData);
+
+            // Re-verify down the pipe
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+        },
+    });
+}; export const useRegister = () => {
     return useMutation({
         mutationFn: async (formData: FormData) => {
             // REMOVED explicit header: Passing FormData lets Axios attach the native browser boundaries perfectly
@@ -81,21 +103,6 @@ export const useProfile = () => {
             return res.data.data;
         },
         retry: false,
-    });
-};
-
-export const useUpdateProfile = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: async (formData: FormData) => {
-            // REMOVED explicit header: Let Axios naturally process the multi-part content stream boundary
-            const res = await api.patch("/auth/profile", formData);
-            return res.data.data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
-        },
     });
 };
 
