@@ -1,6 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useWorkspaceDetails, useUpdateWorkspace, useDeleteWorkspace } from '../hooks/useAuth';
+import {
+    useWorkspaceDetails,
+    useUpdateWorkspace,
+    useDeleteWorkspace,
+    useProjects,
+    useCreateProject,
+    useUpdateProject,
+    useDeleteProject,
+    type ProjectItem
+} from '../hooks/useAuth';
+
+const STATUS_STYLES: Record<string, { label: string; dot: string; text: string; bg: string; border: string }> = {
+    PLANNING: {
+        label: 'Planning',
+        dot: 'bg-amber-400',
+        text: 'text-amber-600 dark:text-amber-300',
+        bg: 'bg-amber-50 dark:bg-amber-400/10',
+        border: 'border-amber-200 dark:border-amber-400/20',
+    },
+    ACTIVE: {
+        label: 'Active',
+        dot: 'bg-emerald-400',
+        text: 'text-emerald-600 dark:text-emerald-300',
+        bg: 'bg-emerald-50 dark:bg-emerald-400/10',
+        border: 'border-emerald-200 dark:border-emerald-400/20',
+    },
+    COMPLETED: {
+        label: 'Completed',
+        dot: 'bg-sky-400',
+        text: 'text-sky-600 dark:text-sky-300',
+        bg: 'bg-sky-50 dark:bg-sky-400/10',
+        border: 'border-sky-200 dark:border-sky-400/20',
+    },
+};
 
 export const WorkspaceDetail: React.FC = () => {
     const { workspaceId: workspaceIdParam } = useParams<{ workspaceId: string }>();
@@ -8,37 +41,124 @@ export const WorkspaceDetail: React.FC = () => {
     const navigate = useNavigate();
 
     const { data: workspace, isLoading, refetch } = useWorkspaceDetails(workspaceId);
-    const { mutate: updateWorkspace, isPending: isUpdating } = useUpdateWorkspace(workspaceId);
-    const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
+    const { mutate: updateWorkspace } = useUpdateWorkspace(workspaceId);
+    const { mutate: deleteWorkspace } = useDeleteWorkspace();
 
     const [activeTab, setActiveTab] = useState<'projects' | 'tasks' | 'members' | 'settings'>('projects');
     const [nameDraft, setNameDraft] = useState('');
 
-    // 1. ADDED PREVIEW STATE FOR IMMEDIATE FILE SELECTION VISIBILITY
+    // --- PROJECTS TAB DATA ---
+    const [projectSearch, setProjectSearch] = useState('');
+    const { data: projects, isLoading: isProjectsLoading, refetch: refetchProjects } = useProjects(workspaceId, projectSearch || undefined);
+    const { mutate: createProject, isPending: isCreatingProject } = useCreateProject(workspaceId);
+
+    const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+    const [newProjectName, setNewProjectName] = useState('');
+    const [newProjectDescription, setNewProjectDescription] = useState('');
+    const [createError, setCreateError] = useState<string | null>(null);
+
+    const handleCreateProject = () => {
+        const trimmed = newProjectName.trim();
+        if (!trimmed) {
+            setCreateError("Project name can't be empty.");
+            return;
+        }
+        setCreateError(null);
+        createProject(
+            { name: trimmed, description: newProjectDescription.trim() || undefined },
+            {
+                onSuccess: () => {
+                    setNewProjectName('');
+                    setNewProjectDescription('');
+                    setIsCreateFormOpen(false);
+                    refetchProjects();
+                },
+                onError: (err: any) => {
+                    setCreateError(err?.response?.data?.message || "Couldn't create project.");
+                },
+            }
+        );
+    };
+
+    // --- EDIT PROJECT ---
+    const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
+    const [editName, setEditName] = useState('');
+    const [editDescription, setEditDescription] = useState('');
+    const [editStatus, setEditStatus] = useState<'PLANNING' | 'ACTIVE' | 'COMPLETED'>('PLANNING');
+    const [editError, setEditError] = useState<string | null>(null);
+
+    const { mutate: updateProject, isPending: isUpdatingProject } = useUpdateProject(editingProject?.id ?? 0);
+
+    const openEditProject = (project: ProjectItem) => {
+        setEditingProject(project);
+        setEditName(project.name);
+        setEditDescription(project.description || '');
+        setEditStatus(project.status);
+        setEditError(null);
+        setIsCreateFormOpen(false);
+    };
+
+    const handleUpdateProject = () => {
+        if (!editingProject) return;
+        const trimmed = editName.trim();
+        if (!trimmed) {
+            setEditError("Project name can't be empty.");
+            return;
+        }
+        setEditError(null);
+
+        updateProject(
+            {
+                workspaceId,
+                name: trimmed,
+                description: editDescription.trim() || undefined,
+                status: editStatus
+            },
+            {
+                onSuccess: () => {
+                    setEditingProject(null);
+                    refetchProjects();
+                },
+                onError: (err: any) => {
+                    setEditError(err?.response?.data?.message || "Couldn't update project.");
+                },
+            }
+        );
+    };
+
+    // --- DELETE PROJECT ---
+    const { mutate: deleteProject } = useDeleteProject();
+
+    const handleDeleteProject = (project: ProjectItem) => {
+        if (window.confirm(`Delete "${project.name}"? This cannot be undone.`)) {
+            deleteProject(
+                { workspaceId, projectId: project.id },
+                { onSuccess: () => refetchProjects() }
+            );
+        }
+    };
+
+    // Preview URL systems for local image staging
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (workspace?.workspaceName) {
             setNameDraft(workspace.workspaceName);
         }
     }, [workspace?.workspaceName]);
 
-    // 2. CLEAN UP MEMORY IF THE COMPONENT UNMOUNTS OR PREVIEW CHANGES
     useEffect(() => {
         return () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
         };
     }, [previewUrl]);
 
-
     const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
     const resolveLogoUrl = (rawUrl?: string | null) => {
         if (!rawUrl) return null;
-
         const isAbsolute = /^https?:\/\//i.test(rawUrl);
         const base = isAbsolute ? rawUrl : `${API_BASE_URL}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
-
         const cacheKey = (workspace as any)?.updatedAt || (workspace as any)?.logoUpdatedAt;
         const separator = base.includes("?") ? "&" : "?";
         return cacheKey ? `${base}${separator}v=${cacheKey}` : base;
@@ -47,9 +167,8 @@ export const WorkspaceDetail: React.FC = () => {
     const [logoImgBroken, setLogoImgBroken] = useState(false);
     const logoUrl = !logoImgBroken ? resolveLogoUrl(workspace?.logo) : null;
 
-    React.useEffect(() => {
+    useEffect(() => {
         setLogoImgBroken(false);
-        // Clear the temporary local preview once the new server image loads successfully
         setPreviewUrl(null);
     }, [workspace?.logo]);
 
@@ -58,7 +177,6 @@ export const WorkspaceDetail: React.FC = () => {
         if (!file) return;
         setLogoImgBroken(false);
 
-        // 3. GENERATE LOCAL BLOB URL FOR INSTANT UI PREVIEW
         const localUrl = URL.createObjectURL(file);
         setPreviewUrl(localUrl);
 
@@ -84,12 +202,12 @@ export const WorkspaceDetail: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen flex-col gap-4 items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+            <div className="flex h-screen flex-col gap-4 items-center justify-center bg-sky-50 dark:bg-[#051923] text-sky-900 dark:text-cyan-50 transition-colors duration-300">
                 <div className="relative w-12 h-12">
-                    <div className="absolute inset-0 rounded-full border-2 border-indigo-500/20 dark:border-indigo-400/10"></div>
-                    <div className="absolute inset-0 rounded-full border-2 border-indigo-500 dark:border-indigo-400 border-t-transparent animate-spin"></div>
+                    <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 dark:border-cyan-400/10"></div>
+                    <div className="absolute inset-0 rounded-full border-2 border-cyan-500 dark:border-cyan-400 border-t-transparent animate-spin"></div>
                 </div>
-                <div className="text-[10px] font-black tracking-[0.2em] uppercase text-indigo-500 dark:text-indigo-400 animate-pulse">
+                <div className="text-[10px] font-black tracking-[0.2em] uppercase text-cyan-600 dark:text-cyan-400 animate-pulse">
                     Synchronizing Workspace Core...
                 </div>
             </div>
@@ -97,246 +215,298 @@ export const WorkspaceDetail: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 font-sans">
+        <div className="min-h-screen bg-sky-50 dark:bg-[#051923] text-sky-950 dark:text-cyan-50 flex flex-col transition-colors duration-300 font-sans relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(14,165,233,0.07)_0%,_transparent_55%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(15,107,168,0.2)_0%,_transparent_55%)] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[550px] h-[550px] bg-cyan-400/[0.05] dark:bg-cyan-400/[0.06] blur-[160px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-teal-400/[0.05] dark:bg-teal-400/[0.05] blur-[150px] rounded-full pointer-events-none" />
 
             {/* SUB-NAVBAR HEADER */}
-            <header className="border-b border-slate-200/80 dark:border-slate-900 bg-white/80 dark:bg-slate-950/40 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-colors">
+            <header className="border-b border-sky-200/70 dark:border-cyan-400/10 bg-white/70 dark:bg-[#051923]/70 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-colors">
                 <div className="flex items-center gap-5">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="group flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-200/80 dark:border-slate-800/80 rounded-lg text-[11px] font-bold text-slate-600 dark:text-slate-350 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700"
+                        className="group flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#0a2f4e]/60 hover:bg-sky-50 dark:hover:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/15 rounded-lg text-[11px] font-bold text-sky-700 dark:text-cyan-200 shadow-sm transition-all hover:border-cyan-400/50 dark:hover:border-cyan-400/40"
                     >
-                        <span className="inline-block transition-transform group-hover:-translate-x-0.5">←</span> Back
+                        <span className="inline-block transition-transform group-hover:-translate-x-0.5">←</span> Dashboard
                     </button>
-
-                    <div className="w-[1px] h-6 bg-slate-200 dark:bg-slate-800" />
-
+                    <div className="w-[1px] h-6 bg-sky-200 dark:bg-cyan-400/10" />
                     <div className="flex items-center gap-3">
-                        {/* Modified sub-navbar logo to prefer the instant local preview if active */}
                         {previewUrl || logoUrl ? (
                             <img
                                 src={previewUrl || logoUrl || ""}
                                 alt="Logo"
                                 onError={() => setLogoImgBroken(true)}
-                                className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-inner"
+                                className="w-10 h-10 rounded-xl object-cover border border-sky-200 dark:border-cyan-400/20 shadow-inner"
                             />
                         ) : (
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/40 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-lg shadow-sm">🏢</div>
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-100 to-cyan-100 dark:from-cyan-950/40 dark:to-teal-950/40 border border-cyan-200 dark:border-cyan-500/20 flex items-center justify-center text-lg shadow-sm">🌊</div>
                         )}
                         <div>
-                            <h1 className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-slate-50">{workspace?.workspaceName}</h1>
+                            <h1 className="font-extrabold text-sm tracking-tight text-sky-950 dark:text-cyan-50">{workspace?.workspaceName}</h1>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span className="text-[9px] text-indigo-600 dark:text-indigo-400 font-extrabold uppercase tracking-widest">Workspace Active</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span className="text-[9px] text-cyan-600 dark:text-cyan-400 font-extrabold uppercase tracking-widest">Workspace Active</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {(activeTab === 'projects' || activeTab === 'tasks' || activeTab === 'members') && (
-                    <div className="flex gap-2">
-                        <button
-                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-sm shadow-indigo-600/10 hover:shadow-indigo-600/20 dark:shadow-[0_0_20px_rgba(79,70,229,0.15)] flex items-center gap-1.5"
-                        >
-                            <span className="text-sm font-light">+</span> Create {activeTab === 'projects' ? 'Project' : activeTab === 'tasks' ? 'Task' : 'Invite Member'}
-                        </button>
-                    </div>
+                {activeTab === 'projects' && (
+                    <button
+                        onClick={() => setIsCreateFormOpen((prev) => !prev)}
+                        className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-cyan-500/20 flex items-center gap-1.5"
+                    >
+                        <span className="text-sm font-light">+</span> {isCreateFormOpen ? 'Cancel' : 'Create Project'}
+                    </button>
                 )}
             </header>
 
-            <div className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col lg:flex-row gap-8">
-
+            <div className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col lg:flex-row gap-8 relative z-10">
                 {/* INTERACTIVE NAVIGATION CONTROL PANEL */}
                 <aside className="w-full lg:w-64 flex flex-col gap-1.5 flex-shrink-0">
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 mb-1">Navigation</div>
-
+                    <div className="text-[9px] font-bold uppercase tracking-widest text-sky-400 dark:text-cyan-400/50 px-3 mb-1">Navigation</div>
                     <button
                         onClick={() => setActiveTab('projects')}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'projects' ? 'bg-indigo-50/80 dark:bg-indigo-650/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm' : 'hover:bg-slate-200/50 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 border border-transparent'}`}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'projects' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
                         <span className="flex items-center gap-2">📂 Projects</span>
-                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-mono transition-colors ${activeTab === 'projects' ? 'bg-indigo-100/60 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200/60 dark:bg-slate-900 text-slate-500'}`}>{workspace?.totalProjects || 0}</span>
+                        <span className="px-2 py-0.5 rounded-md text-[9px] font-mono bg-sky-100 dark:bg-[#0a2f4e]/60 text-sky-500 dark:text-cyan-400/50">{workspace?.totalProjects || 0}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('tasks')}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'tasks' ? 'bg-indigo-50/80 dark:bg-indigo-650/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm' : 'hover:bg-slate-200/50 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 border border-transparent'}`}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'tasks' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
                         <span className="flex items-center gap-2">⚡ Tasks</span>
-                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-mono transition-colors ${activeTab === 'tasks' ? 'bg-indigo-100/60 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200/60 dark:bg-slate-900 text-slate-500'}`}>{workspace?.totalTasks || 0}</span>
+                        <span className="px-2 py-0.5 rounded-md text-[9px] font-mono bg-sky-100 dark:bg-[#0a2f4e]/60 text-sky-500 dark:text-cyan-400/50">{workspace?.totalTasks || 0}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('members')}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'members' ? 'bg-indigo-50/80 dark:bg-indigo-650/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm' : 'hover:bg-slate-200/50 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 border border-transparent'}`}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'members' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
                         <span className="flex items-center gap-2">👥 Members</span>
-                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-mono transition-colors ${activeTab === 'members' ? 'bg-indigo-100/60 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200/60 dark:bg-slate-900 text-slate-500'}`}>{workspace?.totalMembers || 0}</span>
+                        <span className="px-2 py-0.5 rounded-md text-[9px] font-mono bg-sky-100 dark:bg-[#0a2f4e]/60 text-sky-500 dark:text-cyan-400/50">{workspace?.totalMembers || 0}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('settings')}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'settings' ? 'bg-indigo-50/80 dark:bg-indigo-650/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm' : 'hover:bg-slate-200/50 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 border border-transparent'}`}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'settings' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
                         <span className="flex items-center gap-2">⚙️ Settings</span>
                     </button>
                 </aside>
 
                 {/* WORKSPACE OPERATIONS VIEWPORT */}
-                <main className="flex-1 bg-white dark:bg-slate-900/20 border border-slate-200/80 dark:border-slate-900/60 p-6 sm:p-8 rounded-2xl min-h-[480px] shadow-sm transition-all">
+                <main className="flex-1 bg-white dark:bg-[#0a2f4e]/30 border border-sky-200/70 dark:border-cyan-400/10 p-6 sm:p-8 rounded-2xl min-h-[480px] shadow-sm transition-all">
 
                     {/* PROJECTS TAB */}
                     {activeTab === 'projects' && (
                         <div className="space-y-6">
-                            <div>
-                                <h2 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-50">Workspace Projects</h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage, view, and organize dynamic project tracks within this environment.</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="p-5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-xl flex items-center justify-between group hover:border-slate-350 dark:hover:border-slate-700 transition-all hover:shadow-md hover:shadow-slate-100 dark:hover:shadow-none">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-sm border border-indigo-100 dark:border-indigo-500/10">📊</div>
-                                        <div>
-                                            <h3 className="font-extrabold text-xs text-slate-900 dark:text-slate-100">Analytics Pipeline</h3>
-                                            <span className="inline-flex items-center gap-1.5 text-[10px] text-emerald-500 font-semibold mt-0.5">
-                                                <span className="w-1 h-1 rounded-full bg-emerald-500"></span> Active
-                                            </span>
-                                        </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h2 className="text-base font-extrabold tracking-tight text-sky-950 dark:text-cyan-50">Workspace Projects</h2>
+                                    <p className="text-xs text-sky-500/80 dark:text-cyan-400/50 mt-1">Manage, view, and organize project tracks within this workspace.</p>
+                                </div>
+                                <div className="relative max-w-xs w-full">
+                                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-sky-400 dark:text-cyan-400/50">
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
                                     </div>
-                                    <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all flex gap-1">
-                                        <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg text-xs transition-colors" title="Edit">✏️</button>
-                                        <button className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 dark:text-red-400 rounded-lg text-xs transition-colors" title="Delete">🗑️</button>
-                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search projects..."
+                                        value={projectSearch}
+                                        onChange={(e) => setProjectSearch(e.target.value)}
+                                        className="w-full pl-9 pr-3 py-2 text-xs bg-sky-50 dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl outline-none text-sky-950 dark:text-cyan-50 placeholder:text-sky-400 dark:placeholder:text-cyan-400/30 focus:ring-2 focus:ring-cyan-400/25 focus:border-cyan-500 dark:focus:border-cyan-400/50 transition-all"
+                                    />
                                 </div>
                             </div>
+
+                            {/* INLINE CREATE PROJECT FORM */}
+                            {isCreateFormOpen && (
+                                <div className="p-5 border border-cyan-300/50 dark:border-cyan-400/20 bg-cyan-50/50 dark:bg-cyan-400/[0.04] rounded-2xl space-y-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input
+                                            type="text"
+                                            value={newProjectName}
+                                            onChange={(e) => setNewProjectName(e.target.value)}
+                                            placeholder="Project name"
+                                            className="px-3.5 py-2.5 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none focus:ring-2 focus:ring-cyan-400/25 focus:border-cyan-500 dark:focus:border-cyan-400/50 transition-all placeholder:text-sky-400 dark:placeholder:text-cyan-400/30"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={newProjectDescription}
+                                            onChange={(e) => setNewProjectDescription(e.target.value)}
+                                            placeholder="Short description (optional)"
+                                            className="px-3.5 py-2.5 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none focus:ring-2 focus:ring-cyan-400/25 focus:border-cyan-500 dark:focus:border-cyan-400/50 transition-all placeholder:text-sky-400 dark:placeholder:text-cyan-400/30"
+                                        />
+                                    </div>
+                                    {createError && <p className="text-[11px] text-rose-500 dark:text-rose-300 font-semibold">{createError}</p>}
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={handleCreateProject}
+                                            disabled={isCreatingProject}
+                                            className="px-5 py-2 bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-cyan-500/20"
+                                        >
+                                            {isCreatingProject ? "Creating..." : "Create Project"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* PROJECTS LIST */}
+                            {isProjectsLoading ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="w-8 h-8 rounded-full border-2 border-cyan-500 dark:border-cyan-400 border-t-transparent animate-spin" />
+                                </div>
+                            ) : !projects || projects.length === 0 ? (
+                                <div className="text-center p-12 border border-dashed border-sky-300/60 dark:border-cyan-400/20 rounded-3xl bg-sky-50/50 dark:bg-[#0a2f4e]/20">
+                                    <p className="text-xs text-sky-500/70 dark:text-cyan-400/50">No projects yet — cast the first line with "Create Project".</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {projects.map((project) => {
+                                        const style = STATUS_STYLES[project.status] || STATUS_STYLES.PLANNING;
+                                        const isEditingThis = editingProject?.id === project.id;
+
+                                        if (isEditingThis) {
+                                            return (
+                                                <div key={project.id} className="p-5 border border-cyan-300/60 dark:border-cyan-400/25 bg-cyan-50/60 dark:bg-cyan-400/[0.05] rounded-2xl space-y-3">
+                                                    <input
+                                                        type="text"
+                                                        value={editName}
+                                                        onChange={(e) => setEditName(e.target.value)}
+                                                        className="w-full px-3.5 py-2 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={editDescription}
+                                                        onChange={(e) => setEditDescription(e.target.value)}
+                                                        className="w-full px-3.5 py-2 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none"
+                                                    />
+                                                    <select
+                                                        value={editStatus}
+                                                        onChange={(e) => setEditStatus(e.target.value as any)}
+                                                        className="w-full px-3.5 py-2 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none"
+                                                    >
+                                                        <option value="PLANNING">Planning</option>
+                                                        <option value="ACTIVE">Active</option>
+                                                        <option value="COMPLETED">Completed</option>
+                                                    </select>
+                                                    {editError && <p className="text-[11px] text-rose-500 font-semibold">{editError}</p>}
+                                                    <div className="flex justify-end gap-2">
+                                                        <button onClick={() => setEditingProject(null)} className="px-3 py-1.5 bg-white dark:bg-[#0a2f4e] text-xs font-bold rounded-xl border border-sky-200 dark:border-cyan-400/15">Cancel</button>
+                                                        <button onClick={handleUpdateProject} disabled={isUpdatingProject} className="px-4 py-1.5 bg-sky-600 text-white text-xs font-bold rounded-xl shadow-sm">{isUpdatingProject ? "Saving..." : "Save"}</button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div
+                                                key={project.id}
+                                                onClick={() => navigate(`/workspaces/${workspaceId}/projects/${project.id}`)}
+                                                className="group relative p-5 border border-sky-200 dark:border-cyan-400/10 bg-sky-50/60 dark:bg-[#051923]/60 rounded-2xl flex flex-col gap-3 overflow-hidden hover:border-cyan-400/50 dark:hover:border-cyan-400/30 hover:shadow-lg hover:shadow-cyan-500/10 transition-all cursor-pointer"
+                                            >
+                                                <div className="flex items-start justify-between relative z-10">
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <div className="w-9 h-9 flex-shrink-0 rounded-lg bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center text-sm shadow-sm">📊</div>
+                                                        <div className="min-w-0">
+                                                            <h3 className="font-extrabold text-xs text-sky-950 dark:text-cyan-50 truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">{project.name}</h3>
+                                                            {project.description && <p className="text-[10px] text-sky-500/70 dark:text-cyan-400/50 truncate mt-0.5">{project.description}</p>}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Control action buttons layout */}
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-all flex gap-1 flex-shrink-0">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); openEditProject(project); }}
+                                                            className="p-1.5 hover:bg-sky-200 dark:hover:bg-cyan-400/10 text-xs rounded-lg"
+                                                            title="Edit Project"
+                                                        >
+                                                            ✏️
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); navigate(`/workspaces/${workspaceId}/invite`); }}
+                                                            className="p-1.5 hover:bg-sky-200 dark:hover:bg-cyan-400/10 text-xs rounded-lg"
+                                                            title="Invite Member"
+                                                        >
+                                                            ✉️
+                                                        </button>                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteProject(project); }}
+                                                            className="p-1.5 hover:bg-rose-100 dark:hover:bg-rose-500/10 text-xs rounded-lg text-rose-500"
+                                                            title="Delete Project"
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between border-t border-sky-100 dark:border-cyan-400/5 pt-3 mt-auto relative z-10">
+                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold flex items-center gap-1.5 border ${style.bg} ${style.text} ${style.border}`}>
+                                                        <span className={`w-1 h-1 rounded-full ${style.dot}`} />
+                                                        {style.label}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {/* TASKS TAB */}
-                    {activeTab === 'tasks' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h2 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-50">Backlog & Execution</h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Track tasks and assign workflows to workspace team nodes.</p>
-                            </div>
-
-                            <div className="space-y-3">
-                                <div className="p-4 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-xl flex items-center justify-between group hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-                                    <div className="flex items-center gap-3.5">
-                                        <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center text-xs text-emerald-600 dark:text-emerald-450 font-bold">✓</div>
-                                        <div>
-                                            <h3 className="font-extrabold text-xs text-slate-900 dark:text-slate-100">Refactor Database Access Layers</h3>
-                                            <span className="text-[10px] text-slate-500 dark:text-slate-450 mt-0.5 block">Assigned to: Developer Node</span>
-                                        </div>
-                                    </div>
-                                    <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all flex gap-1">
-                                        <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg text-xs transition-colors">✏️</button>
-                                        <button className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 dark:text-red-400 rounded-lg text-xs transition-colors">🗑️</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* MEMBERS TAB */}
-                    {activeTab === 'members' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h2 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-50">Authorized Accounts</h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage access privileges and user invites for this node.</p>
-                            </div>
-
-                            <div className="space-y-3">
-                                <div className="p-4 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-xl flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-650 text-white border border-indigo-400/20 flex items-center justify-center text-[10px] font-black shadow-sm">U</div>
-                                        <div>
-                                            <h3 className="font-extrabold text-xs text-slate-900 dark:text-slate-100">Admin Team Member</h3>
-                                            <span className="text-[10px] text-indigo-500 dark:text-indigo-450 font-bold tracking-wide mt-0.5 block">Owner</span>
-                                        </div>
-                                    </div>
-                                    <button className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors">Revoke</button>
-                                </div>
-                            </div>
+                    {/* TASKS & MEMBERS PLACEHOLDERS */}
+                    {(activeTab === 'tasks' || activeTab === 'members') && (
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                            <span className="text-3xl mb-3">🛠️</span>
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-cyan-300">Section Under Construction</h3>
+                            <p className="text-[11px] text-sky-500/70 dark:text-cyan-400/40 mt-1 max-w-xs">Data links and board actions are currently routing exclusively through the core Projects workspace architecture.</p>
                         </div>
                     )}
 
                     {/* SETTINGS TAB */}
                     {activeTab === 'settings' && (
-                        <div className="space-y-8">
-                            <div className="border-b border-slate-200/80 dark:border-slate-800 pb-5">
-                                <h2 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-slate-50">Workspace Identity Modification</h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Update brand imagery, logo assets, and master database descriptors.</p>
+                        <div className="space-y-6 max-w-xl">
+                            <div>
+                                <h2 className="text-base font-extrabold text-sky-950 dark:text-cyan-50">Workspace Settings</h2>
+                                <p className="text-xs text-sky-500/80 dark:text-cyan-400/50 mt-1">Configure workspace parameters, update dynamic vanity logos, or delete this environment.</p>
                             </div>
 
-                            <div className="space-y-6 max-w-xl">
-                                {/* Workspace Name Modifier */}
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Workspace Name</label>
-                                    <div className="flex gap-2.5">
+                            <div className="space-y-4 pt-2">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[11px] font-black uppercase tracking-wider text-sky-400 dark:text-cyan-400/50">Workspace Logo</label>
+                                    <div className="flex items-center gap-4">
+                                        {previewUrl || logoUrl ? (
+                                            <img src={previewUrl || logoUrl || ""} alt="Logo" className="w-14 h-14 rounded-xl object-cover border border-sky-200 dark:border-cyan-400/20 shadow-md" />
+                                        ) : (
+                                            <div className="w-14 h-14 rounded-xl bg-sky-100 dark:bg-cyan-950/40 border border-sky-200 dark:border-cyan-500/20 flex items-center justify-center text-xl">🌊</div>
+                                        )}
+                                        <label className="px-3 py-1.5 bg-white dark:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/20 text-[11px] font-bold rounded-lg cursor-pointer hover:bg-sky-50 transition-colors">
+                                            Choose File
+                                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[11px] font-black uppercase tracking-wider text-sky-400 dark:text-cyan-400/50">Workspace Identity Name</label>
+                                    <div className="flex gap-2">
                                         <input
                                             type="text"
                                             value={nameDraft}
                                             onChange={(e) => setNameDraft(e.target.value)}
-                                            className="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-slate-105 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none focus:border-indigo-500 transition-all"
-                                            placeholder="Enter unique workspace name"
+                                            className="flex-1 px-3 py-2 text-xs bg-sky-50 dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-sky-950 dark:text-cyan-50 outline-none"
                                         />
-                                        <button
-                                            onClick={handleNameUpdate}
-                                            disabled={isUpdating || !nameDraft.trim() || nameDraft === workspace?.workspaceName}
-                                            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-450 dark:disabled:text-slate-650 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-indigo-600/10"
-                                        >
-                                            {isUpdating ? "Saving..." : "Save Changes"}
-                                        </button>
+                                        <button onClick={handleNameUpdate} className="px-4 py-2 bg-sky-600 text-white text-xs font-bold rounded-xl shadow-sm">Update</button>
                                     </div>
                                 </div>
 
-                                {/* Brand Logo Modifier */}
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Modify Logo Asset</label>
-                                    <div className="p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/10 flex flex-col gap-2">
-
-                                        {/* 4. UPDATED PREVIEW BLOCK TO PREFER LOCAL OBJECT BLOB BEFORE FALLING BACK TO SERVER URL */}
-                                        {(previewUrl || logoUrl) && (
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <img
-                                                    src={previewUrl || logoUrl || ""}
-                                                    alt="Current workspace logo"
-                                                    onError={() => setLogoImgBroken(true)}
-                                                    className="w-10 h-10 rounded-lg object-cover border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
-                                                />
-                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">
-                                                    {previewUrl ? "New selection (uploading...)" : "Current logo"}
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        <input
-                                            type="file"
-                                            id="logo-upload-input"
-                                            accept="image/*"
-                                            onChange={handleLogoUpload}
-                                            className="text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-slate-200 dark:file:bg-slate-800 file:text-indigo-600 dark:file:text-indigo-400 hover:file:bg-slate-300 dark:hover:file:bg-slate-700 cursor-pointer"
-                                        />
-                                        {isUpdating && (
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                                                <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold animate-pulse">Uploading asset stream...</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="border-t border-slate-200 dark:border-slate-850 pt-8 mt-10">
-                                    <div className="p-5 border border-red-200/50 dark:border-red-950/20 bg-red-50/20 dark:bg-red-950/5 rounded-2xl">
-                                        <h3 className="text-xs font-black text-red-500 uppercase tracking-widest mb-1">Danger Zone</h3>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Permanently purge this operational workspace and all its integrated database nodes. This is an irreversible action.</p>
-                                        <button
-                                            onClick={handleDeleteWorkspace}
-                                            disabled={isDeleting}
-                                            className="px-5 py-2.5 bg-red-550 hover:bg-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/40 text-white dark:text-red-400 border border-transparent dark:border-red-900/30 text-xs font-bold uppercase tracking-wider rounded-xl transition-all disabled:opacity-50 hover:shadow-lg hover:shadow-red-500/10"
-                                        >
-                                            {isDeleting ? "Purging Node..." : "Delete Workspace"}
-                                        </button>
-                                    </div>
+                                <div className="pt-6 border-t border-sky-100 dark:border-cyan-400/10 mt-6">
+                                    <h4 className="text-xs font-black uppercase tracking-wider text-rose-500">Danger Zone</h4>
+                                    <p className="text-[11px] text-sky-500/70 dark:text-cyan-400/40 mt-1 mb-3">Deleting this workspace destroys all nested data pipelines, team links, and logs permanently.</p>
+                                    <button onClick={handleDeleteWorkspace} className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-extrabold rounded-xl shadow-sm transition-colors">
+                                        Delete Workspace
+                                    </button>
                                 </div>
                             </div>
                         </div>

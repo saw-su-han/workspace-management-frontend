@@ -1,6 +1,7 @@
 // src/hooks/useAuth.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../Api/axiosClient";
+import { fa } from "zod/locales";
 
 export interface WorkspaceDetails {
     logo: any;
@@ -18,13 +19,53 @@ export interface WorkspaceInfo {
     userName: string;
 }
 
-export interface UserProfile {
-    name?: string | null;
-    avatar?: string | null;
-    avatarUpdatedAt?: string | number | null;
-    updatedAt?: string | number | null;
+export interface AssignProjectPayload {
+    workspaceId: number;
+    projectId: number;
+    userId: number;
+    role?: "MEMBER" | "ADMIN" | "OWNER";
+}// export interface UserProfile {
+//     name?: string | null;
+//     avatar?: string | null;
+//     avatarUpdatedAt?: string | number | null;
+//     updatedAt?: string | number | null;
+// }
+
+export interface ProjectItem {
+    id: number;
+    name: string;
+    description?: string | null;
+    status: "PLANNING" | "ACTIVE" | "COMPLETED";
+    startDate?: string | null;
+    endDate?: string | null;
+    workspaceId: number;
 }
 
+// Add this interface to your useAuth.ts file
+export interface WorkspaceMemberItem {
+    workspaceId: number;
+    name: string;
+    email: string;
+    role: "OWNER" | "ADMIN" | "MEMBER";
+    status: string;
+    userId: number;
+}
+export interface AcceptInvitationResult {
+    success: boolean;
+    message?: string;
+    redirect?: string;
+    email?: string;
+    token?: string;
+}export const useWorkspaceMembers = (workspaceId: number) => {
+    return useQuery<WorkspaceMemberItem[]>({
+        queryKey: ["workspaceMembers", workspaceId],
+        queryFn: async () => {
+            const res = await api.get(`/invitations/workspaces/${workspaceId}/members`);
+            return res.data.data || res.data;
+        },
+        enabled: !!workspaceId,
+    });
+};
 export const useLogin = () => {
     const queryClient = useQueryClient();
 
@@ -176,5 +217,142 @@ export const useDeleteWorkspace = () => {
             queryClient.invalidateQueries({ queryKey: ["workspace"] });
             queryClient.invalidateQueries({ queryKey: ["profile"] });
         }
+    });
+};
+
+export const useProjects = (workspaceId: number, search?: string, status?: String) => {
+    return useQuery<ProjectItem[]>({
+        queryKey: ["projects", workspaceId, search, status],
+        queryFn: async () => {
+            const res = await api.get("/projects", {
+                params: { workspaceId, search, status },
+            });
+            return res.data.data;
+        }, enabled: !!workspaceId,
+    })
+}
+
+export const useCreateProject = (workspaceId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: {
+            name: string;
+            description?: string;
+            startDate?: string;
+            endDate?: string;
+        }) => {
+            const res = await api.post("/projects", { workspaceId, ...data });
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["projects", workspaceId] });
+            queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
+        }
+    })
+}
+
+export const useUpdateProject = (projectId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: {
+            name?: string;
+            description?: string;
+            status?: "PLANNING" | "ACTIVE" | "COMPLETED";
+            startDate?: string;
+            endDate?: string;
+        }) => {
+            const res = await api.patch(`/projects/${projectId}`, data);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+        },
+    });
+};
+
+export const useDeleteProject = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ workspaceId, projectId }: { workspaceId: number; projectId: number }) => {
+            const res = await api.delete(`/${workspaceId}/projects/${projectId}`, {
+                data: { confirm: true },
+            });
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            queryClient.invalidateQueries({ queryKey: ["workspace"] });
+        },
+    });
+};
+
+
+export const useProjectDetails = (projectId: number) => {
+    return useQuery<ProjectItem>({
+        queryKey: ["projectDetails", projectId],
+        queryFn: async () => {
+            const res = await api.get(`/projects/${projectId}`);
+            return res.data.data;
+        },
+        enabled: !!projectId,
+    });
+};
+
+export interface InvitePayload {
+    email: string;
+    role: "MEMBER" | "ADMIN";
+}
+
+export const useInviteUser = (workspaceId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (payload: InvitePayload) => {
+            const res = await api.post("/invitations/invite", payload, {
+                headers: { "x-workspace-id": String(workspaceId) },
+            });
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] });
+        },
+    });
+};
+
+export const useAcceptInvitation = (token: string | undefined) => {
+    return useQuery<AcceptInvitationResult>({
+        queryKey: ["acceptInvitation", token],
+        queryFn: async () => {
+            const res = await api.get(`/invitations/accept/${token}`);
+            return res.data;
+        },
+        enabled: !!token,
+        retry: false,
+    })
+}
+
+export const useSignupWithInvitation = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ token, formData }: { token: string; formData: FormData }) => {
+            const res = await api.post(`/auth/signup/invitation/${token}`, formData);
+            return res.data;
+        },
+        onSuccess: (responseData) => {
+            const authToken = responseData?.data?.token;
+            const userData = responseData?.data?.user;
+
+            if (authToken) {
+                localStorage.setItem("token", authToken);
+            }
+            if (userData) {
+                queryClient.setQueryData(["profile"], userData);
+            }
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+        },
     });
 };

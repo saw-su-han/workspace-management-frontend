@@ -5,12 +5,19 @@ import { useAuthContext } from './context/AuthContext';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
-import { DashboardLayout } from './pages/DashboardLayout'; // ⚡ Imported your complete workspace dashboard
-import { ThemeToggle } from './Components/ThemeToggle';
+import { DashboardLayout } from './pages/DashboardLayout';
 import { WorkspaceDetail } from './pages/WorkspacePage';
+import { ProjectDetail } from './pages/ProjectDetailPage'; // Ensure you have/create this view page
+import { InviteMember } from './pages/ProjectInvitation';
 import { ProfilePage } from './pages/Profile';
+import { AcceptInvitation } from './pages/AcceptInvitation';
+import { SignupInvitation } from './pages/SignupInvitation';
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { token, user, isLoading } = useAuthContext();
 
   if (isLoading) {
@@ -31,46 +38,69 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function App() {
+export default function App() {
   return (
-    <>
+    <Routes>
+      {/* Public Pages */}
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
+      {/* Main Account & Core Landing */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
+      {/* Workspace Management Ecosystem */}
+      <Route
+        path="/workspaces/:workspaceId"
+        element={
+          <ProtectedRoute>
+            <WorkspaceDetail />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Individual Project Dashboard View */}
+      <Route
+        path="/workspaces/:workspaceId/projects/:projectId"
+        element={
+          <ProtectedRoute>
+            <ProjectDetail />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/workspaces/:workspaceId"
-          element={
-            <ProtectedRoute>
-              <WorkspaceDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
+      {/* Project Task / Member Assignments */}
+      <Route
+        path="/workspaces/:workspaceId/invite"
+        element={<ProtectedRoute>
+          <InviteMember />
+        </ProtectedRoute>}
+      />
+      <Route path="/accept-invitation/:token" element={
+        <AcceptInvitation />
+      }
+      />
+      <Route path="/signup-invitation/:token" element={
+        <SignupInvitation />
+      } />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+      {/* Catch-all Routing Redirect */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
-
-export default App;

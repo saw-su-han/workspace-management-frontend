@@ -21,6 +21,8 @@ const AuthContext = createContext<AuthContextType>({
     logoutUser: () => { }, // Matches signature perfectly
 });
 
+
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserProfile | null>(null);
