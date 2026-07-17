@@ -8,6 +8,7 @@ import {
     useCreateProject,
     useUpdateProject,
     useDeleteProject,
+    useProfile,
     type ProjectItem
 } from '../hooks/useAuth';
 
@@ -43,6 +44,11 @@ export const WorkspaceDetail: React.FC = () => {
     const { data: workspace, isLoading, refetch } = useWorkspaceDetails(workspaceId);
     const { mutate: updateWorkspace } = useUpdateWorkspace(workspaceId);
     const { mutate: deleteWorkspace } = useDeleteWorkspace();
+
+    // --- WORKSPACE SWITCHER ---
+    const { data: userProfile } = useProfile();
+    const allWorkspaces = userProfile?.workspaces || [];
+    const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
 
     const [activeTab, setActiveTab] = useState<'projects' | 'tasks' | 'members' | 'settings'>('projects');
     const [nameDraft, setNameDraft] = useState('');
@@ -223,12 +229,65 @@ export const WorkspaceDetail: React.FC = () => {
             {/* SUB-NAVBAR HEADER */}
             <header className="border-b border-sky-200/70 dark:border-cyan-400/10 bg-white/70 dark:bg-[#051923]/70 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-colors">
                 <div className="flex items-center gap-5">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="group flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#0a2f4e]/60 hover:bg-sky-50 dark:hover:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/15 rounded-lg text-[11px] font-bold text-sky-700 dark:text-cyan-200 shadow-sm transition-all hover:border-cyan-400/50 dark:hover:border-cyan-400/40"
-                    >
-                        <span className="inline-block transition-transform group-hover:-translate-x-0.5">←</span> Dashboard
-                    </button>
+                    {/* WORKSPACE SWITCHER DROPDOWN */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsWorkspaceDropdownOpen((prev) => !prev)}
+                            className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#0a2f4e]/60 hover:bg-sky-50 dark:hover:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/15 rounded-lg text-[11px] font-bold text-sky-700 dark:text-cyan-200 shadow-sm transition-all hover:border-cyan-400/50 dark:hover:border-cyan-400/40"
+                        >
+                            Switch Workspace
+                            <span className={`text-[9px] transition-transform ${isWorkspaceDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
+                        </button>
+
+                        {isWorkspaceDropdownOpen && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsWorkspaceDropdownOpen(false)} />
+
+                                <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/15 rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="max-h-64 overflow-y-auto">
+                                        {allWorkspaces
+                                            .filter((ws: any) => ws.isDeleted !== true)
+                                            .map((ws: any) => {
+                                                const wsInfo = ws.workspace || ws;
+                                                const isCurrent = wsInfo.id === workspaceId;
+                                                return (
+                                                    <button
+                                                        key={wsInfo.id}
+                                                        onClick={() => {
+                                                            setIsWorkspaceDropdownOpen(false);
+                                                            if (!isCurrent) navigate(`/workspaces/${wsInfo.id}`);
+                                                        }}
+                                                        className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-xs font-semibold transition-colors ${isCurrent
+                                                            ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300'
+                                                            : 'text-sky-700 dark:text-cyan-200 hover:bg-sky-50 dark:hover:bg-[#0e3a5c]'
+                                                            }`}
+                                                    >
+                                                        <div className="w-6 h-6 rounded-md bg-gradient-to-tr from-sky-500 to-cyan-400 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white">
+                                                            {wsInfo.name?.charAt(0).toUpperCase() || 'W'}
+                                                        </div>
+                                                        <span className="truncate flex-1">{wsInfo.name}</span>
+                                                        {isCurrent && <span className="text-cyan-500 text-[10px]">●</span>}
+                                                    </button>
+                                                );
+                                            })}
+                                    </div>
+
+                                    <div className="border-t border-sky-100 dark:border-cyan-400/10">
+                                        <button
+                                            onClick={() => {
+                                                setIsWorkspaceDropdownOpen(false);
+                                                navigate('/dashboard');
+                                            }}
+                                            className="w-full px-3.5 py-2.5 text-left text-xs font-bold text-sky-500 dark:text-cyan-400/70 hover:bg-sky-50 dark:hover:bg-[#0e3a5c] transition-colors"
+                                        >
+                                            ← All Workspaces (Dashboard)
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
                     <div className="w-[1px] h-6 bg-sky-200 dark:bg-cyan-400/10" />
                     <div className="flex items-center gap-3">
                         {previewUrl || logoUrl ? (
@@ -252,12 +311,20 @@ export const WorkspaceDetail: React.FC = () => {
                 </div>
 
                 {activeTab === 'projects' && (
-                    <button
-                        onClick={() => setIsCreateFormOpen((prev) => !prev)}
-                        className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-cyan-500/20 flex items-center gap-1.5"
-                    >
-                        <span className="text-sm font-light">+</span> {isCreateFormOpen ? 'Cancel' : 'Create Project'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => navigate(`/workspaces/${workspaceId}/invite`)}
+                            className="px-4 py-2 bg-white dark:bg-[#0a2f4e]/60 border border-sky-200 dark:border-cyan-400/15 hover:bg-sky-50 dark:hover:bg-[#0a2f4e] text-sky-700 dark:text-cyan-200 font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                        >
+                            ✉️ Invite Member
+                        </button>
+                        <button
+                            onClick={() => setIsCreateFormOpen((prev) => !prev)}
+                            className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-cyan-500/20 flex items-center gap-1.5"
+                        >
+                            <span className="text-sm font-light">+</span> {isCreateFormOpen ? 'Cancel' : 'Create Project'}
+                        </button>
+                    </div>
                 )}
             </header>
 
@@ -426,12 +493,13 @@ export const WorkspaceDetail: React.FC = () => {
                                                             ✏️
                                                         </button>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); navigate(`/workspaces/${workspaceId}/invite`); }}
+                                                            onClick={(e) => { e.stopPropagation(); navigate(`/workspaces/${workspaceId}/projects/${project.id}/assign`); }}
                                                             className="p-1.5 hover:bg-sky-200 dark:hover:bg-cyan-400/10 text-xs rounded-lg"
-                                                            title="Invite Member"
+                                                            title="Assign Member"
                                                         >
-                                                            ✉️
-                                                        </button>                                                        <button
+                                                            👥
+                                                        </button>
+                                                        <button
                                                             onClick={(e) => { e.stopPropagation(); handleDeleteProject(project); }}
                                                             className="p-1.5 hover:bg-rose-100 dark:hover:bg-rose-500/10 text-xs rounded-lg text-rose-500"
                                                             title="Delete Project"
