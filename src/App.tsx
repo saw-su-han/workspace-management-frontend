@@ -12,6 +12,7 @@ import { InviteMember } from './pages/ProjectInvitation';
 import { ProfilePage } from './pages/Profile';
 import { AcceptInvitation } from './pages/AcceptInvitation';
 import { SignupInvitation } from './pages/SignupInvitation';
+import { AssignMemberPage } from './pages/AssignMemberPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -98,6 +99,17 @@ export default function App() {
       <Route path="/signup-invitation/:token" element={
         <SignupInvitation />
       } />
+      <Route path="/workspaces/:workspaceId/projects/:projectId"
+        element={<ProtectedRoute>
+          <ProjectDetail />
+        </ProtectedRoute>
+        }
+      />
+      <Route path="/workspaces/:workspaceId/projects/:projectId/assign"
+        element={<ProtectedRoute>
+          <AssignMemberPage />
+        </ProtectedRoute>
+        } />
 
       {/* Catch-all Routing Redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />

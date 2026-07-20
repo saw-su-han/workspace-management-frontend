@@ -1,7 +1,6 @@
 // src/hooks/useAuth.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../Api/axiosClient";
-import { fa } from "zod/locales";
 
 export interface WorkspaceDetails {
     logo: any;
@@ -24,13 +23,26 @@ export interface AssignProjectPayload {
     projectId: number;
     userId: number;
     role?: "MEMBER" | "ADMIN" | "OWNER";
-}// export interface UserProfile {
-//     name?: string | null;
-//     avatar?: string | null;
-//     avatarUpdatedAt?: string | number | null;
-//     updatedAt?: string | number | null;
-// }
+}
 
+export interface ProjectUser {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string | null;
+}
+export interface ProjectMember {
+    user: ProjectUser;
+}
+
+export interface TaskItem {
+    id: number;
+    title?: string;
+    name?: string;
+    description?: string | null;
+    status?: string;
+    dueDate?: string | null;
+}
 export interface ProjectItem {
     id: number;
     name: string;
@@ -39,8 +51,10 @@ export interface ProjectItem {
     startDate?: string | null;
     endDate?: string | null;
     workspaceId: number;
+    members: ProjectMember[];
+    tasks: TaskItem[];
+    createdAt: string;
 }
-
 // Add this interface to your useAuth.ts file
 export interface WorkspaceMemberItem {
     workspaceId: number;
@@ -56,7 +70,9 @@ export interface AcceptInvitationResult {
     redirect?: string;
     email?: string;
     token?: string;
-}export const useWorkspaceMembers = (workspaceId: number) => {
+}
+
+export const useWorkspaceMembers = (workspaceId: number) => {
     return useQuery<WorkspaceMemberItem[]>({
         queryKey: ["workspaceMembers", workspaceId],
         queryFn: async () => {
@@ -99,21 +115,17 @@ export const useUpdateProfile = () => {
     return useMutation({
         mutationFn: async (formData: FormData) => {
             const res = await api.patch("/auth/profile", formData);
-            return res.data.data; // This returns the updated getProfileService object footprint
+            return res.data.data;
         },
         onSuccess: (updatedData) => {
-            // 🔥 THE ULTIMATE FIX: Force-overwrite the UI data cache state immediately
-            // This forces React to re-render without relying on network sync delays!
             queryClient.setQueryData(["profile"], updatedData);
 
-            // Re-verify down the pipe
             queryClient.invalidateQueries({ queryKey: ["profile"] });
         },
     });
 }; export const useRegister = () => {
     return useMutation({
         mutationFn: async (formData: FormData) => {
-            // REMOVED explicit header: Passing FormData lets Axios attach the native browser boundaries perfectly
             const res = await api.post("/auth/register", formData);
             return res.data;
         }
@@ -288,39 +300,21 @@ export const useDeleteProject = () => {
         },
     });
 };
-
-
-export const useProjectDetails = (projectId: number) => {
+export const useProjectDetails = (projectId: number, workspaceId: number) => {
     return useQuery<ProjectItem>({
-        queryKey: ["projectDetails", projectId],
+        queryKey: ["projectDetails", workspaceId, projectId],
         queryFn: async () => {
-            const res = await api.get(`/projects/${projectId}`);
+            const res = await api.get(`/workspaces/${workspaceId}/projects/${projectId}`);
             return res.data.data;
         },
-        enabled: !!projectId,
+        enabled: !!projectId && !!workspaceId,
     });
-};
-
-export interface InvitePayload {
+}; export interface InvitePayload {
     email: string;
     role: "MEMBER" | "ADMIN";
 }
 
-export const useInviteUser = (workspaceId: number) => {
-    const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: async (payload: InvitePayload) => {
-            const res = await api.post("/invitations/invite", payload, {
-                headers: { "x-workspace-id": String(workspaceId) },
-            });
-            return res.data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] });
-        },
-    });
-};
 
 export const useAcceptInvitation = (token: string | undefined) => {
     return useQuery<AcceptInvitationResult>({
@@ -353,6 +347,77 @@ export const useSignupWithInvitation = () => {
                 queryClient.setQueryData(["profile"], userData);
             }
             queryClient.invalidateQueries({ queryKey: ["profile"] });
+        },
+    });
+};
+
+export const useInviteUser = (workspaceId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (payload: InvitePayload) => {
+            const res = await api.post("/invitations/invite", payload, {
+                headers: { "x-workspace-id": String(workspaceId) },
+            });
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] });
+        },
+    });
+};
+export interface updateRole {
+    targetId: number,
+    newRole: "ADMIN" | "MEMBER",
+
+}
+export const useUpdateMemberRoleService = (workspaceId: number, targetId: number, ownerId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (updateRole: updateRole) => {
+            const res = await api.patch(`/invitations/members/roles`, {
+                targetId: updateRole.targetId,
+                role: updateRole.newRole,
+            });
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] });
+            queryClient.invalidateQueries({ queryKey: ["WorkspaceTargetMembers", targetId] });
+            queryClient.invalidateQueries({ queryKey: ["WorkspaceOwner", ownerId] })
+        }
+    })
+}
+export const useRemoveMember = (workspaceId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (targetId: number) => {
+            const res = await api.delete("/members", {
+                data: { targetId },
+            })
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] });
+        }
+    })
+}
+
+export const useAssignProjectMember = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (payload: { workspaceId: number; projectId: number; userId: number }) => {
+            const res = await api.post("/members", payload);
+            return res.data;
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: ["projectDetails", variables.workspaceId, variables.projectId]
+            });
+            queryClient.invalidateQueries({ queryKey: ["projectMembers", variables.projectId] });
         },
     });
 };

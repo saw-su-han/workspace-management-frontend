@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ConfirmModal } from '../Components/ConfirmModel';
 import {
     useWorkspaceDetails,
     useUpdateWorkspace,
@@ -9,9 +10,12 @@ import {
     useUpdateProject,
     useDeleteProject,
     useProfile,
-    type ProjectItem
+    useWorkspaceMembers,
+    useRemoveMember,
+    type ProjectItem,
+    type WorkspaceMemberItem
 } from '../hooks/useAuth';
-
+import { useUpdateMemberRoleService } from '../hooks/useAuth';
 const STATUS_STYLES: Record<string, { label: string; dot: string; text: string; bg: string; border: string }> = {
     PLANNING: {
         label: 'Planning',
@@ -62,6 +66,14 @@ export const WorkspaceDetail: React.FC = () => {
     const [newProjectName, setNewProjectName] = useState('');
     const [newProjectDescription, setNewProjectDescription] = useState('');
     const [createError, setCreateError] = useState<string | null>(null);
+
+    // --- DELETE WORKSPACE MODAL ---
+    const [isDeleteWorkspaceModalOpen, setIsDeleteWorkspaceModalOpen] = useState(false);
+
+    // --- MEMBERS TAB DATA ---
+    const { data: members, isLoading: isMembersLoading } = useWorkspaceMembers(workspaceId);
+    const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMember(workspaceId);
+    const [memberToRemove, setMemberToRemove] = useState<WorkspaceMemberItem | null>(null);
 
     const handleCreateProject = () => {
         const trimmed = newProjectName.trim();
@@ -144,7 +156,40 @@ export const WorkspaceDetail: React.FC = () => {
         }
     };
 
-    // Preview URL systems for local image staging
+    // --- REMOVE MEMBER ---
+    const confirmRemoveMember = () => {
+        if (!memberToRemove) return;
+        removeMember(memberToRemove.userId, {
+            onSuccess: () => setMemberToRemove(null),
+        });
+    };
+
+    // --- DELETE WORKSPACE ---
+    const handleDeleteWorkspace = () => {
+        setIsDeleteWorkspaceModalOpen(true);
+    };
+
+    const confirmDeleteWorkspace = () => {
+        deleteWorkspace(workspaceId, {
+            onSuccess: () => navigate('/dashboard'),
+        });
+    };
+
+    // need the current user's id to pass as ownerId
+    const currentUserId = userProfile?.userId ?? userProfile?.id;
+
+    const [roleUpdateTargetId, setRoleUpdateTargetId] = useState<number | null>(null);
+
+    const { mutate: updateMemberRole, isPending: isUpdatingRole } = useUpdateMemberRoleService(
+        workspaceId,
+        roleUpdateTargetId ?? 0,
+        currentUserId ?? 0
+    );
+
+    const handleRoleChange = (targetId: number, newRole: "ADMIN" | "MEMBER") => {
+        setRoleUpdateTargetId(targetId);
+        updateMemberRole({ workspaceId, targetId, newRole });
+    };    // Preview URL systems for local image staging
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     useEffect(() => {
@@ -196,14 +241,6 @@ export const WorkspaceDetail: React.FC = () => {
         const fd = new FormData();
         fd.append("name", nameDraft.trim());
         updateWorkspace(fd, { onSuccess: () => refetch() });
-    };
-
-    const handleDeleteWorkspace = () => {
-        if (window.confirm("Are you absolutely sure you want to delete this workspace? This cannot be undone.")) {
-            deleteWorkspace(workspaceId, {
-                onSuccess: () => navigate('/dashboard')
-            });
-        }
     };
 
     if (isLoading) {
@@ -336,21 +373,21 @@ export const WorkspaceDetail: React.FC = () => {
                         onClick={() => setActiveTab('projects')}
                         className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'projects' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
-                        <span className="flex items-center gap-2">📂 Projects</span>
+                        <span className="flex items-center gap-2"> Projects</span>
                         <span className="px-2 py-0.5 rounded-md text-[9px] font-mono bg-sky-100 dark:bg-[#0a2f4e]/60 text-sky-500 dark:text-cyan-400/50">{workspace?.totalProjects || 0}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('tasks')}
                         className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'tasks' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
-                        <span className="flex items-center gap-2">⚡ Tasks</span>
+                        <span className="flex items-center gap-2">Tasks</span>
                         <span className="px-2 py-0.5 rounded-md text-[9px] font-mono bg-sky-100 dark:bg-[#0a2f4e]/60 text-sky-500 dark:text-cyan-400/50">{workspace?.totalTasks || 0}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('members')}
                         className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${activeTab === 'members' ? 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/20 shadow-sm' : 'hover:bg-sky-100/60 dark:hover:bg-[#0a2f4e]/40 text-sky-500 dark:text-cyan-400/50 border border-transparent'}`}
                     >
-                        <span className="flex items-center gap-2">👥 Members</span>
+                        <span className="flex items-center gap-2"> Members</span>
                         <span className="px-2 py-0.5 rounded-md text-[9px] font-mono bg-sky-100 dark:bg-[#0a2f4e]/60 text-sky-500 dark:text-cyan-400/50">{workspace?.totalMembers || 0}</span>
                     </button>
                     <button
@@ -483,7 +520,6 @@ export const WorkspaceDetail: React.FC = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Control action buttons layout */}
                                                     <div className="opacity-0 group-hover:opacity-100 transition-all flex gap-1 flex-shrink-0">
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); openEditProject(project); }}
@@ -523,12 +559,79 @@ export const WorkspaceDetail: React.FC = () => {
                         </div>
                     )}
 
-                    {/* TASKS & MEMBERS PLACEHOLDERS */}
-                    {(activeTab === 'tasks' || activeTab === 'members') && (
+                    {/* TASKS PLACEHOLDER */}
+                    {activeTab === 'tasks' && (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                             <span className="text-3xl mb-3">🛠️</span>
                             <h3 className="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-cyan-300">Section Under Construction</h3>
                             <p className="text-[11px] text-sky-500/70 dark:text-cyan-400/40 mt-1 max-w-xs">Data links and board actions are currently routing exclusively through the core Projects workspace architecture.</p>
+                        </div>
+                    )}
+
+                    {/* MEMBERS TAB */}
+                    {activeTab === 'members' && (
+                        <div className="space-y-4">
+                            <div>
+                                <h2 className="text-base font-extrabold text-sky-950 dark:text-cyan-50">Workspace Members</h2>
+                                <p className="text-xs text-sky-500/80 dark:text-cyan-400/50 mt-1">
+                                    Manage who has access to this workspace.
+                                </p>
+                            </div>
+
+                            {isMembersLoading ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="w-8 h-8 rounded-full border-2 border-cyan-500 dark:border-cyan-400 border-t-transparent animate-spin" />
+                                </div>
+                            ) : !members || members.length === 0 ? (
+                                <div className="text-center p-12 border border-dashed border-sky-300/60 dark:border-cyan-400/20 rounded-3xl bg-sky-50/50 dark:bg-[#0a2f4e]/20">
+                                    <p className="text-xs text-sky-500/70 dark:text-cyan-400/50">No members yet.</p>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-sky-100 dark:divide-cyan-400/10 border border-sky-200 dark:border-cyan-400/10 rounded-2xl overflow-hidden">
+                                    {members.map((member) => {
+                                        console.log('member row:', member.userId, member.role, member);
+                                        return (
+                                            <div key={member.userId} className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#051923]/60">        <div className="flex items-center gap-3 min-w-0">
+                                                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-cyan-400 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white">
+                                                    {member.name?.charAt(0).toUpperCase() || '?'}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-bold text-sky-950 dark:text-cyan-50 truncate">{member.name}</p>
+                                                    <p className="text-[10px] text-sky-500/70 dark:text-cyan-400/50 truncate">{member.email}</p>
+                                                </div>
+                                            </div>
+                                                <div className="flex items-center gap-2 flex-shrink-0">
+                                                    {member.role === 'OWNER' ? (
+                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-sky-50 dark:bg-cyan-400/10 text-sky-600 dark:text-cyan-300 border border-sky-200 dark:border-cyan-400/20">
+                                                            OWNER
+                                                        </span>
+                                                    ) : (
+                                                        <select
+                                                            value={member.role}
+                                                            disabled={isUpdatingRole && roleUpdateTargetId === member.userId}
+                                                            onChange={(e) => handleRoleChange(member.userId, e.target.value as "ADMIN" | "MEMBER")}
+                                                            className="px-2 py-1 rounded-lg text-[10px] font-bold bg-sky-50 dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/20 text-sky-700 dark:text-cyan-200 outline-none disabled:opacity-50"
+                                                        >
+                                                            <option value="MEMBER">MEMBER</option>
+                                                            <option value="ADMIN">ADMIN</option>
+                                                        </select>
+
+                                                    )}
+
+                                                    {member.role !== 'OWNER' && (
+                                                        <button
+                                                            onClick={() => setMemberToRemove(member)}
+                                                            className="p-1.5 hover:bg-rose-100 dark:hover:bg-rose-500/10 text-xs rounded-lg text-rose-500"
+                                                            title="Remove member"
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    )}
+                                                </div>                                        </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -581,6 +684,29 @@ export const WorkspaceDetail: React.FC = () => {
                     )}
                 </main>
             </div>
+
+            {/* CONFIRM MODALS */}
+            <ConfirmModal
+                isOpen={!!memberToRemove}
+                title="Remove member"
+                message={`Remove ${memberToRemove?.name ?? 'this member'} from the workspace? They'll lose access immediately.`}
+                confirmLabel="Remove"
+                isLoading={isRemovingMember}
+                onConfirm={confirmRemoveMember}
+                onCancel={() => setMemberToRemove(null)}
+            />
+
+            <ConfirmModal
+                isOpen={isDeleteWorkspaceModalOpen}
+                title="Delete workspace"
+                message="This permanently deletes the workspace and all nested projects, tasks, and members. This cannot be undone."
+                confirmLabel="Delete Workspace"
+                onConfirm={() => {
+                    setIsDeleteWorkspaceModalOpen(false);
+                    confirmDeleteWorkspace();
+                }}
+                onCancel={() => setIsDeleteWorkspaceModalOpen(false)}
+            />
         </div>
     );
 };

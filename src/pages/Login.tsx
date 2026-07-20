@@ -59,7 +59,7 @@ export const Login = () => {
                     <Input
                         label="Password"
                         type="password"
-                        placeholder="••••••••"
+                        placeholder="password must be at least 6 characters"
                         error={errors.password?.message}
                         {...register("password")}
                     />

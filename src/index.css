@@ -1,29 +1,65 @@
 /* src/index.css */
-/* src/index.css */
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Add these premium colors inside the Tailwind v4 @theme directive */
 @theme {
-    /* The deep water backdrop layers */
-    --color-marine-950: #070b14;
-    --color-marine-900: #0b121f;
-    --color-marine-800: #121d30;
+    /* ==========================================
+       THEME 1: Cyber Nebula (Futuristic & High-Tech)
+       ========================================== */
+    /* Deep space background layers */
+    --color-space-950: #05050a;
+    --color-space-900: #090914;
+    --color-space-800: #111126;
 
-    /* The perfect crisp, modern Ocean Blue accent color */
-    --color-ocean-primary: #0284c7;
-    --color-ocean-hover: #0369a1;
-    --color-ocean-glow: #e0f2fe;
+    /* Electric neon accents */
+    --color-nebula-primary: #a855f7;
+    --color-nebula-hover: #c084fc;
+    --color-nebula-glow: #fae8ff;
 
-    /* Luxury slate tints for typography and borders */
-    --color-arctic-slate: #f3f6f9;
-    --color-arctic-frost: #f8fafc;
+    /* Crisp, silver-tinted text/borders */
+    --color-cyber-slate: #f4f4f6;
+    --color-cyber-frost: #fafafa;
+
+    /* ==========================================
+       THEME 2: Emerald Oasis (Luxury & Organic)
+       ========================================== */
+    /* Deep botanical forest layers */
+    --color-forest-950: #040807;
+    --color-forest-900: #09120f;
+    --color-forest-800: #12241e;
+
+    /* Vibrant, minty-emerald accents */
+    --color-oasis-primary: #10b981;
+    --color-oasis-hover: #059669;
+    --color-oasis-glow: #ecfdf5;
+
+    /* Clean cream/sage tints */
+    --color-sage-slate: #f2f5f3;
+    --color-sage-frost: #f8faf9;
+
+    /* ==========================================
+       THEME 3: Midnight Sunset (Warm & Moody Bold)
+       ========================================== */
+    /* Deep rich obsidian-purple layers */
+    --color-obsidian-950: #0a050c;
+    --color-obsidian-900: #120b17;
+    --color-obsidian-800: #201328;
+
+    /* Radiant sunset amber accents */
+    --color-amber-primary: #f59e0b;
+    --color-amber-hover: #d97706;
+    --color-amber-glow: #fef3c7;
+
+    /* Warm-toned light mode slates */
+    --color-dusk-slate: #f7f6f8;
+    --color-dusk-frost: #fafafb;
 }
 
 @layer base {
     body {
-        background-color: var(--color-arctic-slate);
+        /* Currently using Cyber Nebula for light mode. Swap variable to change! */
+        background-color: var(--color-cyber-slate);
         color: #1e293b;
         font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -32,12 +68,13 @@
     }
 
     .dark body {
-        background-color: var(--color-marine-900);
+        /* Currently using Cyber Nebula for dark mode. Swap variable to change! */
+        background-color: var(--color-space-900);
         color: #f1f5f9;
     }
 }
 
-/* 3. Your custom animations */
+/* Custom Oceanic Pop Animation */
 @keyframes oceanicPop {
     from {
         opacity: 0;

@@ -2,7 +2,7 @@ import React from 'react';
 
 interface UserProfile {
     name?: string | null;
-    avatar?: string | null;              // was avatarUrl
+    avatar?: string | null;
     avatarUpdatedAt?: string | number | null;
     updatedAt?: string | number | null;
 }
@@ -12,7 +12,6 @@ interface UserAvatarProps {
     className?: string;
 }
 
-// Ensure there is NO trailing slash here
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({
@@ -21,14 +20,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     className = "w-12 h-12 rounded-full object-cover"
 }) => {
 
-    // 1. If there's a local preview (unsaved file), use it instantly
     if (previewUrl) {
         return <img src={previewUrl} alt="Avatar Preview" className={className} />;
     }
 
-    const rawUrl = userProfile?.avatar;   // was userProfile?.avatarUrl
+    const rawUrl = userProfile?.avatar;
 
-    // 2. If no avatar image string exists in the DB profile, show fallback initials
     if (!rawUrl) {
         return (
             <div className={`${className} bg-indigo-600 flex items-center justify-center text-white font-bold text-sm uppercase`}>
