@@ -1,3 +1,4 @@
+// src/pages/InviteMemberPage.tsx
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useInviteUser, useWorkspaceInfo } from '../hooks/useAuth';
@@ -46,80 +47,107 @@ export function InviteMember() {
 
     if (loadingInfo) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-[#f3f6f9] dark:bg-[#0b121f] text-slate-400 dark:text-slate-500 text-xs font-bold tracking-widest uppercase">
-                <div className="flex flex-col items-center gap-2">
-                    <span className="text-xl animate-spin text-cyan-500 font-sans">⟳</span>
-                    Resolving workspace metrics...
-                </div>
+            <div className="relative flex h-screen flex-col items-center justify-center bg-[#DCEAF5] dark:bg-[#051C2E] text-[#0E3A5C] dark:text-[#E6F1F8] transition-colors duration-300 font-sans overflow-hidden">
+                <style>{`
+                    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+                    .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+                `}</style>
+                <div className="w-10 h-10 rounded-full border-2 border-[#1E5F87] dark:border-[#4A9DC7] border-t-transparent animate-spin mb-3" />
+                <span className="font-mono-nav text-[10px] font-bold tracking-[0.2em] text-[#0E3A5C]/60 dark:text-[#4A9DC7]/70 uppercase animate-pulse">
+                    Resolving Workspace Metrics...
+                </span>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen w-full bg-[#f8fafc] dark:bg-[#070d19] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+        <div className="relative min-h-screen bg-[#DCEAF5] dark:bg-[#051C2E] text-[#0E3A5C] dark:text-[#E6F1F8] flex flex-col transition-colors duration-300 font-sans overflow-hidden">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+                .font-display { font-family: 'Fraunces', ui-serif, Georgia, serif; }
+                .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+            `}</style>
 
-            <header className="w-full bg-white dark:bg-[#0b121f] border-b border-slate-200/80 dark:border-slate-800/60 sticky top-0 z-10 px-6 py-4">
-                <div className="max-w-5xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        {workspaceInfo?.workspaceLogo ? (
-                            <img
-                                src={workspaceInfo.workspaceLogo}
-                                alt="Workspace Logo"
-                                className="w-8 h-8 rounded-lg object-cover"
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-cyan-500 text-white font-black text-sm flex items-center justify-center">
-                                {workspaceInfo?.workspaceName?.charAt(0).toUpperCase() || 'W'}
-                            </div>
-                        )}
-                        <div>
-                            <h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-                                {workspaceInfo?.workspaceName || 'Workspace'}
-                            </h2>
-                            <p className="text-[10px] text-slate-400 font-medium">Workspace Context Environment</p>
+            {/* Background Chart Paper Grid & Atmosphere */}
+            <div
+                className="absolute inset-0 opacity-[0.4] dark:opacity-[0.25] pointer-events-none"
+                style={{
+                    backgroundImage: 'repeating-linear-gradient(0deg, rgba(14,58,92,0.035) 0px, rgba(14,58,92,0.035) 1px, transparent 1px, transparent 32px)',
+                }}
+            />
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#4A9DC7]/[0.08] blur-[160px] rounded-full pointer-events-none" />
+
+            {/* HEADER / NAVIGATION BAR */}
+            <header className="border-b border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12 bg-white/75 dark:bg-[#0A2E4A]/50 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-colors">
+                <div className="flex items-center gap-3">
+                    {workspaceInfo?.workspaceLogo ? (
+                        <img
+                            src={workspaceInfo.workspaceLogo}
+                            alt="Workspace Logo"
+                            className="w-8 h-8 rounded-lg object-cover border border-[#0E3A5C]/15 dark:border-[#4A9DC7]/20"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-lg bg-[#0E3A5C] dark:bg-[#4A9DC7] text-white dark:text-[#051C2E] font-bold text-xs flex items-center justify-center">
+                            {workspaceInfo?.workspaceName?.charAt(0).toUpperCase() || 'W'}
                         </div>
+                    )}
+                    <div>
+                        <h2 className="font-display font-semibold text-sm text-[#0E3A5C] dark:text-[#E6F1F8]">
+                            {workspaceInfo?.workspaceName || 'Workspace'}
+                        </h2>
+                        <p className="font-mono-nav text-[9px] uppercase tracking-wider text-[#1E5F87] dark:text-[#4A9DC7]">
+                            Workspace Context Environment
+                        </p>
                     </div>
-
-                    <nav className="flex items-center gap-1 text-xs font-bold">
-                        <button
-                            type="button"
-                            onClick={() => navigate(`/workspaces/${wId}`)}
-                            className="px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#111c30] transition-colors"
-                        >
-                            Overview
-                        </button>
-                        <span className="px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                            Invite Member
-                        </span>
-                    </nav>
                 </div>
+
+                <nav className="flex items-center gap-2 font-mono-nav text-xs font-bold">
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/workspaces/${wId}`)}
+                        className="px-3.5 py-1.5 rounded-lg text-[#0E3A5C]/60 dark:text-[#E6F1F8]/60 hover:text-[#0E3A5C] dark:hover:text-[#E6F1F8] transition-colors cursor-pointer"
+                    >
+                        Overview
+                    </button>
+                    <span className="px-3 py-1.5 rounded-lg bg-[#0E3A5C]/10 dark:bg-[#4A9DC7]/20 text-[#1E5F87] dark:text-[#4A9DC7]">
+                        Invite Member
+                    </span>
+                </nav>
             </header>
 
-            <main className="max-w-2xl mx-auto p-6 md:p-8">
-                <div className="bg-white dark:bg-[#0b121f] border border-slate-200/60 dark:border-slate-800/50 rounded-2xl p-6 md:p-8 shadow-sm">
+            {/* MAIN FORM CARD */}
+            <main className="flex-1 max-w-xl w-full mx-auto p-6 md:p-8 relative z-10">
+                <div className="relative border border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12 bg-white/75 dark:bg-[#0A2E4A]/50 p-6 md:p-8 rounded-2xl shadow-xl backdrop-blur-md overflow-hidden space-y-6">
+                    {/* Ticket Notches */}
+                    <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#DCEAF5] dark:bg-[#051C2E] border border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12" />
+                    <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#DCEAF5] dark:bg-[#051C2E] border border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12" />
 
-                    <div className="border-b border-slate-100 dark:border-slate-800/60 pb-5 mb-6">
-                        <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">
-                            Invite a Team Member
+                    <div className="border-b border-[#0E3A5C]/10 dark:border-[#4A9DC7]/15 pb-4">
+                        <h1 className="font-display font-semibold text-xl text-[#0E3A5C] dark:text-[#E6F1F8]">
+                            Invite Team Member
                         </h1>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            Send an invitation email to join <span className="text-cyan-600 dark:text-cyan-400 font-bold">{workspaceInfo?.workspaceName}</span>
+                        <p className="text-xs text-[#0E3A5C]/60 dark:text-[#E6F1F8]/60 mt-0.5">
+                            Send an invitation email to join{' '}
+                            <span className="font-bold text-[#1E5F87] dark:text-[#4A9DC7]">
+                                {workspaceInfo?.workspaceName}
+                            </span>
                         </p>
                     </div>
 
                     {feedbackMsg && (
-                        <div className={`p-3 rounded-xl border text-xs font-semibold mb-6 ${feedbackMsg.type === 'success'
-                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                            : 'bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
-                            }`}>
+                        <div
+                            className={`font-mono-nav p-3 rounded-xl border text-xs font-semibold ${feedbackMsg.type === 'success'
+                                    ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
+                                    : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                                }`}
+                        >
                             {feedbackMsg.text}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            <label className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-[#1E5F87] dark:text-[#4A9DC7]">
                                 Email Address
                             </label>
                             <input
@@ -128,12 +156,12 @@ export function InviteMember() {
                                 placeholder="teammate@company.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-3 py-2 bg-slate-50 dark:bg-[#0e1726] border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                className="w-full px-3.5 py-2 bg-white dark:bg-[#051C2E] border border-[#0E3A5C]/15 dark:border-[#4A9DC7]/20 rounded-lg text-xs text-[#0E3A5C] dark:text-[#E6F1F8] outline-none focus:border-[#4A9DC7] transition-all"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            <label className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-[#1E5F87] dark:text-[#4A9DC7]">
                                 Assign Role
                             </label>
                             <div className="grid grid-cols-2 gap-3">
@@ -142,29 +170,29 @@ export function InviteMember() {
                                         key={r}
                                         type="button"
                                         onClick={() => setRole(r)}
-                                        className={`p-3 text-center border rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${role === r
-                                            ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-500/5 text-cyan-600 dark:text-cyan-400 font-bold'
-                                            : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-500 dark:text-slate-400 text-xs'
+                                        className={`font-mono-nav p-3 border rounded-xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${role === r
+                                                ? 'border-[#4A9DC7] bg-white dark:bg-[#051C2E] text-[#1E5F87] dark:text-[#4A9DC7] font-bold shadow-sm'
+                                                : 'border-[#0E3A5C]/15 dark:border-[#4A9DC7]/20 bg-white/40 dark:bg-[#051C2E]/30 text-[#0E3A5C]/60 dark:text-[#E6F1F8]/60 text-xs'
                                             }`}
                                     >
-                                        <span className="text-[11px] font-extrabold tracking-wide">{r}</span>
+                                        <span className="text-xs font-bold tracking-wide">{r}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 flex justify-end gap-3">
+                        <div className="pt-4 border-t border-[#0E3A5C]/10 dark:border-[#4A9DC7]/15 flex justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={() => navigate(`/workspaces/${wId}`)}
-                                className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                                className="font-mono-nav px-4 py-2 text-xs font-bold text-[#0E3A5C]/60 hover:text-[#0E3A5C] dark:text-[#E6F1F8]/60 dark:hover:text-[#E6F1F8] transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={inviteMutation.isPending}
-                                className="px-5 py-2 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 disabled:opacity-50 text-white text-xs font-extrabold rounded-xl shadow-md transition-all"
+                                className="font-mono-nav px-5 py-2 bg-[#0E3A5C] dark:bg-[#4A9DC7] text-[#DCEAF5] dark:text-[#051C2E] text-xs font-bold uppercase rounded-lg shadow-md hover:bg-[#0E3A5C]/90 dark:hover:bg-[#4A9DC7]/90 disabled:opacity-40 transition-all cursor-pointer"
                             >
                                 {inviteMutation.isPending ? 'Sending...' : 'Send Invitation ✉️'}
                             </button>

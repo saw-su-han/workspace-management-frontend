@@ -147,13 +147,33 @@ export function ProjectDetail() {
                         </div>
 
                         {/* Created At Info Tag */}
-                        <div className="self-start px-3 py-2 rounded-xl bg-sky-50/50 dark:bg-[#0e3a5c]/40 border border-sky-100 dark:border-cyan-400/10 text-right">
-                            <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
-                                Created On
-                            </span>
-                            <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
-                                {formatDate(project.createdAt)}
-                            </span>
+                        <div className="self-start px-4 py-3 rounded-xl bg-sky-50/50 dark:bg-[#0e3a5c]/40 border border-sky-100 dark:border-cyan-400/10 space-y-2 min-w-[170px]">
+                            <div>
+                                <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
+                                    Created On
+                                </span>
+                                <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
+                                    {formatDate(project.createdAt)}
+                                </span>
+                            </div>
+
+                            <div>
+                                <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
+                                    Start Date
+                                </span>
+                                <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
+                                    {project.startDate || "No start Date provided"};
+                                </span>
+                            </div>
+
+                            <div>
+                                <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
+                                    End Date
+                                </span>
+                                <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
+                                    {project.endDate || "No end Date provided"};
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -218,7 +238,7 @@ export function ProjectDetail() {
                                     <div>
                                         <div className="flex items-center justify-between gap-2 mb-1">
                                             <h3 className="text-xs font-bold text-sky-950 dark:text-cyan-50">
-                                                {task.title || task.name}
+                                                {task.title}
                                             </h3>
                                             {task.status && (
                                                 <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md bg-sky-200/60 dark:bg-cyan-950 text-sky-700 dark:text-cyan-300">
@@ -245,6 +265,6 @@ export function ProjectDetail() {
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 }

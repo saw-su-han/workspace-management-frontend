@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../Components/ConfirmModel';
+import { TaskBoard } from '../Components/TaskBoard';
 import {
     useWorkspaceDetails,
     useUpdateWorkspace,
@@ -65,6 +66,8 @@ export const WorkspaceDetail: React.FC = () => {
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
     const [newProjectName, setNewProjectName] = useState('');
     const [newProjectDescription, setNewProjectDescription] = useState('');
+    const [newProjectStartDate, setNewProjectStartDate] = useState('');
+    const [newProjectEndDate, setNewProjectEndDate] = useState('');
     const [createError, setCreateError] = useState<string | null>(null);
 
     // --- DELETE WORKSPACE MODAL ---
@@ -81,13 +84,24 @@ export const WorkspaceDetail: React.FC = () => {
             setCreateError("Project name can't be empty.");
             return;
         }
+        if (newProjectStartDate && newProjectEndDate && newProjectEndDate < newProjectStartDate) {
+            setCreateError('End date must be after the start date.');
+            return;
+        }
         setCreateError(null);
         createProject(
-            { name: trimmed, description: newProjectDescription.trim() || undefined },
+            {
+                name: trimmed,
+                description: newProjectDescription.trim() || undefined,
+                startDate: newProjectStartDate || undefined,
+                endDate: newProjectEndDate || undefined,
+            },
             {
                 onSuccess: () => {
                     setNewProjectName('');
                     setNewProjectDescription('');
+                    setNewProjectStartDate('');
+                    setNewProjectEndDate('');
                     setIsCreateFormOpen(false);
                     refetchProjects();
                 },
@@ -102,15 +116,23 @@ export const WorkspaceDetail: React.FC = () => {
     const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
     const [editName, setEditName] = useState('');
     const [editDescription, setEditDescription] = useState('');
+    const [editStartDate, setEditStartDate] = useState('');
+    const [editEndDate, setEditEndDate] = useState('');
     const [editStatus, setEditStatus] = useState<'PLANNING' | 'ACTIVE' | 'COMPLETED'>('PLANNING');
     const [editError, setEditError] = useState<string | null>(null);
 
     const { mutate: updateProject, isPending: isUpdatingProject } = useUpdateProject(editingProject?.id ?? 0);
 
+    // Dates from the API may come back as full ISO datetimes (e.g. "2026-07-22T00:00:00.000Z"),
+    // but a <input type="date"> needs exactly "yyyy-mm-dd" or it'll silently show blank.
+    const toDateInputValue = (value?: string | null) => (value ? value.slice(0, 10) : '');
+
     const openEditProject = (project: ProjectItem) => {
         setEditingProject(project);
         setEditName(project.name);
         setEditDescription(project.description || '');
+        setEditStartDate(toDateInputValue(project.startDate));
+        setEditEndDate(toDateInputValue(project.endDate));
         setEditStatus(project.status);
         setEditError(null);
         setIsCreateFormOpen(false);
@@ -123,6 +145,10 @@ export const WorkspaceDetail: React.FC = () => {
             setEditError("Project name can't be empty.");
             return;
         }
+        if (editStartDate && editEndDate && editEndDate < editStartDate) {
+            setEditError('End date must be after the start date.');
+            return;
+        }
         setEditError(null);
 
         updateProject(
@@ -130,7 +156,9 @@ export const WorkspaceDetail: React.FC = () => {
                 workspaceId,
                 name: trimmed,
                 description: editDescription.trim() || undefined,
-                status: editStatus
+                startDate: editStartDate || undefined,
+                endDate: editEndDate || undefined,
+                status: editStatus,
             },
             {
                 onSuccess: () => {
@@ -147,14 +175,24 @@ export const WorkspaceDetail: React.FC = () => {
     // --- DELETE PROJECT ---
     const { mutate: deleteProject } = useDeleteProject();
 
-    const handleDeleteProject = (project: ProjectItem) => {
-        if (window.confirm(`Delete "${project.name}"? This cannot be undone.`)) {
-            deleteProject(
-                { workspaceId, projectId: project.id },
-                { onSuccess: () => refetchProjects() }
-            );
-        }
+    const [projectToDelete, setProjectToDelete] = useState<ProjectItem | null>(null);
+    const confirmDeleteProject = () => {
+        if (!projectToDelete) return;
+
+        deleteProject(
+            {
+                workspaceId,
+                projectId: projectToDelete.id,
+            },
+            {
+                onSuccess: () => {
+                    setProjectToDelete(null);
+                    refetchProjects();
+                },
+            }
+        );
     };
+
 
     // --- REMOVE MEMBER ---
     const confirmRemoveMember = () => {
@@ -443,6 +481,25 @@ export const WorkspaceDetail: React.FC = () => {
                                             placeholder="Short description (optional)"
                                             className="px-3.5 py-2.5 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none focus:ring-2 focus:ring-cyan-400/25 focus:border-cyan-500 dark:focus:border-cyan-400/50 transition-all placeholder:text-sky-400 dark:placeholder:text-cyan-400/30"
                                         />
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-[10px] font-bold text-sky-400 dark:text-cyan-400/50 pl-1">Start date (optional)</label>
+                                            <input
+                                                type="date"
+                                                value={newProjectStartDate}
+                                                onChange={(e) => setNewProjectStartDate(e.target.value)}
+                                                className="px-3.5 py-2.5 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none focus:ring-2 focus:ring-cyan-400/25 focus:border-cyan-500 dark:focus:border-cyan-400/50 transition-all"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-[10px] font-bold text-sky-400 dark:text-cyan-400/50 pl-1">End date (optional)</label>
+                                            <input
+                                                type="date"
+                                                value={newProjectEndDate}
+                                                min={newProjectStartDate || undefined}
+                                                onChange={(e) => setNewProjectEndDate(e.target.value)}
+                                                className="px-3.5 py-2.5 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none focus:ring-2 focus:ring-cyan-400/25 focus:border-cyan-500 dark:focus:border-cyan-400/50 transition-all"
+                                            />
+                                        </div>
                                     </div>
                                     {createError && <p className="text-[11px] text-rose-500 dark:text-rose-300 font-semibold">{createError}</p>}
                                     <div className="flex justify-end">
@@ -487,6 +544,27 @@ export const WorkspaceDetail: React.FC = () => {
                                                         onChange={(e) => setEditDescription(e.target.value)}
                                                         className="w-full px-3.5 py-2 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none"
                                                     />
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-bold text-sky-400 dark:text-cyan-400/50 pl-1">Start date</label>
+                                                            <input
+                                                                type="date"
+                                                                value={editStartDate}
+                                                                onChange={(e) => setEditStartDate(e.target.value)}
+                                                                className="w-full px-3.5 py-2 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-bold text-sky-400 dark:text-cyan-400/50 pl-1">End date</label>
+                                                            <input
+                                                                type="date"
+                                                                value={editEndDate}
+                                                                min={editStartDate || undefined}
+                                                                onChange={(e) => setEditEndDate(e.target.value)}
+                                                                className="w-full px-3.5 py-2 bg-white dark:bg-[#051923] border border-sky-200 dark:border-cyan-400/15 rounded-xl text-xs text-sky-950 dark:text-cyan-50 outline-none"
+                                                            />
+                                                        </div>
+                                                    </div>
                                                     <select
                                                         value={editStatus}
                                                         onChange={(e) => setEditStatus(e.target.value as any)}
@@ -536,12 +614,23 @@ export const WorkspaceDetail: React.FC = () => {
                                                             👥
                                                         </button>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); handleDeleteProject(project); }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setProjectToDelete(project);
+                                                            }}
                                                             className="p-1.5 hover:bg-rose-100 dark:hover:bg-rose-500/10 text-xs rounded-lg text-rose-500"
                                                             title="Delete Project"
                                                         >
                                                             🗑️
                                                         </button>
+                                                        <ConfirmModal
+                                                            isOpen={!!projectToDelete}
+                                                            title="Delete project"
+                                                            message={`Delete "${projectToDelete?.name}"? This action cannot be undone.`}
+                                                            confirmLabel="Delete"
+                                                            onConfirm={confirmDeleteProject}
+                                                            onCancel={() => setProjectToDelete(null)}
+                                                        />
                                                     </div>
                                                 </div>
 
@@ -550,6 +639,13 @@ export const WorkspaceDetail: React.FC = () => {
                                                         <span className={`w-1 h-1 rounded-full ${style.dot}`} />
                                                         {style.label}
                                                     </span>
+                                                    {(project.startDate || project.endDate) && (
+                                                        <span className="text-[9px] font-bold text-sky-400 dark:text-cyan-400/40">
+                                                            {project.startDate ? new Date(project.startDate).toLocaleDateString() : '—'}
+                                                            {' → '}
+                                                            {project.endDate ? new Date(project.endDate).toLocaleDateString() : '—'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
@@ -559,13 +655,9 @@ export const WorkspaceDetail: React.FC = () => {
                         </div>
                     )}
 
-                    {/* TASKS PLACEHOLDER */}
+                    {/* TASKS TAB */}
                     {activeTab === 'tasks' && (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                            <span className="text-3xl mb-3">🛠️</span>
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-cyan-300">Section Under Construction</h3>
-                            <p className="text-[11px] text-sky-500/70 dark:text-cyan-400/40 mt-1 max-w-xs">Data links and board actions are currently routing exclusively through the core Projects workspace architecture.</p>
-                        </div>
+                        <TaskBoard workspaceId={workspaceId} projects={projects} />
                     )}
 
                     {/* MEMBERS TAB */}
@@ -589,7 +681,6 @@ export const WorkspaceDetail: React.FC = () => {
                             ) : (
                                 <div className="divide-y divide-sky-100 dark:divide-cyan-400/10 border border-sky-200 dark:border-cyan-400/10 rounded-2xl overflow-hidden">
                                     {members.map((member) => {
-                                        console.log('member row:', member.userId, member.role, member);
                                         return (
                                             <div key={member.userId} className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#051923]/60">        <div className="flex items-center gap-3 min-w-0">
                                                 <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-cyan-400 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white">

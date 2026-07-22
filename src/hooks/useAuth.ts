@@ -10,6 +10,12 @@ export interface WorkspaceDetails {
     totalProjects: number;
     totalTasks: number;
 }
+export interface updateRole {
+    workspaceId: number;
+    targetId: number,
+    newRole: "ADMIN" | "MEMBER",
+
+}
 
 export interface WorkspaceInfo {
     workspaceId: number;
@@ -35,14 +41,6 @@ export interface ProjectMember {
     user: ProjectUser;
 }
 
-export interface TaskItem {
-    id: number;
-    title?: string;
-    name?: string;
-    description?: string | null;
-    status?: string;
-    dueDate?: string | null;
-}
 export interface ProjectItem {
     id: number;
     name: string;
@@ -71,6 +69,59 @@ export interface AcceptInvitationResult {
     email?: string;
     token?: string;
 }
+
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
+
+export interface TaskItem {
+    id: number;
+    title: string;
+    description?: string | null;
+    priority: TaskPriority;
+    status: TaskStatus;
+    dueDate?: string | null;
+    projectId?: number;
+}
+
+export interface TaskDetail extends TaskItem {
+    assignee?: {
+        id: number;
+        name: string;
+        email: string;
+        avatar?: string | null;
+    } | null;
+    project: {
+        id: number;
+        name: string;
+    }
+}
+
+export interface UpdateTaskPayload {
+    workspaceId: number;
+    title?: string;
+    description?: string;
+    priority?: TaskPriority;
+    status?: TaskStatus;
+    dueDate?: string;
+    assignedTo?: number;
+}
+export interface CreateTaskPayload {
+    workspaceId: number;
+    projectId: number;
+    title: string;
+    description?: string;
+    priority?: TaskPriority;
+    dueDate?: string;
+}
+
+export interface TaskFilters {
+    projectId?: number;
+    search?: string;
+    status?: TaskStatus;
+    assignedTo?: number;
+}
+
+
 
 export const useWorkspaceMembers = (workspaceId: number) => {
     return useQuery<WorkspaceMemberItem[]>({
@@ -280,6 +331,7 @@ export const useUpdateProject = (projectId: number) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["projects"] });
+
         },
     });
 };
@@ -305,6 +357,7 @@ export const useProjectDetails = (projectId: number, workspaceId: number) => {
         queryKey: ["projectDetails", workspaceId, projectId],
         queryFn: async () => {
             const res = await api.get(`/workspaces/${workspaceId}/projects/${projectId}`);
+            console.log(res.data.data);
             return res.data.data;
         },
         enabled: !!projectId && !!workspaceId,
@@ -366,11 +419,7 @@ export const useInviteUser = (workspaceId: number) => {
         },
     });
 };
-export interface updateRole {
-    targetId: number,
-    newRole: "ADMIN" | "MEMBER",
 
-}
 export const useUpdateMemberRoleService = (workspaceId: number, targetId: number, ownerId: number) => {
     const queryClient = useQueryClient();
 
@@ -394,7 +443,7 @@ export const useRemoveMember = (workspaceId: number) => {
 
     return useMutation({
         mutationFn: async (targetId: number) => {
-            const res = await api.delete("/members", {
+            const res = await api.delete("/invitations/members", {
                 data: { targetId },
             })
             return res.data;
@@ -418,6 +467,111 @@ export const useAssignProjectMember = () => {
                 queryKey: ["projectDetails", variables.workspaceId, variables.projectId]
             });
             queryClient.invalidateQueries({ queryKey: ["projectMembers", variables.projectId] });
+        },
+    });
+};
+
+// --- TASK HOOKS ---
+
+// GET /tasks?projectId=&search=&status=&assignedTo=
+// Works both scoped to a single project (pass projectId) and workspace-wide
+// (omit it) — the backend derives the workspace from the authenticated user.
+export const useTasksQuery = (filters?: TaskFilters, enabled = true) => {
+    return useQuery<TaskItem[]>({
+        queryKey: ['tasks', 'list', filters],
+        queryFn: async () => {
+            const { data } = await api.get('/tasks', { params: filters });
+            return data.data;
+        },
+        enabled,
+    });
+};
+
+export const useTaskDetails = (workspaceId: number, taskId: number | null) => {
+    return useQuery({
+        queryKey: ['tasks', 'detail', workspaceId, taskId],
+        queryFn: async (): Promise<TaskDetail> => {
+            const { data } = await api.get(`/workspaces/${workspaceId}/tasks/${taskId}`);
+            return data.data;
+        },
+        enabled: !!workspaceId && !!taskId,
+    });
+};
+
+
+export const useCreateTask = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (payload: CreateTaskPayload) => {
+            const { data } = await api.post('/tasks', payload);
+            return data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
+        },
+    });
+};
+
+export const useAssignTask = (workspaceId: number, taskId: number) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (assignedTo: number) => {
+            const { data } = await api.patch(
+                `/workspaces/${workspaceId}/tasks/${taskId}/assign`,
+                { assignedTo },
+            );
+            return data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'detail', workspaceId, taskId] });
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
+        },
+    });
+};
+
+// PATCH /tasks/:taskId  (title, description, priority, status, dueDate, assignedTo)
+export const useUpdateTask = (taskId: number) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (payload: UpdateTaskPayload) => {
+            const { data } = await api.patch(`/tasks/${taskId}`, payload);
+            return data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'detail'] });
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
+        },
+    });
+};
+
+// PATCH /workspaces/:workspaceId/tasks/:taskId/status  (assignee-only quick toggle)
+export const useUpdateTaskStatus = (workspaceId: number, taskId: number) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (status: 'todo' | 'in-progress' | 'done') => {
+            const { data } = await api.patch(
+                `/workspaces/${workspaceId}/tasks/${taskId}/status`,
+                { status },
+            );
+            return data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'detail', workspaceId, taskId] });
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
+        },
+    });
+};
+
+// DELETE /workspaces/:workspaceId/tasks/:taskId
+export const useDeleteTask = (workspaceId: number) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (taskId: number) => {
+            const { data } = await api.delete(`/workspaces/${workspaceId}/tasks/${taskId}`);
+            return data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
         },
     });
 };
