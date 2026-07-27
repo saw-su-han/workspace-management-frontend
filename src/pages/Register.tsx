@@ -1,4 +1,3 @@
-// src/pages/Register.tsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -64,94 +63,117 @@ export const Register = () => {
         }
     }, [registerMutation.isSuccess, navigate]);
 
-    return (
+    const HeaderNav = (
         <>
-            <div className="fixed top-4 right-4 z-50">
-                <ThemeToggle />
-            </div>
-
-            <AuthCard title="Get Started" subtitle="Establish your team workspace profile">
-                {registerMutation.isSuccess && (
-                    <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-5 text-center tracking-wide font-mono-nav">
-                        Workspace created! Redirecting to login...
-                    </div>
-                )}
-                {registerMutation.isError && (
-                    <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-600 dark:text-red-400 mb-5 text-center tracking-wide font-mono-nav">
-                        {(registerMutation.error as any).response?.data?.message || "Registration failed"}
-                    </div>
-                )}
-
-                <form className="space-y-3.5" onSubmit={handleSubmit(onSubmit, onValidationError)}>
-                    <Input label="Your Name" type="text" placeholder="Alex Carter" error={errors.name?.message} {...register("name")} />
-                    <Input label="Work Email" type="email" placeholder="alex@company.com" error={errors.email?.message} {...register("email")} />
-
-                    <div className="relative">
-                        <Input
-                            label="Password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="At least 8 characters, 1 uppercase, 1 number"
-                            error={errors.password?.message}
-                            {...register("password")}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            tabIndex={-1}
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                            className="absolute right-3 top-[34px] text-[#0E3A5C]/40 hover:text-[#0E3A5C] dark:text-[#4A9DC7]/50 dark:hover:text-[#4A9DC7] transition-colors"
-                        >
-                            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                        </button>
-                    </div>
-
-                    <div className="relative">
-                        <Input
-                            label="Confirm Password"
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Re-enter your password"
-                            error={errors.confirmPassword?.message}
-                            {...register("confirmPassword")}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword((prev) => !prev)}
-                            tabIndex={-1}
-                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                            className="absolute right-3 top-[34px] text-[#0E3A5C]/40 hover:text-[#0E3A5C] dark:text-[#4A9DC7]/50 dark:hover:text-[#4A9DC7] transition-colors"
-                        >
-                            {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
-                        </button>
-                    </div>
-
-                    <Input label="Workspace Name" type="text" placeholder="Acme Labs" error={errors.workspaceName?.message} {...register("workspaceName")} />
-
-                    <div className="grid grid-cols-2 gap-3 pt-1">
-                        <FileField label="User Avatar" onChange={setAvatar} />
-                        <FileField label="Brand Logo" onChange={setLogo} />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={registerMutation.isPending || registerMutation.isSuccess}
-                        className="font-mono-nav w-full mt-3 rounded-lg bg-[#0E3A5C] dark:bg-[#4A9DC7] text-[#DCEAF5] dark:text-[#051C2E] hover:bg-[#0E3A5C]/90 dark:hover:bg-[#4A9DC7]/90 active:scale-[0.99] disabled:opacity-50 py-3 text-xs font-bold uppercase tracking-wide transition-all shadow-md cursor-pointer"
-                    >
-                        {registerMutation.isPending ? "Creating Space..." : "Register Workspace"}
-                    </button>
-                </form>
-
-                <div className="mt-6 flex flex-col items-center gap-2 border-t border-[#0E3A5C]/10 dark:border-[#4A9DC7]/15 pt-4 text-xs font-medium text-[#0E3A5C]/60 dark:text-[#E6F1F8]/50">
-                    <span>
-                        Have an active account?{" "}
-                        <Link to="/login" className="text-[#1E5F87] dark:text-[#4A9DC7] font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
-                            Log in
-                        </Link>
-                    </span>
-                    <Link to="/" className="font-mono-nav text-[11px] text-[#0E3A5C]/50 hover:text-[#0E3A5C] dark:text-[#4A9DC7]/60 dark:hover:text-[#4A9DC7] flex items-center gap-1 transition-colors mt-1">
-                        ← Return to Introduction
-                    </Link>
+            <Link to="/" className="flex items-center gap-3 group">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-mint-900 to-mint-600 shadow-md shadow-mint-500/20 ring-1 ring-mint-700/30 group-hover:scale-105 transition-transform">
+                    <span className="font-display text-lg font-semibold text-mint-50">≈</span>
                 </div>
-            </AuthCard>
+                <span className="text-xl font-bold tracking-tight text-mint-900 dark:text-mint-50 font-display">
+                    Project<span className="text-mint-700 dark:text-mint-400">Hive</span>
+                </span>
+            </Link>
+
+            <nav className="flex items-center gap-4 sm:gap-6">
+                <Link
+                    to="/"
+                    className="font-mono-nav text-xs font-semibold tracking-wider text-mint-900/70 hover:text-mint-900 dark:text-mint-300/80 dark:hover:text-mint-300 transition-colors uppercase"
+                >
+                    Home
+                </Link>
+                <Link
+                    to="/login"
+                    className="font-mono-nav text-xs font-semibold tracking-wider px-3.5 py-1.5 rounded-lg bg-mint-900/10 dark:bg-mint-300/15 hover:bg-mint-900/20 dark:hover:bg-mint-300/25 text-mint-900 dark:text-mint-50 transition-all uppercase"
+                >
+                    Sign In
+                </Link>
+                <ThemeToggle />
+            </nav>
         </>
+    );
+
+    return (
+        <AuthCard title="Get Started" subtitle="Establish your team workspace profile" headerNav={HeaderNav}>
+            {registerMutation.isSuccess && (
+                <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-5 text-center tracking-wide font-mono-nav">
+                    Workspace created! Redirecting to login...
+                </div>
+            )}
+            {registerMutation.isError && (
+                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-600 dark:text-red-400 mb-5 text-center tracking-wide font-mono-nav">
+                    {(registerMutation.error as any).response?.data?.message || "Registration failed"}
+                </div>
+            )}
+
+            <form className="space-y-3.5" onSubmit={handleSubmit(onSubmit, onValidationError)}>
+                <Input label="Your Name" type="text" placeholder="Alex Carter" error={errors.name?.message} {...register("name")} />
+                <Input label="Work Email" type="email" placeholder="alex@company.com" error={errors.email?.message} {...register("email")} />
+
+                <div className="relative">
+                    <Input
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="At least 8 characters, 1 uppercase, 1 number"
+                        error={errors.password?.message}
+                        {...register("password")}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        tabIndex={-1}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        className="absolute right-3 top-[34px] text-mint-900/40 hover:text-mint-900 dark:text-mint-300/50 dark:hover:text-mint-300 transition-colors"
+                    >
+                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                    </button>
+                </div>
+
+                <div className="relative">
+                    <Input
+                        label="Confirm Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Re-enter your password"
+                        error={errors.confirmPassword?.message}
+                        {...register("confirmPassword")}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        tabIndex={-1}
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        className="absolute right-3 top-[34px] text-mint-900/40 hover:text-mint-900 dark:text-mint-300/50 dark:hover:text-mint-300 transition-colors"
+                    >
+                        {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+                    </button>
+                </div>
+
+                <Input label="Workspace Name" type="text" placeholder="Acme Labs" error={errors.workspaceName?.message} {...register("workspaceName")} />
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                    <FileField label="User Avatar" onChange={setAvatar} />
+                    <FileField label="Brand Logo" onChange={setLogo} />
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={registerMutation.isPending || registerMutation.isSuccess}
+                    className="font-mono-nav w-full mt-3 rounded-lg bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 hover:bg-mint-800 dark:hover:bg-mint-300 active:scale-[0.99] disabled:opacity-50 py-3 text-xs font-bold uppercase tracking-wide transition-all shadow-md cursor-pointer"
+                >
+                    {registerMutation.isPending ? "Creating Space..." : "Register Workspace"}
+                </button>
+            </form>
+
+            <div className="mt-6 flex flex-col items-center gap-2 border-t border-mint-900/10 dark:border-mint-300/15 pt-4 text-xs font-medium text-mint-900/60 dark:text-mint-100/50">
+                <span>
+                    Have an active account?{" "}
+                    <Link to="/login" className="text-mint-700 dark:text-mint-300 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
+                        Log in
+                    </Link>
+                </span>
+                <Link to="/" className="font-mono-nav text-[11px] text-mint-900/50 hover:text-mint-900 dark:text-mint-300/60 dark:hover:text-mint-300 flex items-center gap-1 transition-colors mt-1">
+                    ← Return to Introduction
+                </Link>
+            </div>
+        </AuthCard>
     );
 };

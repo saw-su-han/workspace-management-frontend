@@ -1,66 +1,29 @@
-/* src/index.css */
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
     /* ==========================================
-       THEME 1: Cyber Nebula (Futuristic & High-Tech)
+       Tropical Mint Palette
        ========================================== */
-    /* Deep space background layers */
-    --color-space-950: #05050a;
-    --color-space-900: #090914;
-    --color-space-800: #111126;
-
-    /* Electric neon accents */
-    --color-nebula-primary: #a855f7;
-    --color-nebula-hover: #c084fc;
-    --color-nebula-glow: #fae8ff;
-
-    /* Crisp, silver-tinted text/borders */
-    --color-cyber-slate: #f4f4f6;
-    --color-cyber-frost: #fafafa;
-
-    /* ==========================================
-       THEME 2: Emerald Oasis (Luxury & Organic)
-       ========================================== */
-    /* Deep botanical forest layers */
-    --color-forest-950: #040807;
-    --color-forest-900: #09120f;
-    --color-forest-800: #12241e;
-
-    /* Vibrant, minty-emerald accents */
-    --color-oasis-primary: #10b981;
-    --color-oasis-hover: #059669;
-    --color-oasis-glow: #ecfdf5;
-
-    /* Clean cream/sage tints */
-    --color-sage-slate: #f2f5f3;
-    --color-sage-frost: #f8faf9;
-
-    /* ==========================================
-       THEME 3: Midnight Sunset (Warm & Moody Bold)
-       ========================================== */
-    /* Deep rich obsidian-purple layers */
-    --color-obsidian-950: #0a050c;
-    --color-obsidian-900: #120b17;
-    --color-obsidian-800: #201328;
-
-    /* Radiant sunset amber accents */
-    --color-amber-primary: #f59e0b;
-    --color-amber-hover: #d97706;
-    --color-amber-glow: #fef3c7;
-
-    /* Warm-toned light mode slates */
-    --color-dusk-slate: #f7f6f8;
-    --color-dusk-frost: #fafafb;
+    --color-mint-50: #e7fdf9;
+    --color-mint-100: #cffcf3;
+    --color-mint-200: #a0f8e7;
+    --color-mint-300: #70f5da;
+    --color-mint-400: #40f2ce;
+    --color-mint-500: #11eec2;
+    /* Base accent */
+    --color-mint-600: #0dbf9b;
+    --color-mint-700: #0a8f74;
+    --color-mint-800: #075f4e;
+    --color-mint-900: #033027;
+    --color-mint-950: #02211b;
 }
 
 @layer base {
     body {
-        /* Currently using Cyber Nebula for light mode. Swap variable to change! */
-        background-color: var(--color-cyber-slate);
-        color: #1e293b;
+        background-color: var(--color-mint-50);
+        color: var(--color-mint-900);
         font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
         -webkit-font-smoothing: antialiased;
         transition-property: background-color, border-color, color;
@@ -68,25 +31,7 @@
     }
 
     .dark body {
-        /* Currently using Cyber Nebula for dark mode. Swap variable to change! */
-        background-color: var(--color-space-900);
-        color: #f1f5f9;
+        background-color: var(--color-mint-950);
+        color: var(--color-mint-50);
     }
-}
-
-/* Custom Oceanic Pop Animation */
-@keyframes oceanicPop {
-    from {
-        opacity: 0;
-        transform: scale(0.99) translateY(4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.animate-ocean {
-    animation: oceanicPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }

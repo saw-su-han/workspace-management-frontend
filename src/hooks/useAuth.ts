@@ -3,6 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../Api/axiosClient";
 
 export interface WorkspaceDetails {
+    name: string;
+    members: string;
+    projects: string;
+    tasks: string;
     logo: any;
     workspaceId: number;
     workspaceName: string;
@@ -61,6 +65,7 @@ export interface WorkspaceMemberItem {
     role: "OWNER" | "ADMIN" | "MEMBER";
     status: string;
     userId: number;
+    avatar?: string | null;
 }
 export interface AcceptInvitationResult {
     success: boolean;
@@ -81,6 +86,12 @@ export interface TaskItem {
     status: TaskStatus;
     dueDate?: string | null;
     projectId?: number;
+    assignee?: {
+        id: number;
+        name: string;
+        email: string;
+        avatar?: string | null;
+    } | null;
 }
 
 export interface TaskDetail extends TaskItem {
@@ -112,17 +123,44 @@ export interface CreateTaskPayload {
     description?: string;
     priority?: TaskPriority;
     dueDate?: string;
+    assignedTo?: number;
 }
 
 export interface TaskFilters {
+    workspaceId: number;
     projectId?: number;
     search?: string;
     status?: TaskStatus;
     assignedTo?: number;
 }
 
+export interface CommentAuthor {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string | null;
+}
 
+export interface CommentItem {
+    id: number;
+    content: string;
+    createdAt: string;
+    author: CommentAuthor;
+}
 
+export interface NotificationItem {
+
+    id: number;
+    title: string;
+    message?: string;
+    workspaceId: number;
+    createdAt: string;
+}
+
+export interface UserNotificationItem {
+    notification: NotificationItem;
+    isRead?: boolean;
+}
 export const useWorkspaceMembers = (workspaceId: number) => {
     return useQuery<WorkspaceMemberItem[]>({
         queryKey: ["workspaceMembers", workspaceId],
@@ -426,6 +464,7 @@ export const useUpdateMemberRoleService = (workspaceId: number, targetId: number
     return useMutation({
         mutationFn: async (updateRole: updateRole) => {
             const res = await api.patch(`/invitations/members/roles`, {
+                workspaceId: updateRole.workspaceId,
                 targetId: updateRole.targetId,
                 role: updateRole.newRole,
             });
@@ -471,11 +510,7 @@ export const useAssignProjectMember = () => {
     });
 };
 
-// --- TASK HOOKS ---
 
-// GET /tasks?projectId=&search=&status=&assignedTo=
-// Works both scoped to a single project (pass projectId) and workspace-wide
-// (omit it) — the backend derives the workspace from the authenticated user.
 export const useTasksQuery = (filters?: TaskFilters, enabled = true) => {
     return useQuery<TaskItem[]>({
         queryKey: ['tasks', 'list', filters],
@@ -545,19 +580,29 @@ export const useUpdateTask = (taskId: number) => {
 };
 
 // PATCH /workspaces/:workspaceId/tasks/:taskId/status  (assignee-only quick toggle)
-export const useUpdateTaskStatus = (workspaceId: number, taskId: number) => {
+export const useUpdateTaskStatus = (workspaceId: number) => {
     const queryClient = useQueryClient();
+
     return useMutation({
-        mutationFn: async (status: 'todo' | 'in-progress' | 'done') => {
+        mutationFn: async ({
+            taskId,
+            status,
+        }: {
+            taskId: number;
+            status: 'todo' | 'in-progress' | 'done';
+        }) => {
             const { data } = await api.patch(
                 `/workspaces/${workspaceId}/tasks/${taskId}/status`,
                 { status },
             );
+
             return data.data;
         },
+
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks', 'detail', workspaceId, taskId] });
-            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
+            queryClient.invalidateQueries({
+                queryKey: ['tasks', 'list'],
+            });
         },
     });
 };
@@ -575,3 +620,95 @@ export const useDeleteTask = (workspaceId: number) => {
         },
     });
 };
+
+export const useTaskComments = (workspaceId: number, taskId: number | null) => {
+    return useQuery<CommentItem[]>({
+        queryKey: ['tasks', 'comments', workspaceId, taskId],
+        queryFn: async () => {
+            const { data } = await api.get(
+                `/workspaces/${workspaceId}/tasks/${taskId}/comments`,
+
+            );
+            return data.data;
+        },
+        enabled: !!workspaceId && !!taskId,
+    })
+}
+
+export const useCreateComment = (workspaceId: number, taskId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (content: string) => {
+            const { data } = await api.post('/comments', {
+                workspaceId,
+                taskId,
+                content,
+            });
+            return data.data as CommentItem;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['tasks', 'comments', workspaceId, taskId],
+            });
+        },
+    });
+}
+export const useComments = (workspaceId: number, taskId: number | null) => {
+    return useQuery<CommentItem[]>({
+        queryKey: ['tasks', 'comments', workspaceId, taskId],
+        queryFn: async () => {
+            const { data } = await api.get(`/workspaces/${workspaceId}/tasks/${taskId}/comments`);
+            return data.data;
+        },
+        enabled: !!workspaceId && !!taskId,
+    });
+};
+
+export const useUserNotifications = (workspaceId: number) => {
+    return useQuery<UserNotificationItem[]>({
+        queryKey: ['notifications', workspaceId],
+        queryFn: async () => {
+            const { data } = await api.get(`/workspaces/${workspaceId}/notifications`);
+            return data.data || data;
+        },
+        enabled: !!workspaceId,
+    });
+};
+
+export const useMarkNotificationAsRead = (workspaceId: number) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (notificationId: number) => {
+            const { data } = await api.patch(`/notifications/${notificationId}/read`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
+        },
+    });
+};
+
+
+
+export function useMarkAllNotificationsAsRead(workspaceId: number) {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: () =>
+            api.patch(`/workspaces/${workspaceId}/notifications/read-all`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
+        },
+    });
+}
+
+export function useClearAllNotifications(workspaceId: number) {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: () =>
+            api.delete(`/workspaces/${workspaceId}/notifications/delete`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
+        },
+    });
+}

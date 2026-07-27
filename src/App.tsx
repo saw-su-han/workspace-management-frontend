@@ -2,7 +2,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from './context/AuthContext';
-import { Home } from './pages/Home';
+import { Home } from './pages/Home'
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { DashboardLayout } from './pages/DashboardLayout';
@@ -13,6 +13,9 @@ import { ProfilePage } from './pages/Profile';
 import { AcceptInvitation } from './pages/AcceptInvitation';
 import { SignupInvitation } from './pages/SignupInvitation';
 import { AssignMemberPage } from './pages/AssignMemberPage';
+import { TaskDetail } from './pages/TaskDetail';
+import { TaskAssign } from './pages/TaskAssign';
+import { NotificationsPage } from './Components/NotificationsModal';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -110,6 +113,11 @@ export default function App() {
           <AssignMemberPage />
         </ProtectedRoute>
         } />
+
+      <Route path="/workspaces/:workspaceId/tasks/:taskId" element={<TaskDetail />} />
+      <Route path="/workspaces/:workspaceId/tasks/:taskId/assign" element={<TaskAssign />} />
+      <Route path="/workspaces/:workspaceId/notifications" element={<NotificationsPage />} />
+
 
       {/* Catch-all Routing Redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />

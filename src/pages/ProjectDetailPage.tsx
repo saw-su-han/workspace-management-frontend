@@ -1,6 +1,7 @@
 // src/pages/ProjectDetailPage.tsx
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Icon } from '@iconify/react';
 import { useProjectDetails } from '../hooks/useAuth';
 
 export function ProjectDetail() {
@@ -24,10 +25,10 @@ export function ProjectDetail() {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-sky-50 dark:bg-[#051923] text-sky-950 dark:text-cyan-50">
+            <div className="flex h-screen w-full items-center justify-center bg-white dark:bg-mint-950 text-mint-900 dark:text-mint-50">
                 <div className="flex flex-col items-center gap-2">
-                    <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
-                    <span className="text-xs font-bold tracking-wider uppercase text-sky-500 dark:text-cyan-400">
+                    <div className="w-8 h-8 rounded-full border-2 border-mint-600 border-t-transparent animate-spin" />
+                    <span className="font-mono-nav text-xs font-bold tracking-wider uppercase text-mint-700 dark:text-mint-400">
                         Loading Project Details...
                     </span>
                 </div>
@@ -42,20 +43,20 @@ export function ProjectDetail() {
             "Could not resolve project space.";
 
         return (
-            <div className="flex h-screen w-full flex-col items-center justify-center bg-sky-50 dark:bg-[#051923] gap-4 p-4 text-center">
-                <div className="rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 p-6 max-w-md w-full">
-                    <span className="text-2xl mb-2 block">⚠️</span>
-                    <h3 className="text-sm font-bold text-rose-600 dark:text-rose-400 mb-1">
+            <div className="flex h-screen w-full flex-col items-center justify-center bg-white dark:bg-mint-950 gap-4 p-4 text-center">
+                <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-6 max-w-md w-full backdrop-blur-md">
+                    <Icon icon="solar:danger-triangle-bold-duotone" className="w-8 h-8 text-rose-500 mx-auto mb-2" />
+                    <h3 className="font-display text-xs font-bold text-rose-600 dark:text-rose-400 mb-1">
                         Failed to Load Project
                     </h3>
-                    <p className="text-xs text-rose-500 dark:text-rose-300 font-medium">
+                    <p className="font-mono-nav text-[11px] text-rose-500 dark:text-rose-300 font-medium">
                         {apiErrorMessage}
                     </p>
                 </div>
 
                 <button
                     onClick={() => navigate(`/workspaces/${isNaN(wId) ? '' : wId}`)}
-                    className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-xl shadow-md transition-all"
+                    className="font-mono-nav px-4 py-2 bg-mint-900 dark:bg-mint-400 hover:bg-mint-800 dark:hover:bg-mint-300 text-mint-50 dark:text-mint-950 text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
                 >
                     Return to Workspace
                 </button>
@@ -66,48 +67,59 @@ export function ProjectDetail() {
     const getStatusStyle = (status: string) => {
         switch (status) {
             case 'ACTIVE':
-                return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+                return 'bg-emerald-500/[0.04] dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-300 border-emerald-500/20';
             case 'COMPLETED':
-                return 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20';
+                return 'bg-mint-500/[0.04] dark:bg-mint-400/10 text-mint-800 dark:text-mint-300 border-mint-900/15 dark:border-mint-300/15';
             default: // PLANNING
-                return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+                return 'bg-amber-500/[0.04] dark:bg-amber-400/10 text-amber-600 dark:text-amber-300 border-amber-500/20';
         }
     };
 
     return (
-        <div className="min-h-screen w-full bg-sky-50 dark:bg-[#051923] text-sky-950 dark:text-cyan-50 transition-colors duration-300">
+        <div className="min-h-screen w-full bg-white dark:bg-mint-950 text-mint-900 dark:text-mint-50 transition-colors duration-300">
 
             {/* Top Navigation Bar */}
-            <nav className="border-b border-sky-200/70 dark:border-cyan-400/10 bg-white/80 dark:bg-[#051923]/80 backdrop-blur-md sticky top-0 z-30 px-6 py-3.5 mb-6">
+            <nav className="border-b border-mint-900/10 dark:border-mint-300/15 bg-white/80 dark:bg-mint-950/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
 
-                    {/* Breadcrumb Navigation */}
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-cyan-400/60">
+                    {/* Left: Back Button with Text instead of just Arrow + Breadcrumbs */}
+                    <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate(`/workspaces/${wId}`)}
-                            className="hover:text-sky-600 dark:hover:text-cyan-300 transition-colors"
+                            className="font-mono-nav px-3.5 py-2 bg-white/50 dark:bg-mint-900/40 hover:bg-white dark:hover:bg-mint-900 border border-mint-900/15 dark:border-mint-300/15 rounded-xl text-xs font-bold text-mint-900 dark:text-mint-50 transition-all shadow-sm cursor-pointer flex items-center gap-2"
                         >
-                            Workspace #{wId}
+                            <Icon icon="solar:arrow-left-linear" className="w-4 h-4 text-mint-700 dark:text-mint-400" />
+                            <span>Back to Workspace</span>
                         </button>
-                        <span>/</span>
-                        <span className="text-sky-600 dark:text-cyan-300 font-bold">{project.name}</span>
+
+                        <div className="hidden sm:block space-y-0.5 border-l border-mint-900/10 dark:border-mint-300/15 pl-4">
+                            <div className="font-mono-nav flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-mint-800/60 dark:text-mint-300/60">
+                                <span>Workspace #{wId}</span>
+                                <span>/</span>
+                                <span className="text-mint-700 dark:text-mint-400">Project View</span>
+                            </div>
+                            <h1 className="font-display text-base font-black tracking-tight text-mint-900 dark:text-mint-50">
+                                {project.name}
+                            </h1>
+                        </div>
                     </div>
 
-                    {/* Actions Navbar */}
-                    <div className="flex items-center gap-3">
+                    {/* Right: Actions */}
+                    <div className="flex items-center gap-2.5">
                         <button
                             onClick={() => navigate(`/workspaces/${wId}`)}
-                            className="px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-cyan-300 hover:bg-sky-100 dark:hover:bg-cyan-500/10 rounded-xl transition-all"
+                            className="font-mono-nav px-3.5 py-2 text-xs font-bold text-mint-900/70 dark:text-mint-300/70 hover:bg-white/50 dark:hover:bg-mint-900/40 border border-mint-900/15 dark:border-mint-300/15 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                         >
+                            <Icon icon="solar:folder-bold-duotone" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" />
                             All Projects
                         </button>
 
                         <button
                             onClick={() => navigate(`/workspaces/${wId}/projects/${pId}/assign`)}
-                            className="px-4 py-1.5 bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-white text-xs font-extrabold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                            className="font-mono-nav px-4 py-2 bg-mint-900 dark:bg-mint-400 hover:bg-mint-800 dark:hover:bg-mint-300 text-mint-50 dark:text-mint-950 text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                         >
+                            <Icon icon="solar:users-group-rounded-bold" className="w-3.5 h-3.5 text-mint-400 dark:text-mint-950" />
                             <span>Manage Assignments</span>
-                            <span>👥</span>
                         </button>
                     </div>
 
@@ -115,63 +127,65 @@ export function ProjectDetail() {
             </nav>
 
             {/* Main Content Area */}
-            <div className="max-w-6xl mx-auto p-6 md:p-8 space-y-6 pt-0">
+            <div className="max-w-6xl mx-auto p-6 md:p-8 space-y-6">
 
                 {/* Main Project Card */}
-                <div className="bg-white dark:bg-[#0a2f4e]/30 border border-sky-200/70 dark:border-cyan-400/10 rounded-2xl p-6 md:p-8 shadow-sm space-y-6">
+                <div className="bg-white/60 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 rounded-2xl p-6 md:p-8 shadow-sm space-y-6 backdrop-blur-md">
 
                     {/* Header: ID, Name, Status & Created At */}
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-sky-100 dark:border-cyan-400/10 pb-6">
-                        <div className="space-y-2">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-mint-900/10 dark:border-mint-300/15 pb-6">
+                        <div className="space-y-3">
                             <div className="flex items-center gap-3 flex-wrap">
                                 {/* Project ID Badge */}
-                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-cyan-950/50 text-slate-500 dark:text-cyan-400/80 border border-slate-200 dark:border-cyan-400/20">
+                                <span className="font-mono-nav text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/50 dark:bg-mint-900/40 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/15 dark:border-mint-300/15 shadow-sm">
                                     ID: #{project.id}
                                 </span>
 
-                                {/* Project Name */}
-                                <h1 className="text-xl md:text-2xl font-black tracking-tight text-sky-950 dark:text-cyan-50">
-                                    {project.name}
-                                </h1>
-
                                 {/* Status Badge */}
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusStyle(project.status)}`}>
+                                <span className={`font-mono-nav inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase border shadow-sm ${getStatusStyle(project.status)}`}>
                                     {project.status}
                                 </span>
                             </div>
 
+                            <h2 className="font-display text-xl md:text-2xl font-black tracking-tight text-mint-900 dark:text-mint-50">
+                                {project.name}
+                            </h2>
+
                             {/* Description */}
-                            <p className="text-sm text-sky-700/80 dark:text-cyan-100/70 leading-relaxed max-w-3xl">
+                            <p className="font-mono-nav text-xs text-mint-900/70 dark:text-mint-100/70 leading-relaxed max-w-3xl">
                                 {project.description || "No project description provided."}
                             </p>
                         </div>
 
                         {/* Created At Info Tag */}
-                        <div className="self-start px-4 py-3 rounded-xl bg-sky-50/50 dark:bg-[#0e3a5c]/40 border border-sky-100 dark:border-cyan-400/10 space-y-2 min-w-[170px]">
+                        <div className="self-start px-5 py-4 rounded-2xl bg-white/50 dark:bg-mint-900/40 border border-mint-900/15 dark:border-mint-300/15 space-y-3 min-w-[200px] backdrop-blur-md shadow-sm">
                             <div>
-                                <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
+                                <span className="block font-mono-nav text-[9px] font-extrabold uppercase tracking-wider text-mint-800/50 dark:text-mint-300/50 flex items-center gap-1">
+                                    <Icon icon="solar:calendar-bold-duotone" className="w-3 h-3" />
                                     Created On
                                 </span>
-                                <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
+                                <span className="font-mono-nav text-xs font-bold text-mint-900 dark:text-mint-50 mt-0.5 block">
                                     {formatDate(project.createdAt)}
                                 </span>
                             </div>
 
                             <div>
-                                <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
+                                <span className="block font-mono-nav text-[9px] font-extrabold uppercase tracking-wider text-mint-800/50 dark:text-mint-300/50 flex items-center gap-1">
+                                    <Icon icon="solar:play-bold-duotone" className="w-3 h-3" />
                                     Start Date
                                 </span>
-                                <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
-                                    {project.startDate || "No start Date provided"};
+                                <span className="font-mono-nav text-xs font-bold text-mint-900 dark:text-mint-50 mt-0.5 block">
+                                    {project.startDate || "No start date provided"}
                                 </span>
                             </div>
 
                             <div>
-                                <span className="block text-[9px] font-extrabold uppercase tracking-wider text-sky-500/70 dark:text-cyan-400/50">
+                                <span className="block font-mono-nav text-[9px] font-extrabold uppercase tracking-wider text-mint-800/50 dark:text-mint-300/50 flex items-center gap-1">
+                                    <Icon icon="solar:stop-bold-duotone" className="w-3 h-3" />
                                     End Date
                                 </span>
-                                <span className="text-xs font-bold text-sky-900 dark:text-cyan-100">
-                                    {project.endDate || "No end Date provided"};
+                                <span className="font-mono-nav text-xs font-bold text-mint-900 dark:text-mint-50 mt-0.5 block">
+                                    {project.endDate || "No end date provided"}
                                 </span>
                             </div>
                         </div>
@@ -179,33 +193,34 @@ export function ProjectDetail() {
 
                     {/* Members Section */}
                     <div className="pt-2">
-                        <h2 className="text-xs font-bold uppercase tracking-widest text-sky-500/80 dark:text-cyan-400/50 mb-3">
+                        <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-mint-800/70 dark:text-mint-300/70 mb-3 flex items-center gap-1.5">
+                            <Icon icon="solar:users-group-rounded-bold-duotone" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" />
                             Assigned Members ({project.members?.length || 0})
-                        </h2>
+                        </h3>
 
                         {project.members && project.members.length > 0 ? (
                             <div className="flex flex-wrap gap-3">
                                 {project.members.map((member) => (
                                     <div
                                         key={member.user.id}
-                                        className="flex items-center gap-2.5 px-3 py-2 bg-sky-50/60 dark:bg-[#0e3a5c]/50 rounded-xl border border-sky-200/70 dark:border-cyan-400/10"
+                                        className="flex items-center gap-3 px-3.5 py-2.5 bg-white/50 dark:bg-mint-900/40 rounded-2xl border border-mint-900/15 dark:border-mint-300/15 backdrop-blur-md shadow-sm"
                                     >
                                         {member.user.avatar ? (
                                             <img
                                                 src={member.user.avatar}
                                                 alt={member.user.name}
-                                                className="w-7 h-7 rounded-full object-cover border border-cyan-400/30"
+                                                className="w-8 h-8 rounded-xl object-cover border border-mint-700/20"
                                             />
                                         ) : (
-                                            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center text-white text-[11px] font-bold uppercase">
+                                            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-mint-950/40 to-mint-900/40 border border-mint-700/20 flex items-center justify-center text-mint-900 dark:text-mint-50 text-xs font-black uppercase shadow-inner">
                                                 {member.user.name?.[0] || 'U'}
                                             </div>
                                         )}
                                         <div>
-                                            <p className="text-xs font-bold text-sky-900 dark:text-cyan-100 leading-tight">
+                                            <p className="font-display text-xs font-bold text-mint-900 dark:text-mint-50 leading-tight">
                                                 {member.user.name}
                                             </p>
-                                            <p className="text-[10px] text-sky-500/70 dark:text-cyan-400/50">
+                                            <p className="font-mono-nav text-[10px] text-mint-800/60 dark:text-mint-300/60">
                                                 {member.user.email}
                                             </p>
                                         </div>
@@ -213,7 +228,7 @@ export function ProjectDetail() {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-xs text-sky-500/70 dark:text-cyan-400/50 italic">
+                            <p className="font-mono-nav text-xs text-mint-800/50 dark:text-mint-300/50 italic">
                                 No members assigned to this project yet.
                             </p>
                         )}
@@ -221,32 +236,31 @@ export function ProjectDetail() {
                 </div>
 
                 {/* Tasks Section */}
-                <div className="bg-white dark:bg-[#0a2f4e]/30 border border-sky-200/70 dark:border-cyan-400/10 rounded-2xl p-6 md:p-8 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xs font-bold uppercase tracking-widest text-sky-500/80 dark:text-cyan-400/50">
-                            Project Tasks ({project.tasks?.length || 0})
-                        </h2>
-                    </div>
+                <div className="bg-white/60 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 rounded-2xl p-6 md:p-8 shadow-sm backdrop-blur-md space-y-4">
+                    <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-mint-800/70 dark:text-mint-300/70 flex items-center gap-1.5">
+                        <Icon icon="solar:checklist-minimalistic-bold-duotone" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" />
+                        Project Tasks ({project.tasks?.length || 0})
+                    </h3>
 
                     {project.tasks && project.tasks.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {project.tasks.map((task) => (
                                 <div
                                     key={task.id}
-                                    className="p-4 bg-sky-50/50 dark:bg-[#0e3a5c]/40 rounded-xl border border-sky-100 dark:border-cyan-400/10 flex flex-col justify-between gap-3"
+                                    className="p-4 bg-white/50 dark:bg-mint-900/40 rounded-2xl border border-mint-900/15 dark:border-mint-300/15 flex flex-col justify-between gap-3 backdrop-blur-md shadow-sm"
                                 >
                                     <div>
                                         <div className="flex items-center justify-between gap-2 mb-1">
-                                            <h3 className="text-xs font-bold text-sky-950 dark:text-cyan-50">
+                                            <h4 className="font-display text-xs font-bold text-mint-900 dark:text-mint-50">
                                                 {task.title}
-                                            </h3>
+                                            </h4>
                                             {task.status && (
-                                                <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md bg-sky-200/60 dark:bg-cyan-950 text-sky-700 dark:text-cyan-300">
+                                                <span className="font-mono-nav text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-mint-900/5 dark:bg-mint-300/10 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-mint-300/15">
                                                     {task.status}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-[11px] text-sky-600/80 dark:text-cyan-200/60 line-clamp-2">
+                                        <p className="font-mono-nav text-[11px] text-mint-900/60 dark:text-mint-100/60 line-clamp-2">
                                             {task.description || "No task description provided."}
                                         </p>
                                     </div>
@@ -254,10 +268,10 @@ export function ProjectDetail() {
                             ))}
                         </div>
                     ) : (
-                        <div className="border-2 border-dashed border-sky-200/70 dark:border-cyan-400/10 rounded-2xl p-10 flex flex-col items-center justify-center text-center">
-                            <span className="text-2xl mb-2">📋</span>
-                            <h3 className="text-xs font-bold text-sky-900 dark:text-cyan-100">No tasks created yet</h3>
-                            <p className="text-[11px] text-sky-500/70 dark:text-cyan-400/50 max-w-xs mt-1">
+                        <div className="border border-dashed border-mint-900/15 dark:border-mint-300/20 rounded-2xl p-10 flex flex-col items-center justify-center text-center bg-white/30 dark:bg-mint-900/20">
+                            <Icon icon="solar:clipboard-remove-bold-duotone" className="w-8 h-8 text-mint-700/50 dark:text-mint-400/50 mb-2" />
+                            <h4 className="font-display text-xs font-bold text-mint-900 dark:text-mint-50">No tasks created yet</h4>
+                            <p className="font-mono-nav text-[11px] text-mint-900/60 dark:text-mint-100/60 max-w-xs mt-1">
                                 Create and assign tasks to your workspace members to start tracking progress.
                             </p>
                         </div>
@@ -265,6 +279,6 @@ export function ProjectDetail() {
                 </div>
 
             </div>
-        </div >
+        </div>
     );
 }

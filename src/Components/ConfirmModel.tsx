@@ -1,4 +1,3 @@
-// src/components/ConfirmModal.tsx
 import React from 'react';
 
 interface ConfirmModalProps {
@@ -39,8 +38,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 <div className="flex items-start gap-3">
                     <div
                         className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-lg ${isDangerous
-                                ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-500'
-                                : 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-600 dark:text-cyan-300'
+                            ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-500'
+                            : 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-600 dark:text-cyan-300'
                             }`}
                     >
                         {isDangerous ? '⚠️' : 'ℹ️'}
@@ -65,8 +64,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                         onClick={onConfirm}
                         disabled={isLoading}
                         className={`px-4 py-2 text-white text-xs font-extrabold rounded-xl shadow-sm transition-colors disabled:opacity-50 ${isDangerous
-                                ? 'bg-rose-500 hover:bg-rose-600'
-                                : 'bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400'
+                            ? 'bg-rose-500 hover:bg-rose-600'
+                            : 'bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400'
                             }`}
                     >
                         {isLoading ? 'Please wait...' : confirmLabel}

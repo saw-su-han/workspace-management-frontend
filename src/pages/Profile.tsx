@@ -26,10 +26,6 @@ export const ProfilePage: React.FC = () => {
     // Dynamic state management for local avatar image preview
     const [localAvatarPreview, setLocalAvatarPreview] = useState<string | null>(null);
 
-    // --- WORKSPACE SWITCHER ---
-    const allWorkspaces = userProfile?.workspaces || [];
-    const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
-
     // Invalidate and sync layout data when visiting page boundary
     useEffect(() => {
         if (location.pathname === '/profile') {
@@ -117,153 +113,126 @@ export const ProfilePage: React.FC = () => {
         });
     };
 
+    const FontFaces = () => (
+        <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+            body { font-family: 'Plus Jakarta Sans', sans-serif; }
+            .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+            .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+        `}</style>
+    );
+
     if (isLoading) {
         return (
-            <div className="relative flex h-screen items-center justify-center bg-[#DCEAF5] dark:bg-[#051C2E] transition-colors duration-300 overflow-hidden font-sans">
-                <style>{`
-                    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
-                    .font-display { font-family: 'Fraunces', ui-serif, Georgia, serif; }
-                    .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-                `}</style>
+            <div className="flex h-screen flex-col items-center justify-center bg-mint-50 dark:bg-mint-950 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
+                <FontFaces />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(3,48,39,0.06)_0%,_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(11,238,194,0.05)_0%,_transparent_60%)]" />
 
-                {/* Grid Overlay */}
-                <div
-                    className="absolute inset-0 opacity-[0.4] dark:opacity-[0.25] pointer-events-none"
-                    style={{
-                        backgroundImage: 'repeating-linear-gradient(0deg, rgba(14,58,92,0.035) 0px, rgba(14,58,92,0.035) 1px, transparent 1px, transparent 32px)',
-                    }}
-                />
-
-                <div className="relative flex flex-col items-center gap-3 z-10">
-                    <div className="w-10 h-10 rounded-full border-2 border-[#1E5F87] dark:border-[#4A9DC7] border-t-transparent animate-spin" />
-                    <span className="font-mono-nav text-[10px] font-bold tracking-[0.2em] text-[#0E3A5C]/60 dark:text-[#4A9DC7]/70 uppercase">
-                        Loading Deck...
-                    </span>
+                <div className="relative flex h-20 w-20 items-center justify-center">
+                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_9s_linear_infinite] opacity-40 dark:opacity-60" fill="none">
+                        <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-mint-700 dark:text-mint-400" strokeWidth="0.75" strokeDasharray="1 5" />
+                        <path d="M50 8 L54 46 L50 50 L46 46 Z" className="fill-mint-700 dark:fill-mint-400" />
+                    </svg>
+                    <div className="relative inline-flex rounded-full h-9 w-9 bg-gradient-to-tr from-mint-900 to-mint-600 shadow-lg shadow-mint-500/30 items-center justify-center">
+                        <span className="text-mint-50 text-sm font-bold">≈</span>
+                    </div>
+                </div>
+                <div className="space-y-1 text-center relative">
+                    <p className="font-display text-base font-bold tracking-tight text-mint-900 dark:text-mint-50">Charting your profile state</p>
+                    <p className="font-mono-nav text-[10px] text-mint-800/50 dark:text-mint-300/60 uppercase tracking-[0.25em]">Reading account data…</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="relative min-h-screen bg-[#DCEAF5] dark:bg-[#051C2E] text-[#0E3A5C] dark:text-[#E6F1F8] flex flex-col transition-colors duration-300 overflow-hidden font-sans">
+        <div className="min-h-screen bg-mint-50 dark:bg-mint-950 text-mint-900 dark:text-mint-50 transition-colors duration-300 flex flex-col antialiased relative overflow-hidden font-sans">
+            <FontFaces />
 
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
-                .font-display { font-family: 'Fraunces', ui-serif, Georgia, serif; }
-                .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-            `}</style>
-
-            {/* Background Atmosphere Layers */}
+            {/* Chart-paper texture / depth lines */}
             <div
                 className="absolute inset-0 opacity-[0.4] dark:opacity-[0.25] pointer-events-none"
                 style={{
-                    backgroundImage: 'repeating-linear-gradient(0deg, rgba(14,58,92,0.035) 0px, rgba(14,58,92,0.035) 1px, transparent 1px, transparent 32px)',
+                    backgroundImage: 'repeating-linear-gradient(0deg, rgba(3,48,39,0.035) 0px, rgba(3,48,39,0.035) 1px, transparent 1px, transparent 32px)',
                 }}
             />
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#4A9DC7]/[0.08] blur-[160px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#2E6F95]/[0.06] blur-[160px] rounded-full pointer-events-none" />
+            {/* Atmospheric Background Glows */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-mint-300/20 dark:bg-mint-500/10 blur-[160px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-mint-400/15 dark:bg-mint-600/10 blur-[160px] rounded-full pointer-events-none" />
 
-            {/* HEADER */}
-            <header className="border-b border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12 bg-white/75 dark:bg-[#0A2E4A]/50 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-colors">
-                <div className="flex items-center gap-5">
-                    {/* WORKSPACE SWITCHER DROPDOWN */}
-                    <div className="relative">
+            {/* JIRA-STYLE GLOBAL NAVIGATION HEADER */}
+            <header className="flex h-14 items-center justify-between border-b border-mint-900/10 dark:border-mint-300/15 bg-mint-50/90 dark:bg-mint-950/90 backdrop-blur-xl px-4 md:px-6 sticky top-0 z-40 transition-colors">
+                <div className="flex items-center gap-6">
+                    {/* Jira-style Branding & Home/Dashboard Nav */}
+                    <div className="flex items-center gap-3">
+                        <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-mint-900 to-mint-600 shadow-sm shadow-mint-500/20">
+                            <span className="text-xs text-mint-50 font-bold">≈</span>
+                        </div>
                         <button
-                            onClick={() => setIsWorkspaceDropdownOpen((prev) => !prev)}
-                            className="font-mono-nav group flex items-center gap-2 px-3.5 py-1.5 bg-white/80 dark:bg-[#051C2E]/60 border border-[#0E3A5C]/15 dark:border-[#4A9DC7]/20 rounded-lg text-xs font-bold text-[#0E3A5C] dark:text-[#E6F1F8] shadow-sm transition-all hover:border-[#4A9DC7] hover:bg-white dark:hover:bg-[#051C2E] cursor-pointer"
+                            onClick={() => navigate('/dashboard')}
+                            className="font-display font-bold text-sm tracking-tight text-mint-900 dark:text-mint-50 hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1.5"
                         >
-                            Switch Workspace
-                            <span className={`text-[9px] transition-transform duration-200 ${isWorkspaceDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
+                            <span>Home</span>
                         </button>
-
-                        {isWorkspaceDropdownOpen && (
-                            <>
-                                <div className="fixed inset-0 z-40" onClick={() => setIsWorkspaceDropdownOpen(false)} />
-
-                                <div className="absolute top-full left-0 mt-2 w-64 bg-white/95 dark:bg-[#0A2E4A]/95 border border-[#0E3A5C]/15 dark:border-[#4A9DC7]/20 rounded-xl shadow-xl z-50 overflow-hidden backdrop-blur-md">
-                                    <div className="max-h-64 overflow-y-auto divide-y divide-[#0E3A5C]/5 dark:divide-[#4A9DC7]/10">
-                                        {allWorkspaces
-                                            .filter((ws: any) => ws.isDeleted !== true)
-                                            .map((ws: any) => {
-                                                const wsInfo = ws.workspace || ws;
-                                                return (
-                                                    <button
-                                                        key={wsInfo.id}
-                                                        onClick={() => {
-                                                            setIsWorkspaceDropdownOpen(false);
-                                                            navigate(`/workspaces/${wsInfo.id}`);
-                                                        }}
-                                                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-xs font-semibold text-[#0E3A5C] dark:text-[#E6F1F8] hover:bg-[#0E3A5C]/5 dark:hover:bg-[#4A9DC7]/10 transition-colors cursor-pointer"
-                                                    >
-                                                        <div className="w-6 h-6 rounded bg-[#0E3A5C] dark:bg-[#4A9DC7] flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white dark:text-[#051C2E]">
-                                                            {wsInfo.name?.charAt(0).toUpperCase() || 'W'}
-                                                        </div>
-                                                        <span className="truncate flex-1">{wsInfo.name}</span>
-                                                    </button>
-                                                );
-                                            })}
-                                    </div>
-
-                                    <div className="border-t border-[#0E3A5C]/10 dark:border-[#4A9DC7]/15">
-                                        <button
-                                            onClick={() => {
-                                                setIsWorkspaceDropdownOpen(false);
-                                                navigate('/dashboard');
-                                            }}
-                                            className="font-mono-nav w-full px-3.5 py-2.5 text-left text-[11px] font-bold text-[#1E5F87] dark:text-[#4A9DC7] hover:bg-[#0E3A5C]/5 dark:hover:bg-[#4A9DC7]/10 transition-colors cursor-pointer"
-                                        >
-                                            ← All Workspaces (Dashboard)
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        )}
                     </div>
 
-                    <h1 className="font-display font-semibold text-lg text-[#0E3A5C] dark:text-[#E6F1F8]">
-                        User Profile
-                    </h1>
+                    <div className="h-4 w-[1px] bg-mint-900/15 dark:bg-mint-300/20" />
+
+                    {/* Jira-style Section Tabs */}
+                    <nav className="flex items-center gap-1">
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="font-mono-nav text-xs font-semibold px-3 py-1.5 rounded-lg text-mint-800/70 dark:text-mint-300/70 hover:bg-mint-900/5 dark:hover:bg-mint-300/10 transition-colors cursor-pointer"
+                        >
+                            Dashboard
+                        </button>
+                        <button
+                            className="font-mono-nav text-xs font-semibold px-3 py-1.5 rounded-lg bg-mint-900/10 dark:bg-mint-300/15 text-mint-900 dark:text-mint-50 cursor-default"
+                        >
+                            Profile
+                        </button>
+                    </nav>
                 </div>
-                <ThemeToggle />
+
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <div className="flex items-center pl-2 border-l border-mint-900/10 dark:border-mint-300/15">
+                        <UserAvatar
+                            userProfile={userProfile}
+                            className="h-8 w-8 rounded-full object-cover border border-mint-700/40 shadow-sm"
+                        />
+                    </div>
+                </div>
             </header>
 
-            {/* MAIN CONTENT CONTAINER */}
-            <main className="flex-1 max-w-2xl w-full mx-auto p-6 md:p-8 relative z-10 flex items-center justify-center">
+            {/* JIRA-STYLE PROFILE LAYOUT */}
+            <main className="flex-1 max-w-5xl w-full mx-auto p-6 md:p-10 relative z-10 space-y-8">
 
-                {/* Styled Auth / Settings Card */}
-                <div className="group relative w-full border border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12 bg-white/75 dark:bg-[#0A2E4A]/50 p-8 sm:p-10 rounded-2xl shadow-xl backdrop-blur-md transition-all duration-300 overflow-hidden">
+                {/* Profile Header Banner */}
+                <div className="relative rounded-2xl bg-white/80 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 p-6 md:p-8 shadow-sm backdrop-blur-md overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-mint-600 via-emerald-500 to-mint-400" />
 
-                    {/* Ticket Notch Details matching cards across app */}
-                    <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#DCEAF5] dark:bg-[#051C2E] border border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12" />
-                    <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#DCEAF5] dark:bg-[#051C2E] border border-[#0E3A5C]/12 dark:border-[#4A9DC7]/12" />
-
-                    {/* Header Label */}
-                    <div className="mb-6 font-mono-nav text-[10px] font-bold tracking-[0.2em] text-[#1E5F87] dark:text-[#4A9DC7] uppercase">
-                        Account Overview · Personal Layer
-                    </div>
-
-                    {/* Avatar Section */}
-                    <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        {/* Avatar Picker Container */}
                         <div className="relative group/avatar">
-                            <div className="relative">
-                                <UserAvatar
-                                    userProfile={userProfile}
-                                    previewUrl={localAvatarPreview}
-                                    className="h-24 w-24 rounded-full object-cover border-2 border-[#0E3A5C]/20 dark:border-[#4A9DC7]/30 shadow-md"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={isUpdating}
-                                    className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-[#0E3A5C] dark:bg-[#4A9DC7] text-white dark:text-[#051C2E] flex items-center justify-center border-2 border-white dark:border-[#0A2E4A] shadow-md transition-transform hover:scale-110 disabled:opacity-50 cursor-pointer"
-                                >
-                                    {isUpdating ? (
-                                        <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                    ) : (
-                                        <span className="text-xs">📷</span>
-                                    )}
-                                </button>
-                            </div>
+                            <UserAvatar
+                                userProfile={userProfile}
+                                previewUrl={localAvatarPreview}
+                                className="h-24 w-24 rounded-full object-cover border-2 border-mint-900/20 dark:border-mint-300/30 shadow-md"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUpdating}
+                                className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 flex items-center justify-center border-2 border-white dark:border-mint-950 shadow-md transition-transform hover:scale-110 disabled:opacity-50 cursor-pointer"
+                                title="Change avatar"
+                            >
+                                {isUpdating ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <span className="text-xs">📷</span>
+                                )}
+                            </button>
                             <input
                                 type="file"
                                 ref={fileInputRef}
@@ -273,71 +242,107 @@ export const ProfilePage: React.FC = () => {
                             />
                         </div>
 
-                        {/* User Metadata */}
-                        <div className="text-center sm:text-left flex-1 space-y-1">
-                            <h2 className="font-display font-semibold text-2xl text-[#0E3A5C] dark:text-[#E6F1F8]">
-                                {userProfile?.name || 'Loading Account...'}
-                            </h2>
-                            <p className="text-xs text-[#0E3A5C]/60 dark:text-[#E6F1F8]/60 flex items-center justify-center sm:justify-start gap-1.5 font-medium">
-                                <span>📧</span> {userProfile?.email || 'No email associated'}
-                            </p>
-                            <p className="font-mono-nav text-[10px] text-[#0E3A5C]/50 dark:text-[#4A9DC7]/70 flex items-center justify-center sm:justify-start gap-2 pt-1">
-                                <span>ID:</span>
-                                <span className="bg-[#0E3A5C]/5 dark:bg-[#051C2E]/60 border border-[#0E3A5C]/10 dark:border-[#4A9DC7]/20 px-2 py-0.5 rounded text-[10px]">
-                                    {userProfile?.id || 'N/A'}
+                        {/* User Details */}
+                        <div className="space-y-1.5 flex-1">
+                            <div className="flex items-center gap-3">
+                                <h1 className="font-display font-extrabold text-2xl text-mint-900 dark:text-mint-50 tracking-tight">
+                                    {userProfile?.name || 'Atlassian User'}
+                                </h1>
+                                <span className="font-mono-nav text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                                    Active
                                 </span>
+                            </div>
+                            <p className="text-xs font-medium text-mint-900/60 dark:text-mint-100/60">
+                                {userProfile?.email || 'No email associated'}
+                            </p>
+                            <p className="font-mono-nav text-[10px] text-mint-800/40 dark:text-mint-300/50 pt-1">
+                                ACCOUNT ID: <span className="text-mint-900 dark:text-mint-200">{userProfile?.id || 'N/A'}</span>
                             </p>
                         </div>
                     </div>
 
                     {avatarError && (
-                        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-semibold mb-6 font-mono-nav">
+                        <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-semibold font-mono-nav">
                             ⚠️ {avatarError}
                         </div>
                     )}
+                </div>
 
-                    <div className="border-t border-[#0E3A5C]/10 dark:border-[#4A9DC7]/15 my-6" />
+                {/* Jira-style Settings Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                    {/* Editable Name Field */}
-                    <div className="space-y-3">
-                        <label className="block font-mono-nav text-[11px] font-bold tracking-wider uppercase text-[#0E3A5C]/70 dark:text-[#E6F1F8]/70">
-                            Full Name
-                        </label>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <input
-                                type="text"
-                                value={nameDraft}
-                                onChange={(e) => setNameDraft(e.target.value)}
-                                className="flex-1 rounded-lg border border-[#0E3A5C]/15 dark:border-[#4A9DC7]/20 bg-white/60 dark:bg-[#051C2E]/60 px-3.5 py-2.5 text-sm text-[#0E3A5C] dark:text-[#E6F1F8] placeholder-[#0E3A5C]/35 dark:placeholder-[#4A9DC7]/30 transition-all focus:border-[#4A9DC7] focus:bg-white dark:focus:bg-[#051C2E] focus:outline-none focus:ring-2 focus:ring-[#4A9DC7]/20 disabled:opacity-50"
-                                placeholder="Enter your full legal name"
-                                disabled={isUpdating}
-                            />
-                            <button
-                                onClick={handleNameSave}
-                                disabled={isUpdating || nameDraft.trim() === userProfile?.name}
-                                className="font-mono-nav px-5 py-2.5 bg-[#0E3A5C] dark:bg-[#4A9DC7] text-[#DCEAF5] dark:text-[#051C2E] hover:bg-[#0E3A5C]/90 dark:hover:bg-[#4A9DC7]/90 active:scale-[0.99] disabled:opacity-40 text-xs font-bold uppercase tracking-wide rounded-lg shadow-md transition-all whitespace-nowrap cursor-pointer"
-                            >
-                                Save Changes
-                            </button>
+                    {/* Left Column: Navigation / Menu Side Panel */}
+                    <div className="md:col-span-1 space-y-2">
+                        <div className="p-4 rounded-2xl bg-white/80 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 shadow-sm backdrop-blur-md">
+                            <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-widest text-mint-800/50 dark:text-mint-300/50 mb-3 px-2">
+                                Profile Settings
+                            </h3>
+                            <div className="space-y-1">
+                                <button className="w-full text-left font-mono-nav text-xs font-bold px-3 py-2 rounded-xl bg-mint-900/10 dark:bg-mint-300/15 text-mint-900 dark:text-mint-50">
+                                    Personal Details
+                                </button>
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="w-full text-left font-mono-nav text-xs font-semibold px-3 py-2 rounded-xl text-mint-800/70 dark:text-mint-300/70 hover:bg-mint-900/5 dark:hover:bg-mint-300/10 transition-colors"
+                                >
+                                    Workspaces & Access
+                                </button>
+                            </div>
                         </div>
-                        {nameError && (
-                            <p className="font-mono-nav text-[10px] font-semibold text-red-600 dark:text-red-400">
-                                ⚠️ {nameError}
-                            </p>
-                        )}
-                        {nameSuccess && (
-                            <p className="font-mono-nav text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                ✓ Profile updated successfully!
-                            </p>
-                        )}
                     </div>
+
+                    {/* Right Column: Editable Details Panel */}
+                    <div className="md:col-span-2">
+                        <div className="rounded-2xl bg-white/80 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
+                            <div>
+                                <h3 className="font-display font-bold text-base text-mint-900 dark:text-mint-50">
+                                    About You
+                                </h3>
+                                <p className="text-xs text-mint-900/60 dark:text-mint-100/60 mt-0.5">
+                                    Customize your public profile name visible across control decks and channels.
+                                </p>
+                            </div>
+
+                            <div className="border-t border-mint-900/10 dark:border-mint-300/15 pt-6 space-y-4">
+                                <div className="space-y-2">
+                                    <label className="block font-mono-nav text-[10px] font-bold tracking-wider uppercase text-mint-800/60 dark:text-mint-300/60">
+                                        Public Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={nameDraft}
+                                        onChange={(e) => setNameDraft(e.target.value)}
+                                        className="font-mono-nav w-full rounded-lg border border-mint-900/15 dark:border-mint-300/15 bg-white/50 dark:bg-mint-900/40 px-3.5 py-2.5 text-xs text-mint-900 dark:text-mint-50 placeholder:text-mint-900/35 dark:placeholder:text-mint-300/30 transition-all focus:border-mint-600 focus:ring-4 focus:ring-mint-500/15 focus:outline-none disabled:opacity-50"
+                                        placeholder="Enter your name"
+                                        disabled={isUpdating}
+                                    />
+                                    {nameError && (
+                                        <p className="font-mono-nav text-[10px] font-semibold text-rose-600 dark:text-rose-400">
+                                            ⚠️ {nameError}
+                                        </p>
+                                    )}
+                                    {nameSuccess && (
+                                        <p className="font-mono-nav text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                            ✓ Changes saved successfully!
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        onClick={handleNameSave}
+                                        disabled={isUpdating || nameDraft.trim() === userProfile?.name}
+                                        className="font-mono-nav px-5 py-2.5 bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 hover:bg-mint-800 dark:hover:bg-mint-300 active:scale-[0.99] disabled:opacity-40 text-[11px] font-bold uppercase tracking-wide rounded-lg shadow-md transition-all cursor-pointer"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </main>
-
-            {/* Bottom Tagline */}
-            <div className="pb-6 text-center font-mono-nav text-[9px] font-medium tracking-[0.25em] text-[#0E3A5C]/35 dark:text-[#4A9DC7]/35 uppercase select-none">
-                Identity Profile Layer · Operations
-            </div>
         </div>
     );
 };
