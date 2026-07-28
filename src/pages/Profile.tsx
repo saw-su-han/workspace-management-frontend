@@ -124,113 +124,101 @@ export const ProfilePage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen flex-col items-center justify-center bg-mint-50 dark:bg-mint-950 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
+            <div className="flex h-screen flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
                 <FontFaces />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(3,48,39,0.06)_0%,_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(11,238,194,0.05)_0%,_transparent_60%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(15,23,42,0.04)_0%,_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(56,189,248,0.03)_0%,_transparent_60%)]" />
 
-                <div className="relative flex h-20 w-20 items-center justify-center">
-                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_9s_linear_infinite] opacity-40 dark:opacity-60" fill="none">
-                        <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-mint-700 dark:text-mint-400" strokeWidth="0.75" strokeDasharray="1 5" />
-                        <path d="M50 8 L54 46 L50 50 L46 46 Z" className="fill-mint-700 dark:fill-mint-400" />
-                    </svg>
-                    <div className="relative inline-flex rounded-full h-9 w-9 bg-gradient-to-tr from-mint-900 to-mint-600 shadow-lg shadow-mint-500/30 items-center justify-center">
-                        <span className="text-mint-50 text-sm font-bold">≈</span>
+                <div className="relative flex h-16 w-16 items-center justify-center">
+                    <div className="absolute inset-0 rounded-2xl bg-indigo-500/10 animate-ping" />
+                    <div className="relative inline-flex rounded-2xl h-12 w-12 bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-xl shadow-indigo-500/20 items-center justify-center text-white font-bold">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     </div>
                 </div>
                 <div className="space-y-1 text-center relative">
-                    <p className="font-display text-base font-bold tracking-tight text-mint-900 dark:text-mint-50">Charting your profile state</p>
-                    <p className="font-mono-nav text-[10px] text-mint-800/50 dark:text-mint-300/60 uppercase tracking-[0.25em]">Reading account data…</p>
+                    <p className="font-display text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200">Loading Profile</p>
+                    <p className="font-mono-nav text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">Synchronizing state...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-mint-50 dark:bg-mint-950 text-mint-900 dark:text-mint-50 transition-colors duration-300 flex flex-col antialiased relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300 flex flex-col antialiased relative overflow-hidden font-sans">
             <FontFaces />
 
-            {/* Chart-paper texture / depth lines */}
-            <div
-                className="absolute inset-0 opacity-[0.4] dark:opacity-[0.25] pointer-events-none"
-                style={{
-                    backgroundImage: 'repeating-linear-gradient(0deg, rgba(3,48,39,0.035) 0px, rgba(3,48,39,0.035) 1px, transparent 1px, transparent 32px)',
-                }}
-            />
-            {/* Atmospheric Background Glows */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-mint-300/20 dark:bg-mint-500/10 blur-[160px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-mint-400/15 dark:bg-mint-600/10 blur-[160px] rounded-full pointer-events-none" />
+            {/* Clean, Modern Background Gradients */}
+            <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-violet-500/10 dark:bg-violet-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-            {/* JIRA-STYLE GLOBAL NAVIGATION HEADER */}
-            <header className="flex h-14 items-center justify-between border-b border-mint-900/10 dark:border-mint-300/15 bg-mint-50/90 dark:bg-mint-950/90 backdrop-blur-xl px-4 md:px-6 sticky top-0 z-40 transition-colors">
+            {/* MODERN FLOATING HEADER */}
+            <header className="h-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl px-6 sticky top-0 z-40 transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-6">
-                    {/* Jira-style Branding & Home/Dashboard Nav */}
                     <div className="flex items-center gap-3">
-                        <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-mint-900 to-mint-600 shadow-sm shadow-mint-500/20">
-                            <span className="text-xs text-mint-50 font-bold">≈</span>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-md shadow-indigo-500/20 text-white font-bold text-sm">
+                            ◆
                         </div>
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="font-display font-bold text-sm tracking-tight text-mint-900 dark:text-mint-50 hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1.5"
+                            className="font-display font-bold text-base tracking-tight text-slate-900 dark:text-white hover:opacity-80 transition-opacity cursor-pointer"
                         >
-                            <span>Home</span>
+                            Workspace
                         </button>
                     </div>
 
-                    <div className="h-4 w-[1px] bg-mint-900/15 dark:bg-mint-300/20" />
+                    <div className="h-5 w-[1px] bg-slate-200 dark:bg-slate-800" />
 
-                    {/* Jira-style Section Tabs */}
-                    <nav className="flex items-center gap-1">
+                    <nav className="flex items-center gap-1.5">
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="font-mono-nav text-xs font-semibold px-3 py-1.5 rounded-lg text-mint-800/70 dark:text-mint-300/70 hover:bg-mint-900/5 dark:hover:bg-mint-300/10 transition-colors cursor-pointer"
+                            className="font-mono-nav text-xs font-medium px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                         >
                             Dashboard
                         </button>
                         <button
-                            className="font-mono-nav text-xs font-semibold px-3 py-1.5 rounded-lg bg-mint-900/10 dark:bg-mint-300/15 text-mint-900 dark:text-mint-50 cursor-default"
+                            className="font-mono-nav text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50 cursor-default"
                         >
                             Profile
                         </button>
                     </nav>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                     <ThemeToggle />
-                    <div className="flex items-center pl-2 border-l border-mint-900/10 dark:border-mint-300/15">
+                    <div className="pl-3 border-l border-slate-200 dark:border-slate-800">
                         <UserAvatar
                             userProfile={userProfile}
-                            className="h-8 w-8 rounded-full object-cover border border-mint-700/40 shadow-sm"
+                            className="h-9 w-9 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-800 shadow-sm"
                         />
                     </div>
                 </div>
             </header>
 
-            {/* JIRA-STYLE PROFILE LAYOUT */}
-            <main className="flex-1 max-w-5xl w-full mx-auto p-6 md:p-10 relative z-10 space-y-8">
+            {/* MODERN CARD CONTAINER LAYOUT */}
+            <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-10 relative z-10 space-y-6">
 
-                {/* Profile Header Banner */}
-                <div className="relative rounded-2xl bg-white/80 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 p-6 md:p-8 shadow-sm backdrop-blur-md overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-mint-600 via-emerald-500 to-mint-400" />
+                {/* Hero Profile Banner */}
+                <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-xl overflow-hidden">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-500/10 via-transparent to-transparent pointer-events-none" />
 
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
                         {/* Avatar Picker Container */}
                         <div className="relative group/avatar">
                             <UserAvatar
                                 userProfile={userProfile}
                                 previewUrl={localAvatarPreview}
-                                className="h-24 w-24 rounded-full object-cover border-2 border-mint-900/20 dark:border-mint-300/30 shadow-md"
+                                className="h-28 w-28 rounded-2xl object-cover ring-4 ring-slate-100 dark:ring-slate-800 shadow-lg"
                             />
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUpdating}
-                                className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 flex items-center justify-center border-2 border-white dark:border-mint-950 shadow-md transition-transform hover:scale-110 disabled:opacity-50 cursor-pointer"
+                                className="absolute -bottom-2 -right-2 h-9 w-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center ring-4 ring-white dark:ring-slate-900 shadow-lg transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
                                 title="Change avatar"
                             >
                                 {isUpdating ? (
-                                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <span className="text-xs">📷</span>
+                                    <span className="text-xs font-bold">📷</span>
                                 )}
                             </button>
                             <input
@@ -243,105 +231,82 @@ export const ProfilePage: React.FC = () => {
                         </div>
 
                         {/* User Details */}
-                        <div className="space-y-1.5 flex-1">
-                            <div className="flex items-center gap-3">
-                                <h1 className="font-display font-extrabold text-2xl text-mint-900 dark:text-mint-50 tracking-tight">
-                                    {userProfile?.name || 'Atlassian User'}
+                        <div className="space-y-2 text-center sm:text-left flex-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+                                <h1 className="font-display font-bold text-2xl text-slate-900 dark:text-white tracking-tight">
+                                    {userProfile?.name || 'Workspace User'}
                                 </h1>
-                                <span className="font-mono-nav text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-                                    Active
+                                <span className="inline-flex items-center gap-1.5 self-center sm:self-auto font-mono-nav text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    Active Account
                                 </span>
                             </div>
-                            <p className="text-xs font-medium text-mint-900/60 dark:text-mint-100/60">
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                                 {userProfile?.email || 'No email associated'}
                             </p>
-                            <p className="font-mono-nav text-[10px] text-mint-800/40 dark:text-mint-300/50 pt-1">
-                                ACCOUNT ID: <span className="text-mint-900 dark:text-mint-200">{userProfile?.id || 'N/A'}</span>
-                            </p>
+                            <div className="pt-2 flex items-center justify-center sm:justify-start gap-2">
+                                <span className="font-mono-nav text-[11px] text-slate-400 dark:text-slate-500">
+                                    ID: <span className="text-slate-700 dark:text-slate-300 font-medium">{userProfile?.id || 'N/A'}</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
                     {avatarError && (
-                        <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-semibold font-mono-nav">
-                            ⚠️ {avatarError}
+                        <div className="mt-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-medium font-mono-nav flex items-center gap-2">
+                            <span>⚠️</span> {avatarError}
                         </div>
                     )}
                 </div>
 
-                {/* Jira-style Settings Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    {/* Left Column: Navigation / Menu Side Panel */}
-                    <div className="md:col-span-1 space-y-2">
-                        <div className="p-4 rounded-2xl bg-white/80 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 shadow-sm backdrop-blur-md">
-                            <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-widest text-mint-800/50 dark:text-mint-300/50 mb-3 px-2">
-                                Profile Settings
-                            </h3>
-                            <div className="space-y-1">
-                                <button className="w-full text-left font-mono-nav text-xs font-bold px-3 py-2 rounded-xl bg-mint-900/10 dark:bg-mint-300/15 text-mint-900 dark:text-mint-50">
-                                    Personal Details
-                                </button>
-                                <button
-                                    onClick={() => navigate('/dashboard')}
-                                    className="w-full text-left font-mono-nav text-xs font-semibold px-3 py-2 rounded-xl text-mint-800/70 dark:text-mint-300/70 hover:bg-mint-900/5 dark:hover:bg-mint-300/10 transition-colors"
-                                >
-                                    Workspaces & Access
-                                </button>
-                            </div>
-                        </div>
+                {/* Main Settings Panel */}
+                <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-xl space-y-6">
+                    <div>
+                        <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white">
+                            Personal Information
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            Update your display name and personal preferences.
+                        </p>
                     </div>
 
-                    {/* Right Column: Editable Details Panel */}
-                    <div className="md:col-span-2">
-                        <div className="rounded-2xl bg-white/80 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
-                            <div>
-                                <h3 className="font-display font-bold text-base text-mint-900 dark:text-mint-50">
-                                    About You
-                                </h3>
-                                <p className="text-xs text-mint-900/60 dark:text-mint-100/60 mt-0.5">
-                                    Customize your public profile name visible across control decks and channels.
+                    <div className="border-t border-slate-100 dark:border-slate-800/80 pt-6 space-y-5">
+                        <div className="space-y-2">
+                            <label className="block font-mono-nav text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                                Display Name
+                            </label>
+                            <input
+                                type="text"
+                                value={nameDraft}
+                                onChange={(e) => setNameDraft(e.target.value)}
+                                className="font-sans w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all disabled:opacity-50"
+                                placeholder="Enter your name"
+                                disabled={isUpdating}
+                            />
+                            {nameError && (
+                                <p className="font-mono-nav text-xs font-medium text-rose-600 dark:text-rose-400 pt-1 flex items-center gap-1.5">
+                                    <span>⚠️</span> {nameError}
                                 </p>
-                            </div>
+                            )}
+                            {nameSuccess && (
+                                <p className="font-mono-nav text-xs font-medium text-emerald-600 dark:text-emerald-400 pt-1 flex items-center gap-1.5">
+                                    <span>✓</span> Changes saved successfully!
+                                </p>
+                            )}
+                        </div>
 
-                            <div className="border-t border-mint-900/10 dark:border-mint-300/15 pt-6 space-y-4">
-                                <div className="space-y-2">
-                                    <label className="block font-mono-nav text-[10px] font-bold tracking-wider uppercase text-mint-800/60 dark:text-mint-300/60">
-                                        Public Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={nameDraft}
-                                        onChange={(e) => setNameDraft(e.target.value)}
-                                        className="font-mono-nav w-full rounded-lg border border-mint-900/15 dark:border-mint-300/15 bg-white/50 dark:bg-mint-900/40 px-3.5 py-2.5 text-xs text-mint-900 dark:text-mint-50 placeholder:text-mint-900/35 dark:placeholder:text-mint-300/30 transition-all focus:border-mint-600 focus:ring-4 focus:ring-mint-500/15 focus:outline-none disabled:opacity-50"
-                                        placeholder="Enter your name"
-                                        disabled={isUpdating}
-                                    />
-                                    {nameError && (
-                                        <p className="font-mono-nav text-[10px] font-semibold text-rose-600 dark:text-rose-400">
-                                            ⚠️ {nameError}
-                                        </p>
-                                    )}
-                                    {nameSuccess && (
-                                        <p className="font-mono-nav text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                            ✓ Changes saved successfully!
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex justify-end pt-4">
-                                    <button
-                                        onClick={handleNameSave}
-                                        disabled={isUpdating || nameDraft.trim() === userProfile?.name}
-                                        className="font-mono-nav px-5 py-2.5 bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 hover:bg-mint-800 dark:hover:bg-mint-300 active:scale-[0.99] disabled:opacity-40 text-[11px] font-bold uppercase tracking-wide rounded-lg shadow-md transition-all cursor-pointer"
-                                    >
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={handleNameSave}
+                                disabled={isUpdating || nameDraft.trim() === userProfile?.name}
+                                className="font-mono-nav px-6 py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
+                            >
+                                {isUpdating ? 'Saving...' : 'Save Changes'}
+                            </button>
                         </div>
                     </div>
-
                 </div>
+
             </main>
         </div>
     );

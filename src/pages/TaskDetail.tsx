@@ -13,6 +13,8 @@ import {
     useProfile,
     useComments,
     useCreateComment,
+    useUpdateComment,
+    useDeleteComment,
     type TaskStatus,
     type TaskPriority
 } from '../hooks/useAuth';
@@ -67,8 +69,14 @@ export const TaskDetail: React.FC = () => {
     // called conditionally or after a conditional return) ---
     const { data: comments, isLoading: commentsLoading } = useComments(workspaceId, taskId);
     const { mutate: createComment, isPending: isPostingComment } = useCreateComment(workspaceId, taskId);
+    const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(workspaceId, taskId);
+    const { mutate: deleteComment } = useDeleteComment(workspaceId, taskId);
+
     const [commentText, setCommentText] = useState('');
     const [commentError, setCommentError] = useState<string | null>(null);
+    const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+    const [editingContent, setEditingContent] = useState('');
+    const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
     const resetFormFromTask = () => {
         if (!task) return;
@@ -166,6 +174,46 @@ export const TaskDetail: React.FC = () => {
             onError: (err: any) => {
                 setCommentError(err?.response?.data?.message || "Couldn't post comment.");
             },
+        });
+    };
+
+    const startEditingComment = (c: { id: number; content: string }) => {
+        setEditingCommentId(c.id);
+        setEditingContent(c.content);
+        setCommentError(null);
+    };
+
+    const cancelEditingComment = () => {
+        setEditingCommentId(null);
+        setEditingContent('');
+    };
+
+    const handleUpdateComment = () => {
+        const trimmed = editingContent.trim();
+        if (!trimmed || editingCommentId === null) {
+            setCommentError("Comment can't be empty.");
+            return;
+        }
+        setCommentError(null);
+        updateComment(
+            { commentId: editingCommentId, content: trimmed },
+            {
+                onSuccess: () => {
+                    setEditingCommentId(null);
+                    setEditingContent('');
+                },
+                onError: (err: any) => {
+                    setCommentError(err?.response?.data?.message || "Couldn't update comment.");
+                },
+            }
+        );
+    };
+
+    const handleDeleteComment = () => {
+        if (commentToDelete === null) return;
+        deleteComment(commentToDelete, {
+            onSuccess: () => setCommentToDelete(null),
+            onError: () => setCommentToDelete(null),
         });
     };
 
@@ -471,37 +519,88 @@ export const TaskDetail: React.FC = () => {
                         </div>
                     ) : comments && comments.length > 0 ? (
                         <div className="space-y-3">
-                            {comments.map((c) => (
-                                <div
-                                    key={c.id}
-                                    className="flex items-start gap-3 p-3 bg-white/50 dark:bg-mint-900/40 rounded-xl border border-mint-900/10 dark:border-mint-300/15"
-                                >
-                                    {c.author.avatar ? (
-                                        <img
-                                            src={c.author.avatar}
-                                            alt={c.author.name}
-                                            className="w-7 h-7 rounded-lg object-cover border border-mint-700/25 flex-shrink-0"
-                                        />
-                                    ) : (
-                                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-mint-950/40 to-mint-900/40 border border-mint-700/25 flex items-center justify-center text-mint-900 dark:text-mint-50 text-[10px] font-black uppercase shadow-inner flex-shrink-0">
-                                            {c.author.name?.charAt(0).toUpperCase() || '?'}
+                            {comments.map((c) => {
+                                const isOwnComment = c.author.id === currentUserId;
+                                const isEditingThis = editingCommentId === c.id;
+
+                                return (
+                                    <div
+                                        key={c.id}
+                                        className="flex items-start gap-3 p-3 bg-white/50 dark:bg-mint-900/40 rounded-xl border border-mint-900/10 dark:border-mint-300/15"
+                                    >
+                                        {c.author.avatar ? (
+                                            <img
+                                                src={c.author.avatar}
+                                                alt={c.author.name}
+                                                className="w-7 h-7 rounded-lg object-cover border border-mint-700/25 flex-shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-mint-950/40 to-mint-900/40 border border-mint-700/25 flex items-center justify-center text-mint-900 dark:text-mint-50 text-[10px] font-black uppercase shadow-inner flex-shrink-0">
+                                                {c.author.name?.charAt(0).toUpperCase() || '?'}
+                                            </div>
+                                        )}
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <p className="font-display text-xs font-bold text-mint-900 dark:text-mint-50 truncate">
+                                                        {c.author.name}
+                                                    </p>
+                                                    <p className="font-mono-nav text-[10px] text-mint-800/40 dark:text-mint-300/40 flex-shrink-0">
+                                                        {new Date(c.createdAt).toLocaleString()}
+                                                    </p>
+                                                </div>
+
+                                                {isOwnComment && !isEditingThis && (
+                                                    <div className="flex items-center gap-1 flex-shrink-0">
+                                                        <button
+                                                            onClick={() => startEditingComment(c)}
+                                                            className="font-mono-nav px-2 py-1 text-[10px] font-bold text-mint-700 dark:text-mint-400 hover:bg-mint-900/5 dark:hover:bg-mint-300/10 rounded-lg transition-colors cursor-pointer"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setCommentToDelete(c.id)}
+                                                            className="font-mono-nav px-2 py-1 text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {isEditingThis ? (
+                                                <div className="mt-1.5 flex flex-col gap-1.5">
+                                                    <textarea
+                                                        value={editingContent}
+                                                        onChange={(e) => setEditingContent(e.target.value)}
+                                                        rows={2}
+                                                        className="font-mono-nav px-3 py-2 bg-white/60 dark:bg-mint-900/60 border border-mint-900/15 dark:border-mint-300/15 rounded-lg text-xs font-bold text-mint-900 dark:text-mint-50 outline-none resize-none focus:ring-2 focus:ring-mint-600/20 focus:border-mint-600 dark:focus:border-mint-400"
+                                                    />
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={cancelEditingComment}
+                                                            className="font-mono-nav px-3 py-1.5 bg-white/50 dark:bg-mint-900/40 hover:bg-white dark:hover:bg-mint-900 border border-mint-900/15 dark:border-mint-300/15 text-[11px] font-bold text-mint-900 dark:text-mint-50 rounded-lg transition-all cursor-pointer"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            onClick={handleUpdateComment}
+                                                            disabled={isUpdatingComment}
+                                                            className="font-mono-nav px-3 py-1.5 bg-mint-900 dark:bg-mint-400 hover:bg-mint-800 dark:hover:bg-mint-300 disabled:opacity-50 text-mint-50 dark:text-mint-950 text-[11px] font-bold rounded-lg shadow-sm transition-all cursor-pointer"
+                                                        >
+                                                            {isUpdatingComment ? 'Saving...' : 'Save'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="font-mono-nav text-xs text-mint-900/80 dark:text-mint-100/80 leading-relaxed whitespace-pre-wrap mt-0.5">
+                                                    {c.content}
+                                                </p>
+                                            )}
                                         </div>
-                                    )}
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-display text-xs font-bold text-mint-900 dark:text-mint-50">
-                                                {c.author.name}
-                                            </p>
-                                            <p className="font-mono-nav text-[10px] text-mint-800/40 dark:text-mint-300/40">
-                                                {new Date(c.createdAt).toLocaleString()}
-                                            </p>
-                                        </div>
-                                        <p className="font-mono-nav text-xs text-mint-900/80 dark:text-mint-100/80 leading-relaxed whitespace-pre-wrap mt-0.5">
-                                            {c.content}
-                                        </p>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <p className="font-mono-nav text-xs text-mint-800/40 dark:text-mint-300/40 italic">
@@ -540,6 +639,15 @@ export const TaskDetail: React.FC = () => {
                 confirmLabel="Delete"
                 onConfirm={handleDelete}
                 onCancel={() => setIsDeleteModalOpen(false)}
+            />
+
+            <ConfirmModal
+                isOpen={commentToDelete !== null}
+                title="Delete comment"
+                message="This permanently deletes the comment. This cannot be undone."
+                confirmLabel="Delete"
+                onConfirm={handleDeleteComment}
+                onCancel={() => setCommentToDelete(null)}
             />
         </div>
     );

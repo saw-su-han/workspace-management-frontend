@@ -146,7 +146,22 @@ export interface CommentItem {
     content: string;
     createdAt: string;
     author: CommentAuthor;
+
 }
+
+export type Comment = {
+    id: number;
+    content: string;
+    createdAt: string;
+    updatedAt?: string;
+    author: {
+        id: number;
+        name: string;
+        email?: string;
+        avatar?: string | null;
+    };
+};
+
 
 export interface NotificationItem {
 
@@ -654,14 +669,14 @@ export const useCreateComment = (workspaceId: number, taskId: number) => {
         },
     });
 }
-export const useComments = (workspaceId: number, taskId: number | null) => {
-    return useQuery<CommentItem[]>({
-        queryKey: ['tasks', 'comments', workspaceId, taskId],
+export const useComments = (workspaceId: number, taskId: number) => {
+    return useQuery({
+        queryKey: ['comments', workspaceId, taskId],
         queryFn: async () => {
-            const { data } = await api.get(`/workspaces/${workspaceId}/tasks/${taskId}/comments`);
-            return data.data;
+            const res = await api.get(`/workspaces/${workspaceId}/tasks/${taskId}/comments`);
+            return res.data.data as Comment[];
         },
-        enabled: !!workspaceId && !!taskId,
+        enabled: Number.isFinite(workspaceId) && Number.isFinite(taskId),
     });
 };
 
@@ -711,4 +726,34 @@ export function useClearAllNotifications(workspaceId: number) {
             queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
         },
     });
+}
+
+export const useUpdateComment = (workspaceId: number, taskId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ commentId, content }: {
+            commentId: number;
+            content: string
+        }) =>
+            api.patch(
+                `/workspaces/${workspaceId}/tasks/${taskId}/comments/${commentId}`,
+                { content }
+            ),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['comments', workspaceId, taskId] });
+        }
+    })
+}
+
+export const useDeleteComment = (workspaceId: number, taskId: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (commentId: number) =>
+            api.delete(`/workspaces/${workspaceId}/tasks/${taskId}/comments/${commentId}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['comments', workspaceId, taskId] });
+        }
+    })
 }
