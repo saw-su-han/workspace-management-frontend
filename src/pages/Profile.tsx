@@ -13,7 +13,7 @@ export const ProfilePage: React.FC = () => {
 
     const { data: userProfile, isLoading } = useProfile();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
-    useLogout();
+    const { mutate: handleLogoutServer, isPending: isLoggingOut } = useLogout();
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,6 +48,19 @@ export const ProfilePage: React.FC = () => {
             }
         };
     }, [localAvatarPreview]);
+
+    const executeLogoutPipeline = () => {
+        handleLogoutServer(undefined, {
+            onSuccess: () => {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            },
+            onError: () => {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            }
+        });
+    };
 
     // --- FILE SELECTION INTERCEPT HANDLER -------------------------------------
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,101 +137,129 @@ export const ProfilePage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
+            <div className="flex h-screen flex-col items-center justify-center bg-white dark:bg-gray-950 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
                 <FontFaces />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(15,23,42,0.04)_0%,_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(56,189,248,0.03)_0%,_transparent_60%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(16,185,129,0.04)_0%,_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(16,185,129,0.05)_0%,_transparent_60%)]" />
 
-                <div className="relative flex h-16 w-16 items-center justify-center">
-                    <div className="absolute inset-0 rounded-2xl bg-indigo-500/10 animate-ping" />
-                    <div className="relative inline-flex rounded-2xl h-12 w-12 bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-xl shadow-indigo-500/20 items-center justify-center text-white font-bold">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="relative flex h-20 w-20 items-center justify-center">
+                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_9s_linear_infinite] opacity-40 dark:opacity-60" fill="none">
+                        <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-emerald-600 dark:text-emerald-400" strokeWidth="0.75" strokeDasharray="1 5" />
+                        <path d="M50 8 L54 46 L50 50 L46 46 Z" className="fill-emerald-600 dark:fill-emerald-400" />
+                    </svg>
+                    <div className="relative inline-flex rounded-full h-9 w-9 bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-lg shadow-emerald-500/30 items-center justify-center">
+                        <span className="text-white text-sm font-bold">≈</span>
                     </div>
                 </div>
-                <div className="space-y-1 text-center relative">
-                    <p className="font-display text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200">Loading Profile</p>
-                    <p className="font-mono-nav text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">Synchronizing state...</p>
+                <div className="space-y-1 text-center relative px-4">
+                    <p className="font-display text-base font-bold tracking-tight text-gray-900 dark:text-white">Loading profile</p>
+                    <p className="font-mono-nav text-[10px] text-emerald-600/70 dark:text-emerald-400/60 uppercase tracking-[0.25em]">Please wait…</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300 flex flex-col antialiased relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300 flex flex-col antialiased relative overflow-x-hidden font-sans">
             <FontFaces />
 
-            {/* Clean, Modern Background Gradients */}
-            <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-violet-500/10 dark:bg-violet-500/5 blur-[120px] rounded-full pointer-events-none" />
+            {/* Subtle grid pattern background */}
+            <div
+                className="absolute inset-0 opacity-[0.4] dark:opacity-[0.15] pointer-events-none"
+                style={{
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.15) 1px, transparent 0)',
+                    backgroundSize: '32px 32px'
+                }}
+            />
+            {/* Atmospheric Background Glows */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 dark:bg-emerald-600/5 blur-[160px] rounded-full pointer-events-none" />
 
-            {/* MODERN FLOATING HEADER */}
-            <header className="h-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl px-6 sticky top-0 z-40 transition-colors flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-md shadow-indigo-500/20 text-white font-bold text-sm">
-                            ◆
+            {/* HEADER - RESPONSIVE MOBILE & DESKTOP */}
+            <header className="h-16 md:h-20 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl px-4 md:px-8 sticky top-0 z-40 transition-colors flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5 flex-shrink-0">
+                    <div className="relative flex h-9 w-9 md:h-10 md:w-10 items-center justify-center">
+                        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_14s_linear_infinite] opacity-70" fill="none">
+                            <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-emerald-600 dark:text-emerald-400" strokeWidth="1" strokeDasharray="0.5 7" />
+                        </svg>
+                        <div className="relative flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500/30">
+                            <span className="text-sm text-white font-bold">≈</span>
                         </div>
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="font-display font-bold text-base tracking-tight text-slate-900 dark:text-white hover:opacity-80 transition-opacity cursor-pointer"
-                        >
-                            Workspace
-                        </button>
                     </div>
-
-                    <div className="h-5 w-[1px] bg-slate-200 dark:bg-slate-800" />
-
-                    <nav className="flex items-center gap-1.5">
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="font-mono-nav text-xs font-medium px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                        >
-                            Dashboard
-                        </button>
-                        <button
-                            className="font-mono-nav text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50 cursor-default"
-                        >
-                            Profile
-                        </button>
-                    </nav>
+                    <div>
+                        <h1 className="font-display font-extrabold text-sm md:text-base tracking-tight text-gray-900 dark:text-white">Workspace</h1>
+                        <p className="font-mono-nav text-[9px] font-semibold text-gray-500 dark:text-gray-400 tracking-[0.25em] uppercase -mt-0.5">Profile Settings</p>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* DESKTOP NAV LINKS (CORRECTLY POSITIONED ON LEFT-MIDDLE OF HEADER) */}
+                <div className="hidden md:flex items-center gap-2 mr-auto ml-6">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="font-mono-nav text-xs font-bold px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-800 hover:border-emerald-500/40 transition-all cursor-pointer flex items-center gap-2"
+                    >
+                        <span>←</span> Back to Dashboard
+                    </button>
+                </div>
+
+                {/* CONTROLS (DESKTOP) */}
+                <div className="hidden md:flex items-center gap-3 flex-shrink-0">
                     <ThemeToggle />
-                    <div className="pl-3 border-l border-slate-200 dark:border-slate-800">
-                        <UserAvatar
-                            userProfile={userProfile}
-                            className="h-9 w-9 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-800 shadow-sm"
-                        />
-                    </div>
+
+                    <button
+                        onClick={executeLogoutPipeline}
+                        disabled={isLoggingOut}
+                        className="h-10 w-10 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 cursor-pointer"
+                        title="Logout"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+
+                    <UserAvatar
+                        userProfile={userProfile}
+                        className="h-9 w-9 rounded-full object-cover border-2 border-emerald-600/50 shadow-sm"
+                    />
+                </div>
+
+                {/* MOBILE CONTROLS */}
+                <div className="flex md:hidden items-center gap-2">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="font-mono-nav text-xs font-bold px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-800"
+                    >
+                        Dashboard
+                    </button>
                 </div>
             </header>
 
-            {/* MODERN CARD CONTAINER LAYOUT */}
-            <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-10 relative z-10 space-y-6">
+            {/* MAIN CONTENT AREA (COMPACT SIZING) */}
+            <main className="flex-1 max-w-2xl w-full mx-auto p-4 sm:p-6 md:p-8 relative z-10 space-y-6">
 
-                {/* Hero Profile Banner */}
-                <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-xl overflow-hidden">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-500/10 via-transparent to-transparent pointer-events-none" />
+                {/* HERO PROFILE CARD (COMPACT) */}
+                <div className="relative rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 p-5 sm:p-6 shadow-lg overflow-hidden backdrop-blur-xl">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
 
-                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-5 relative z-10">
                         {/* Avatar Picker Container */}
-                        <div className="relative group/avatar">
+                        <div className="relative group/avatar flex-shrink-0">
                             <UserAvatar
                                 userProfile={userProfile}
                                 previewUrl={localAvatarPreview}
-                                className="h-28 w-28 rounded-2xl object-cover ring-4 ring-slate-100 dark:ring-slate-800 shadow-lg"
+                                className="h-20 w-20 rounded-xl object-cover border-2 border-emerald-600/40 shadow-md"
                             />
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUpdating}
-                                className="absolute -bottom-2 -right-2 h-9 w-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center ring-4 ring-white dark:ring-slate-900 shadow-lg transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
+                                className="absolute -bottom-1.5 -right-1.5 h-7 w-7 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center ring-2 ring-white dark:ring-gray-950 shadow transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
                                 title="Change avatar"
                             >
                                 {isUpdating ? (
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <span className="text-xs font-bold">📷</span>
+                                    <span className="text-[10px] font-bold">📷</span>
                                 )}
                             </button>
                             <input
@@ -231,75 +272,75 @@ export const ProfilePage: React.FC = () => {
                         </div>
 
                         {/* User Details */}
-                        <div className="space-y-2 text-center sm:text-left flex-1">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
-                                <h1 className="font-display font-bold text-2xl text-slate-900 dark:text-white tracking-tight">
+                        <div className="space-y-1.5 text-center sm:text-left flex-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                                <h2 className="font-display font-extrabold text-xl text-gray-900 dark:text-white tracking-tight">
                                     {userProfile?.name || 'Workspace User'}
-                                </h1>
-                                <span className="inline-flex items-center gap-1.5 self-center sm:self-auto font-mono-nav text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                </h2>
+                                <span className="inline-flex items-center gap-1.5 self-center sm:self-auto font-mono-nav text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                     Active Account
                                 </span>
                             </div>
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                                 {userProfile?.email || 'No email associated'}
                             </p>
-                            <div className="pt-2 flex items-center justify-center sm:justify-start gap-2">
-                                <span className="font-mono-nav text-[11px] text-slate-400 dark:text-slate-500">
-                                    ID: <span className="text-slate-700 dark:text-slate-300 font-medium">{userProfile?.id || 'N/A'}</span>
+                            <div className="pt-1 flex items-center justify-center sm:justify-start gap-2">
+                                <span className="font-mono-nav text-[10px] text-gray-400 dark:text-gray-500">
+                                    ID: <span className="text-gray-700 dark:text-gray-300 font-bold">#{userProfile?.id || 'N/A'}</span>
                                 </span>
                             </div>
                         </div>
                     </div>
 
                     {avatarError && (
-                        <div className="mt-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-medium font-mono-nav flex items-center gap-2">
+                        <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-medium font-mono-nav flex items-center gap-2">
                             <span>⚠️</span> {avatarError}
                         </div>
                     )}
                 </div>
 
-                {/* Main Settings Panel */}
-                <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-xl space-y-6">
+                {/* PERSONAL INFORMATION SETTINGS CARD (COMPACT) */}
+                <div className="rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 p-5 sm:p-6 shadow-lg backdrop-blur-xl space-y-5">
                     <div>
-                        <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white">
+                        <h3 className="font-display font-extrabold text-base text-gray-900 dark:text-white tracking-tight">
                             Personal Information
                         </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            Update your display name and personal preferences.
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            Update your display name across all active workspaces.
                         </p>
                     </div>
 
-                    <div className="border-t border-slate-100 dark:border-slate-800/80 pt-6 space-y-5">
-                        <div className="space-y-2">
-                            <label className="block font-mono-nav text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    <div className="border-t border-gray-100 dark:border-gray-800 pt-5 space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="block font-mono-nav text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
                                 Display Name
                             </label>
                             <input
                                 type="text"
                                 value={nameDraft}
                                 onChange={(e) => setNameDraft(e.target.value)}
-                                className="font-sans w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all disabled:opacity-50"
+                                className="font-sans w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none transition-all disabled:opacity-50"
                                 placeholder="Enter your name"
                                 disabled={isUpdating}
                             />
                             {nameError && (
-                                <p className="font-mono-nav text-xs font-medium text-rose-600 dark:text-rose-400 pt-1 flex items-center gap-1.5">
+                                <p className="font-mono-nav text-xs font-bold text-rose-600 dark:text-rose-400 pt-1 flex items-center gap-1.5">
                                     <span>⚠️</span> {nameError}
                                 </p>
                             )}
                             {nameSuccess && (
-                                <p className="font-mono-nav text-xs font-medium text-emerald-600 dark:text-emerald-400 pt-1 flex items-center gap-1.5">
+                                <p className="font-mono-nav text-xs font-bold text-emerald-600 dark:text-emerald-400 pt-1 flex items-center gap-1.5">
                                     <span>✓</span> Changes saved successfully!
                                 </p>
                             )}
                         </div>
 
-                        <div className="flex justify-end pt-2">
+                        <div className="flex justify-end pt-1">
                             <button
                                 onClick={handleNameSave}
                                 disabled={isUpdating || nameDraft.trim() === userProfile?.name}
-                                className="font-mono-nav px-6 py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
+                                className="font-mono-nav px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
                             >
                                 {isUpdating ? 'Saving...' : 'Save Changes'}
                             </button>

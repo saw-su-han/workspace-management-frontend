@@ -22,7 +22,7 @@
 
 @layer base {
     body {
-        background-color: var(--color-mint-50);
+        background-color: #ffffff;
         color: var(--color-mint-900);
         font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -31,7 +31,7 @@
     }
 
     .dark body {
-        background-color: var(--color-mint-950);
+        background-color: #0b0f19;
         color: var(--color-mint-50);
     }
 }

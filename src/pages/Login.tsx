@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "../hooks/useAuth";
-import { AuthCard } from "../Components/AuthCard";
 import { Input } from "../Components/Input";
 import { loginSchema, type LoginInput } from "../schema/auth.schema";
 import { ThemeToggle } from "../Components/ThemeToggle";
@@ -26,6 +25,7 @@ export const Login = () => {
     const loginMutation = useLogin();
     const [customError, setCustomError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
         resolver: zodResolver(loginSchema),
@@ -56,92 +56,180 @@ export const Login = () => {
         });
     };
 
-    const HeaderNav = (
-        <>
-            <Link to="/" className="flex items-center gap-3 group">
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-mint-900 to-mint-600 shadow-md shadow-mint-500/20 ring-1 ring-mint-700/30 group-hover:scale-105 transition-transform">
-                    <span className="font-display text-lg font-semibold text-mint-50">≈</span>
-                </div>
-                <span className="text-xl font-bold tracking-tight text-mint-900 dark:text-mint-50 font-display">
-                    Project<span className="text-mint-700 dark:text-mint-400">Hive</span>
-                </span>
-            </Link>
-
-            <nav className="flex items-center gap-4 sm:gap-6">
-                <Link
-                    to="/"
-                    className="font-mono-nav text-xs font-semibold tracking-wider text-mint-900/70 hover:text-mint-900 dark:text-mint-300/80 dark:hover:text-mint-300 transition-colors uppercase"
-                >
-                    Home
-                </Link>
-                <Link
-                    to="/register"
-                    className="font-mono-nav text-xs font-semibold tracking-wider px-3.5 py-1.5 rounded-lg bg-mint-900/10 dark:bg-mint-300/15 hover:bg-mint-900/20 dark:hover:bg-mint-300/25 text-mint-900 dark:text-mint-50 transition-all uppercase"
-                >
-                    Register Workspace
-                </Link>
-                <ThemeToggle />
-            </nav>
-        </>
-    );
-
     return (
-        <AuthCard title="Sign In" subtitle="Access your team workspace network" headerNav={HeaderNav}>
-            {customError && (
-                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-600 dark:text-red-400 mb-5 text-center tracking-wide font-mono-nav">
-                    ⚠️ {customError}
+        <div className="relative flex min-h-screen w-full flex-col items-center justify-between bg-white dark:bg-gray-950 px-4 py-6 text-gray-900 dark:text-gray-50 transition-colors duration-300 overflow-x-hidden font-sans">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+                body { font-family: 'Plus Jakarta Sans', sans-serif; }
+                .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+                .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+            `}</style>
+
+            {/* Subtle grid pattern background */}
+            <div
+                className="absolute inset-0 opacity-[0.4] dark:opacity-[0.15] pointer-events-none"
+                style={{
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.15) 1px, transparent 0)',
+                    backgroundSize: '32px 32px'
+                }}
+            />
+
+            {/* Ambient background glows */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 dark:bg-emerald-600/5 blur-[160px] rounded-full pointer-events-none" />
+
+            {/* TOP NAVIGATION BAR */}
+            <header className="relative w-full max-w-5xl flex items-center justify-between py-3.5 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm z-30 mb-8">
+                <Link to="/" className="flex items-center gap-2.5 group">
+                    <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-md shadow-emerald-500/20">
+                        <span className="font-display text-sm font-bold text-white">≈</span>
+                    </div>
+                    <span className="font-display font-extrabold text-lg text-gray-900 dark:text-white tracking-tight">
+                        ProjectHive
+                    </span>
+                </Link>
+
+                {/* DESKTOP NAV */}
+                <div className="hidden md:flex items-center gap-4">
+                    <Link
+                        to="/"
+                        className="font-mono-nav text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 transition-colors"
+                    >
+                        Home
+                    </Link>
+                    <Link
+                        to="/register"
+                        className="font-mono-nav rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20 active:scale-[0.98]"
+                    >
+                        Register Workspace
+                    </Link>
+                    <ThemeToggle />
+                </div>
+
+                {/* MOBILE NAV TOGGLE */}
+                <div className="flex md:hidden items-center gap-2">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            {isMobileMenuOpen ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                            )}
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            {/* MOBILE DROPDOWN MENU */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden w-full max-w-5xl border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-xl z-30 mb-6 rounded-2xl">
+                    <div className="flex flex-col gap-2">
+                        <Link
+                            to="/"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="font-mono-nav w-full py-2.5 px-4 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-semibold uppercase tracking-wider"
+                        >
+                            Home
+                        </Link>
+                        <Link
+                            to="/register"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="font-mono-nav w-full py-2.5 px-4 rounded-xl bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider text-center shadow-md shadow-emerald-500/20"
+                        >
+                            Register Workspace
+                        </Link>
+                    </div>
                 </div>
             )}
 
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                <Input
-                    label="Work Email"
-                    type="email"
-                    placeholder="name@company.com"
-                    error={errors.email?.message}
-                    {...register("email")}
-                />
+            {/* MAIN CONTENT AREA MATCHING HOME PAGE ARCHITECTURE */}
+            <div className="relative my-auto flex flex-col items-center max-w-xl w-full z-10 py-6">
 
-                <div className="relative">
-                    <Input
-                        label="Password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        error={errors.password?.message}
-                        {...register("password")}
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        tabIndex={-1}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                        className="absolute right-3 top-[34px] text-mint-900/40 hover:text-mint-900 dark:text-mint-300/50 dark:hover:text-mint-300 transition-colors"
-                    >
-                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
+                {/* Hero / Header Intro */}
+                <div className="relative max-w-lg text-center mb-8 space-y-3">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                        Secure Authentication Gateway
+                    </div>
+                    <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-gray-900 dark:text-white tracking-tight">
+                        Sign In to Your Workspace
+                    </h1>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        Access team project boards, communication channels, and secure pipelines.
+                    </p>
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={loginMutation.isPending}
-                    className="font-mono-nav w-full mt-2 rounded-lg bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 hover:bg-mint-800 dark:hover:bg-mint-300 active:scale-[0.99] disabled:opacity-50 py-3 text-xs font-bold uppercase tracking-wide transition-all shadow-md cursor-pointer"
-                >
-                    {loginMutation.isPending ? "Verifying Profile..." : "Login"}
-                </button>
-            </form>
+                {/* Styled Login Card Container */}
+                <div className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 sm:p-10 rounded-3xl shadow-xl space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="mt-8 flex flex-col items-center gap-3 border-t border-mint-900/10 dark:border-mint-300/15 pt-5 text-xs font-medium text-mint-900/60 dark:text-mint-100/50">
-                <span>
-                    New here?{" "}
-                    <Link to="/register" className="text-mint-700 dark:text-mint-300 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
-                        Register Workspace
-                    </Link>
-                </span>
+                    {customError && (
+                        <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-600 dark:text-red-400 text-center tracking-wide font-mono-nav">
+                            ⚠️ {customError}
+                        </div>
+                    )}
 
-                <Link to="/" className="font-mono-nav text-[11px] text-mint-900/50 hover:text-mint-900 dark:text-mint-300/60 dark:hover:text-mint-300 flex items-center gap-1 transition-colors mt-1">
-                    ← Return to Introduction
-                </Link>
+                    <form className="space-y-4 relative z-10" onSubmit={handleSubmit(onSubmit)}>
+                        <Input
+                            label="Work Email"
+                            type="email"
+                            placeholder="name@company.com"
+                            error={errors.email?.message}
+                            {...register("email")}
+                        />
+
+                        <div className="relative">
+                            <Input
+                                label="Password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                error={errors.password?.message}
+                                {...register("password")}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                tabIndex={-1}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                            >
+                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                            </button>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loginMutation.isPending}
+                            className="font-mono-nav w-full mt-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+                        >
+                            {loginMutation.isPending ? "Verifying Profile..." : "Login to Workspace →"}
+                        </button>
+                    </form>
+
+                    <div className="mt-6 flex flex-col items-center gap-3 border-t border-gray-200 dark:border-gray-800 pt-5 text-xs font-medium text-gray-500 dark:text-gray-400 relative z-10">
+                        <span>
+                            New here?{" "}
+                            <Link to="/register" className="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
+                                Register Workspace
+                            </Link>
+                        </span>
+
+                        <Link to="/" className="font-mono-nav text-[11px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 flex items-center gap-1 transition-colors mt-1">
+                            ← Return to Home Overview
+                        </Link>
+                    </div>
+                </div>
+
             </div>
-        </AuthCard>
+
+            {/* FOOTER */}
+            <span className="relative font-mono-nav text-[9px] font-semibold tracking-[0.25em] text-gray-400 dark:text-gray-500 uppercase select-none my-4">
+                Secure Corporate Provisioning · v1.0.0
+            </span>
+        </div>
     );
 };
