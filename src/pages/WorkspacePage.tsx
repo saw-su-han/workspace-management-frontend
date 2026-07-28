@@ -159,7 +159,6 @@ export const WorkspaceDetail: React.FC = () => {
 
         updateProject(
             {
-                workspaceId,
                 name: trimmed,
                 description: editDescription.trim() || undefined,
                 startDate: editStartDate || undefined,

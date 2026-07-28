@@ -1,5 +1,4 @@
 // src/pages/ProjectDetailPage.tsx
-import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useProjectDetails } from '../hooks/useAuth';

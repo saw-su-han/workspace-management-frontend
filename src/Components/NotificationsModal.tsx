@@ -1,5 +1,5 @@
 // src/pages/NotificationsPage.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { ConfirmModal } from '../Components/ConfirmModel';
