@@ -36,7 +36,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!token || !user) {
-    // return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
