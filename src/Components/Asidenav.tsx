@@ -1,10 +1,12 @@
 // src/components/AsideNav.tsx
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { useEffect, useState } from 'react';
 
 interface AsideNavProps {
     workspaceId: number;
     projectId?: number;
+    taskId?: number;
 }
 
 interface NavItem {
@@ -16,11 +18,51 @@ interface NavItem {
     hint?: string;
 }
 
-export function AsideNav({ workspaceId, projectId }: AsideNavProps) {
+export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const hasProject = typeof projectId === 'number' && !isNaN(projectId);
+    const projectStorageKey = `lastProjectId:${workspaceId}`;
+    const taskStorageKey = `lastTaskId:${workspaceId}`;
+
+    const [rememberedProjectId, setRememberedProjectId] = useState<number | null>(null);
+    const [rememberedTaskId, setRememberedTaskId] = useState<number | null>(null);
+
+    // On mount (or workspace change), recall the last project and task visited in this workspace
+    useEffect(() => {
+        const storedProj = localStorage.getItem(projectStorageKey);
+        const parsedProj = storedProj ? Number(storedProj) : NaN;
+        setRememberedProjectId(!isNaN(parsedProj) ? parsedProj : null);
+
+        const storedTask = localStorage.getItem(taskStorageKey);
+        const parsedTask = storedTask ? Number(storedTask) : NaN;
+        setRememberedTaskId(!isNaN(parsedTask) ? parsedTask : null);
+    }, [projectStorageKey, taskStorageKey]);
+
+    // Whenever we're on a page with a real projectId, remember it
+    useEffect(() => {
+        if (typeof projectId === 'number' && !isNaN(projectId)) {
+            localStorage.setItem(projectStorageKey, String(projectId));
+            setRememberedProjectId(projectId);
+        }
+    }, [projectId, projectStorageKey]);
+
+    // Whenever we're on a page with a real taskId, remember it
+    useEffect(() => {
+        if (typeof taskId === 'number' && !isNaN(taskId)) {
+            localStorage.setItem(taskStorageKey, String(taskId));
+            setRememberedTaskId(taskId);
+        }
+    }, [taskId, taskStorageKey]);
+
+    const effectiveProjectId =
+        typeof projectId === 'number' && !isNaN(projectId) ? projectId : rememberedProjectId;
+
+    const effectiveTaskId =
+        typeof taskId === 'number' && !isNaN(taskId) ? taskId : rememberedTaskId;
+
+    const hasProject = typeof effectiveProjectId === 'number' && !isNaN(effectiveProjectId);
+    const hasTask = typeof effectiveTaskId === 'number' && !isNaN(effectiveTaskId);
 
     const items: NavItem[] = [
         {
@@ -33,17 +75,33 @@ export function AsideNav({ workspaceId, projectId }: AsideNavProps) {
             key: 'project',
             label: 'Project Detail',
             icon: 'solar:folder-bold-duotone',
-            path: `/workspaces/${workspaceId}/projects/${projectId}`,
+            path: `/workspaces/${workspaceId}/projects/${effectiveProjectId}`,
             disabled: !hasProject,
-            hint: 'Open a project to enable this',
+            hint: 'Open a project first to enable this',
         },
         {
             key: 'assign',
             label: 'Assign Members',
             icon: 'solar:users-group-rounded-bold-duotone',
-            path: `/workspaces/${workspaceId}/projects/${projectId}/assign`,
+            path: `/workspaces/${workspaceId}/projects/${effectiveProjectId}/assign`,
             disabled: !hasProject,
-            hint: 'Open a project to enable this',
+            hint: 'Open a project first to enable this',
+        },
+        // {
+        //     key: 'task-detail',
+        //     label: 'Task Detail',
+        //     icon: 'solar:checklist-minimalistic-bold-duotone',
+        //     path: `/workspaces/${workspaceId}/tasks/${effectiveTaskId}`,
+        //     disabled: !hasTask,
+        //     hint: 'Open a task first to enable this',
+        // },
+        {
+            key: 'task-assign',
+            label: 'Task Assign',
+            icon: 'solar:user-check-bold-duotone',
+            path: `/workspaces/${workspaceId}/tasks/${effectiveTaskId}/assign`,
+            disabled: !hasTask,
+            hint: 'Open a task first to enable this',
         },
         {
             key: 'invite',
@@ -62,13 +120,10 @@ export function AsideNav({ workspaceId, projectId }: AsideNavProps) {
                 <span className="font-mono-nav text-[9px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Workspace #{workspaceId}
                 </span>
-                <h2 className="font-display text-sm font-extrabold tracking-tight text-gray-900 dark:text-white mt-0.5">
-                    Navigation
-                </h2>
             </div>
 
             {/* Nav items */}
-            <nav className="flex-1 px-3 py-4 space-y-1.5">
+            <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
                 {items.map((item) => {
                     const active = isActive(item.path);
                     return (

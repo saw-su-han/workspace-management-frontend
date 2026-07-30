@@ -1,5 +1,5 @@
 // src/pages/NotificationsPage.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { ConfirmModal } from '../Components/ConfirmModel';
@@ -32,12 +32,78 @@ export function NotificationsPage() {
 
     const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
-    const list = Array.isArray(notifications) ? notifications : [];
-    const unreadCount = list.filter((n: any) => !n.isRead).length;
+    // Initialize local overrides from sessionStorage so they persist when navigating between pages
+    const storageKey = `notificationOverrides_${workspaceId}`;
+    const [readOverrides, setReadOverrides] = useState<Record<number, boolean>>(() => {
+        try {
+            const saved = sessionStorage.getItem(storageKey);
+            return saved ? JSON.parse(saved) : {};
+        } catch {
+            return {};
+        }
+    });
+
+    // Save overrides to sessionStorage whenever they change
+    useEffect(() => {
+        try {
+            sessionStorage.setItem(storageKey, JSON.stringify(readOverrides));
+        } catch (e) {
+            console.error(e);
+        }
+    }, [readOverrides, storageKey]);
+
+    const rawList = Array.isArray(notifications) ? notifications : [];
+
+    // Merge server data with local optimistic state overrides
+    const list = rawList.map((item: any) => {
+        const id = item.notification?.id ?? item.id;
+        if (readOverrides[id] !== undefined) {
+            return {
+                ...item,
+                isRead: readOverrides[id],
+                notification: item.notification ? { ...item.notification, isRead: readOverrides[id] } : undefined
+            };
+        }
+        return item;
+    });
+
+    // Updated unread count calculation utilizing your exact logic combined with overrides
+    const unreadCount = Array.isArray(list)
+        ? list.filter((n: any) => !(n.isRead ?? n.notification?.isRead)).length
+        : 0;
+
+    const updateUnreadCountInStorageAndDispatch = (newOverrides: Record<number, boolean>) => {
+        setReadOverrides(newOverrides);
+        window.dispatchEvent(new Event('notificationsUpdated'));
+    };
 
     const handleMarkAllRead = () => {
         markAllAsRead(undefined, {
-            onSuccess: () => refetch(),
+            onSuccess: () => {
+                const allReadMap: Record<number, boolean> = {};
+                list.forEach((item: any) => {
+                    const id = item.notification?.id ?? item.id;
+                    if (id !== undefined) allReadMap[id] = true;
+                });
+                updateUnreadCountInStorageAndDispatch(allReadMap);
+                refetch();
+            },
+        });
+    };
+
+    const handleSingleMarkRead = (notificationId: number) => {
+        const updatedOverrides = { ...readOverrides, [notificationId]: true };
+        updateUnreadCountInStorageAndDispatch(updatedOverrides);
+
+        markAsRead(notificationId, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: () => {
+                const reverted = { ...readOverrides };
+                delete reverted[notificationId];
+                updateUnreadCountInStorageAndDispatch(reverted);
+            }
         });
     };
 
@@ -45,6 +111,8 @@ export function NotificationsPage() {
         clearAll(undefined, {
             onSuccess: () => {
                 setIsClearConfirmOpen(false);
+                updateUnreadCountInStorageAndDispatch({});
+                sessionStorage.removeItem(storageKey);
                 refetch();
             },
         });
@@ -121,45 +189,48 @@ export function NotificationsPage() {
                         </div>
                     ) : (
                         <div className="divide-y divide-mint-900/10 dark:divide-mint-300/10">
-                            {list.map((item: any, index: number) => (
-                                <div
-                                    key={item.notification?.id ?? index}
-                                    className={`p-4 md:p-5 flex items-start justify-between gap-4 transition-colors ${!item.isRead ? 'bg-mint-500/[0.04] dark:bg-mint-400/[0.05]' : ''
-                                        }`}
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!item.isRead ? 'bg-mint-600 dark:bg-mint-400' : 'bg-transparent'
-                                            }`} />
-                                        <div>
-                                            <p className="font-display text-xs font-bold text-mint-900 dark:text-mint-50">
-                                                {formatType(item.notification?.type)}
-                                            </p>
-                                            <p className="font-mono-nav text-[11px] text-mint-900/70 dark:text-mint-100/80 mt-0.5">
-                                                {item.notification?.message || 'New update in workspace'}
-                                            </p>
-                                            {item.notification?.createdAt && (
-                                                <p className="font-mono-nav text-[10px] text-mint-800/40 dark:text-mint-300/40 mt-1">
-                                                    {new Date(item.notification.createdAt).toLocaleString('en-US', {
-                                                        month: 'short',
-                                                        day: 'numeric',
-                                                        hour: 'numeric',
-                                                        minute: '2-digit',
-                                                    })}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
+                            {list.map((item: any, index: number) => {
+                                const isItemRead = item.isRead ?? item.notification?.isRead;
+                                const notificationId = item.notification?.id ?? item.id;
 
-                                    {!item.isRead && (
-                                        <button
-                                            onClick={() => markAsRead(item.notification.id, { onSuccess: () => refetch() })}
-                                            className="font-mono-nav text-[10px] font-bold text-mint-600 dark:text-mint-400 hover:underline flex-shrink-0 cursor-pointer"
-                                        >
-                                            Mark read
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
+                                return (
+                                    <div
+                                        key={notificationId ?? index}
+                                        className={`p-4 md:p-5 flex items-start justify-between gap-4 transition-colors ${!isItemRead ? 'bg-mint-500/[0.04] dark:bg-mint-400/[0.05]' : ''}`}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!isItemRead ? 'bg-mint-600 dark:bg-mint-400' : 'bg-transparent'}`} />
+                                            <div>
+                                                <p className="font-display text-xs font-bold text-mint-900 dark:text-mint-50">
+                                                    {formatType(item.notification?.type ?? item.type)}
+                                                </p>
+                                                <p className="font-mono-nav text-[11px] text-mint-900/70 dark:text-mint-100/80 mt-0.5">
+                                                    {item.notification?.message || item.message || 'New update in workspace'}
+                                                </p>
+                                                {(item.notification?.createdAt || item.createdAt) && (
+                                                    <p className="font-mono-nav text-[10px] text-mint-800/40 dark:text-mint-300/40 mt-1">
+                                                        {new Date(item.notification?.createdAt || item.createdAt).toLocaleString('en-US', {
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            hour: 'numeric',
+                                                            minute: '2-digit',
+                                                        })}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {!isItemRead && (
+                                            <button
+                                                onClick={() => handleSingleMarkRead(notificationId)}
+                                                className="font-mono-nav text-[10px] font-bold text-mint-600 dark:text-mint-400 hover:underline flex-shrink-0 cursor-pointer"
+                                            >
+                                                Mark read
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

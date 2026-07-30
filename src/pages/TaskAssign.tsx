@@ -1,14 +1,22 @@
 // src/pages/TaskAssignPage.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { AsideNav } from '../Components/Asidenav';
 import {
     useTaskDetails,
     useWorkspaceMembers,
-    useAssignTask,
-    useWorkspaceDetails,
-    type WorkspaceMemberItem,
+    useAssignTask
 } from '../hooks/useAuth';
+
+const FontFaces = () => (
+    <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono-nav { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    `}</style>
+);
 
 export const TaskAssign: React.FC = () => {
     const { workspaceId: workspaceIdParam, taskId: taskIdParam } = useParams<{ workspaceId: string; taskId: string }>();
@@ -17,207 +25,215 @@ export const TaskAssign: React.FC = () => {
     const navigate = useNavigate();
 
     const { data: task, isLoading: isTaskLoading } = useTaskDetails(workspaceId, taskId);
-    const { data: workspace } = useWorkspaceDetails(workspaceId);
     const { data: members, isLoading: isMembersLoading } = useWorkspaceMembers(workspaceId);
-    const { mutate: assignTask, isPending: isAssigning } = useAssignTask(workspaceId, taskId);
+    const { mutate: assignTask, isPending, isSuccess } = useAssignTask(workspaceId, taskId);
 
-    const [search, setSearch] = useState('');
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-    const [assignError, setAssignError] = useState<string | null>(null);
-    const [assignedFlash, setAssignedFlash] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
-    const filteredMembers = (members || []).filter((m) =>
-        !search.trim() ||
-        m.name?.toLowerCase().includes(search.toLowerCase()) ||
-        m.email?.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredMembers = members?.filter((member) => {
+        const query = searchQuery.toLowerCase();
+        const nameMatch = member.name?.toLowerCase().includes(query);
+        const emailMatch = member.email?.toLowerCase().includes(query);
+        return nameMatch || emailMatch;
+    });
 
-    const handleAssign = (member: WorkspaceMemberItem) => {
-        setSelectedUserId(member.userId);
-        setAssignError(null);
-        assignTask(member.userId, {
+    const handleAssign = () => {
+        if (selectedUserId === null) {
+            setError('Pick a member to assign.');
+            return;
+        }
+        setError(null);
+        assignTask(selectedUserId, {
             onSuccess: () => {
-                setAssignedFlash(true);
-                setTimeout(() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`), 900);
+                navigate(`/workspaces/${workspaceId}/tasks/${taskId}`);
             },
             onError: (err: any) => {
-                setSelectedUserId(null);
-                setAssignError(err?.response?.data?.message || "Couldn't assign this task.");
-            },
+                setError(err?.response?.data?.message || "Couldn't assign task.");
+            }
         });
     };
 
-    const isLoading = isTaskLoading || isMembersLoading;
+    if (isTaskLoading || isMembersLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
+                    <span className="font-mono-nav text-xs font-bold tracking-wider uppercase text-gray-500 dark:text-gray-400">
+                        Loading Assignment...
+                    </span>
+                </div>
+            </div>
+        );
+    }
+
+    const currentAssigneeId = task?.assignee?.id;
 
     return (
-        <div className="min-h-screen w-full bg-white dark:bg-mint-950 text-mint-900 dark:text-mint-50 transition-colors duration-300">
+        <div className="flex min-h-screen w-full bg-white dark:bg-gray-950 font-sans">
+            <AsideNav workspaceId={workspaceId} taskId={taskId} />
+            <div className="flex-1 text-gray-900 dark:text-gray-50 transition-colors duration-300 antialiased relative overflow-x-hidden">
+                <FontFaces />
 
-            {/* Top Navigation Bar */}
-            <nav className="border-b border-mint-900/10 dark:border-mint-300/15 bg-white/80 dark:bg-mint-950/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4">
-                <div className="max-w-6xl mx-auto flex items-center justify-between">
+                {/* Subtle grid pattern background */}
+                <div
+                    className="absolute inset-0 opacity-[0.4] dark:opacity-[0.15] pointer-events-none"
+                    style={{
+                        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.15) 1px, transparent 0)',
+                        backgroundSize: '32px 32px'
+                    }}
+                />
+                {/* Atmospheric Background Glows */}
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 dark:bg-emerald-600/5 blur-[160px] rounded-full pointer-events-none" />
 
-                    {/* Left: Back Button with Text + Breadcrumbs */}
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`)}
-                            className="font-mono-nav px-3.5 py-2 bg-white/50 dark:bg-mint-900/40 hover:bg-white dark:hover:bg-mint-900 border border-mint-900/15 dark:border-mint-300/15 rounded-xl text-xs font-bold text-mint-900 dark:text-mint-50 transition-all shadow-sm cursor-pointer flex items-center gap-2"
-                        >
-                            <Icon icon="solar:arrow-left-linear" className="w-4 h-4 text-mint-700 dark:text-mint-400" />
-                            <span>Back to Task</span>
-                        </button>
+                {/* Top Navigation Bar */}
+                <nav className="h-16 md:h-20 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl sticky top-0 z-40 px-4 md:px-8 flex items-center transition-colors">
+                    <div className="max-w-6xl w-full mx-auto flex items-center justify-between">
 
-                        <div className="hidden sm:block space-y-0.5 border-l border-mint-900/10 dark:border-mint-300/15 pl-4">
-                            <div className="font-mono-nav flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-mint-800/60 dark:text-mint-300/60">
-                                <span>{workspace?.workspaceName || 'Workspace'}</span>
-                                {task?.project?.name && (
-                                    <>
-                                        <span>/</span>
-                                        <span>{task.project.name}</span>
-                                    </>
-                                )}
-                            </div>
-                            <h1 className="font-display text-base font-black tracking-tight text-mint-900 dark:text-mint-50">
-                                {task?.title || 'Assign Task'}
-                            </h1>
-                        </div>
-                    </div>
+                        {/* Left: Back Button + Breadcrumbs */}
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`)}
+                                className="font-mono-nav px-3.5 py-2 bg-gray-100 dark:bg-gray-900 hover:border-emerald-500/40 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-all cursor-pointer flex items-center gap-2"
+                            >
+                                <Icon icon="solar:arrow-left-linear" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <span>Back to Task</span>
+                            </button>
 
-                    {/* Right: Actions */}
-                    <div className="flex items-center gap-2.5">
-                        <button
-                            onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`)}
-                            className="font-mono-nav px-3.5 py-2 text-xs font-bold text-mint-900/70 dark:text-mint-300/70 hover:bg-white/50 dark:hover:bg-mint-900/40 border border-mint-900/15 dark:border-mint-300/15 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
-                        >
-                            <Icon icon="solar:checklist-minimalistic-bold-duotone" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" />
-                            View Task Details
-                        </button>
-                    </div>
-
-                </div>
-            </nav>
-
-            {/* Main Content Area */}
-            <div className="max-w-xl mx-auto p-6 md:p-8 mt-4">
-                <div className="mb-6">
-                    <h2 className="font-display text-xl md:text-2xl font-black tracking-tight text-mint-900 dark:text-mint-50 mb-1">
-                        Choose a member
-                    </h2>
-                    <p className="font-mono-nav text-xs text-mint-900/70 dark:text-mint-100/70">
-                        They'll get an in-app notification and an email as soon as you assign them.
-                    </p>
-                </div>
-
-                <div className="bg-white/60 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 rounded-2xl p-6 md:p-8 shadow-sm backdrop-blur-md space-y-4">
-                    {task?.assignee && (
-                        <div className="flex items-center gap-3 p-3.5 bg-white/50 dark:bg-mint-900/40 rounded-2xl border border-mint-900/15 dark:border-mint-300/15 shadow-sm">
-                            {task.assignee.avatar ? (
-                                <img
-                                    src={task.assignee.avatar}
-                                    alt={task.assignee.name}
-                                    className="w-8 h-8 rounded-xl object-cover border border-mint-700/25 flex-shrink-0"
-                                />
-                            ) : (
-                                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-mint-950/40 to-mint-900/40 border border-mint-700/25 flex items-center justify-center text-mint-900 dark:text-mint-50 text-xs font-black uppercase shadow-inner flex-shrink-0">
-                                    {task.assignee.name?.charAt(0).toUpperCase() || '?'}
+                            <div className="hidden sm:block space-y-0.5 border-l border-gray-200 dark:border-gray-800 pl-4">
+                                <div className="font-mono-nav flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    <span>Workspace #{workspaceId}</span>
+                                    <span>/</span>
+                                    <span className="text-emerald-600 dark:text-emerald-400">Task Assignment</span>
                                 </div>
-                            )}
-                            <p className="font-mono-nav text-xs text-mint-900/80 dark:text-mint-100/80">
-                                Currently assigned to <span className="font-bold text-mint-900 dark:text-mint-50">{task.assignee.name}</span>
-                            </p>
+                                <h1 className="font-display text-base font-extrabold tracking-tight text-gray-900 dark:text-white truncate max-w-md">
+                                    {task?.title || `Task #${taskId}`}
+                                </h1>
+                            </div>
                         </div>
-                    )}
 
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-mint-700/50 dark:text-mint-400/50">
-                            <Icon icon="solar:magnifer-linear" className="w-4 h-4" />
+                        {/* Right: Actions */}
+                        <div className="flex items-center gap-2.5">
+                            <button
+                                onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`)}
+                                className="font-mono-nav px-3.5 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                            >
+                                <Icon icon="solar:checklist-minimalistic-bold-duotone" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                Task Details
+                            </button>
                         </div>
-                        <input
-                            type="text"
-                            placeholder="Search members..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full font-mono-nav pl-10 pr-4 py-2.5 text-xs bg-white/50 dark:bg-mint-900/40 border border-mint-900/15 dark:border-mint-300/15 rounded-xl outline-none text-mint-900 dark:text-mint-50 placeholder:text-mint-800/40 dark:placeholder:text-mint-300/40 focus:ring-2 focus:ring-mint-600/20 focus:border-mint-600 dark:focus:border-mint-400 transition-all"
-                        />
+
+                    </div>
+                </nav>
+
+                {/* Main Content Area */}
+                <div className="max-w-xl mx-auto p-4 sm:p-6 md:p-8 mt-4 relative z-10">
+                    <div className="mb-6">
+                        <h1 className="font-display text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-1">
+                            Assign Task
+                        </h1>
+                        <p className="font-mono-nav text-xs text-gray-500 dark:text-gray-400 truncate">
+                            Assigning: <span className="text-gray-700 dark:text-gray-300 font-bold">{task?.title}</span>
+                        </p>
                     </div>
 
-                    {assignError && (
-                        <p className="font-mono-nav text-[11px] text-rose-600 dark:text-rose-400 font-bold bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
-                            {assignError}
-                        </p>
-                    )}
-                    {assignedFlash && (
-                        <p className="font-mono-nav text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
-                            Assigned ✓ — heading back to the task...
-                        </p>
-                    )}
+                    <div className="rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 p-5 sm:p-6 md:p-8 shadow-lg backdrop-blur-xl space-y-4">
 
-                    {isLoading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="w-8 h-8 rounded-full border-2 border-mint-600 border-t-transparent animate-spin" />
+                        {/* Search Members */}
+                        <div className="relative">
+                            <Icon icon="solar:magnifer-linear" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Search workspace members..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full font-mono-nav pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 placeholder:text-gray-400"
+                            />
                         </div>
-                    ) : filteredMembers.length === 0 ? (
-                        <div className="border border-dashed border-mint-900/15 dark:border-mint-300/20 rounded-2xl p-10 flex flex-col items-center justify-center text-center bg-white/30 dark:bg-mint-900/20">
-                            <Icon icon="solar:users-group-rounded-bold-duotone" className="w-8 h-8 text-mint-700/50 dark:text-mint-400/50 mb-2" />
-                            <h4 className="font-display text-xs font-bold text-mint-900 dark:text-mint-50">No members found</h4>
-                            <p className="font-mono-nav text-[11px] text-mint-900/60 dark:text-mint-100/60 max-w-xs mt-1">
-                                No members match that search query.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-                            {filteredMembers.map((member) => {
-                                const isCurrentAssignee = (task?.assignee as any)?.id === member.userId;
-                                const isThisRowAssigning = isAssigning && selectedUserId === member.userId;
-                                return (
-                                    <button
-                                        key={member.userId}
-                                        onClick={() => !isCurrentAssignee && handleAssign(member)}
-                                        disabled={isAssigning || isCurrentAssignee}
-                                        className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition-all text-left cursor-pointer ${isCurrentAssignee
-                                                ? 'border-emerald-500/30 bg-emerald-500/5 opacity-80 cursor-default'
-                                                : selectedUserId === member.userId
-                                                    ? 'border-mint-600 dark:border-mint-400 bg-mint-500/10 dark:bg-mint-400/10 shadow-sm'
-                                                    : 'border-mint-900/15 dark:border-mint-300/15 bg-white/50 dark:bg-mint-900/40 hover:bg-white dark:hover:bg-mint-900'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-3 min-w-0">
+
+                        {/* Members List */}
+                        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                            {filteredMembers && filteredMembers.length > 0 ? (
+                                filteredMembers.map((member) => {
+                                    const isCurrentAssignee = currentAssigneeId === member.userId;
+                                    const isSelected = selectedUserId === member.userId;
+
+                                    return (
+                                        <label
+                                            key={member.userId}
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-2xl border cursor-pointer transition-all ${isSelected
+                                                ? 'border-emerald-600 dark:border-emerald-400 bg-emerald-500/10 shadow-sm'
+                                                : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 hover:border-emerald-500/40'
+                                                }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="assignee"
+                                                checked={isSelected}
+                                                onChange={() => setSelectedUserId(member.userId)}
+                                                className="accent-emerald-600"
+                                            />
                                             {member.avatar ? (
                                                 <img
                                                     src={member.avatar}
                                                     alt={member.name}
-                                                    className="w-8 h-8 rounded-xl object-cover border border-mint-700/20 flex-shrink-0"
+                                                    className="w-8 h-8 rounded-xl object-cover border-2 border-emerald-600/40"
                                                 />
                                             ) : (
-                                                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-mint-950/40 to-mint-900/40 border border-mint-700/20 flex items-center justify-center text-mint-900 dark:text-mint-50 text-xs font-black uppercase shadow-inner flex-shrink-0">
-                                                    {member.name?.charAt(0).toUpperCase() || '?'}
+                                                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-500 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm flex-shrink-0">
+                                                    {member.name?.charAt(0) || 'U'}
                                                 </div>
                                             )}
-                                            <div className="min-w-0">
-                                                <p className="font-display text-xs font-bold text-mint-900 dark:text-mint-50 truncate">
-                                                    {member.name}
-                                                </p>
-                                                <p className="font-mono-nav text-[10px] text-mint-800/60 dark:text-mint-300/60 truncate">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="font-display text-xs font-bold text-gray-900 dark:text-white truncate">
+                                                        {member.name}
+                                                    </p>
+                                                    {isCurrentAssignee && (
+                                                        <span className="font-mono-nav text-[9px] font-extrabold uppercase px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md">
+                                                            Current
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="font-mono-nav text-[10px] text-gray-400 dark:text-gray-500 truncate">
                                                     {member.email}
                                                 </p>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                            <span className="font-mono-nav text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-mint-900/5 dark:bg-mint-300/10 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-mint-300/15">
+                                            <span className="font-mono-nav text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                                 {member.role}
                                             </span>
-                                            {isCurrentAssignee ? (
-                                                <span className="font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Assigned</span>
-                                            ) : (
-                                                <span className="font-mono-nav text-[10px] font-bold text-mint-700 dark:text-mint-400 flex items-center gap-1">
-                                                    {isThisRowAssigning ? 'Assigning...' : <>Assign <Icon icon="solar:arrow-right-linear" className="w-3 h-3" /></>}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </button>
-                                );
-                            })}
+                                        </label>
+                                    );
+                                })
+                            ) : (
+                                <p className="font-mono-nav text-xs text-gray-400 dark:text-gray-500 text-center py-6">
+                                    No members found matching your search.
+                                </p>
+                            )}
                         </div>
-                    )}
+
+                        {error && (
+                            <p className="font-mono-nav text-[11px] text-rose-600 dark:text-rose-400 font-bold bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 flex items-center gap-2">
+                                <span>⚠️</span> {error}
+                            </p>
+                        )}
+                        {isSuccess && (
+                            <p className="font-mono-nav text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 flex items-center gap-2">
+                                <span>✓</span> Task assigned successfully.
+                            </p>
+                        )}
+
+                        <button
+                            onClick={handleAssign}
+                            disabled={isPending || selectedUserId === null}
+                            className="w-full font-mono-nav px-4 py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <Icon icon="solar:user-check-rounded-bold-duotone" className="w-4 h-4" />
+                            <span>{isPending ? 'Assigning...' : 'Confirm Assignment'}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

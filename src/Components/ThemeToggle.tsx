@@ -1,20 +1,32 @@
-// src/Components/ThemeToggle.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export const ThemeToggle: React.FC = () => {
-    const [isDark, setIsDark] = useState(() =>
-        document.body.classList.contains("dark")
-    );
+    const storageKey = "theme_preference";
 
-    const toggleTheme = () => {
-        const nextDark = !isDark;
-        setIsDark(nextDark);
+    const [isDark, setIsDark] = useState(() => {
+        try {
+            const saved = sessionStorage.getItem(storageKey);
+            if (saved !== null) {
+                return saved === "dark";
+            }
+        } catch { }
+        return document.body.classList.contains("dark");
+    });
 
-        if (nextDark) {
+    useEffect(() => {
+        try {
+            sessionStorage.setItem(storageKey, isDark ? "dark" : "light");
+        } catch { }
+
+        if (isDark) {
             document.body.classList.add("dark");
         } else {
             document.body.classList.remove("dark");
         }
+    }, [isDark]);
+
+    const toggleTheme = () => {
+        setIsDark((prev) => !prev);
     };
 
     return (

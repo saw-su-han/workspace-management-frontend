@@ -220,10 +220,6 @@ export const WorkspaceDetail: React.FC = () => {
 
     const currentUserId = userProfile?.userId ?? userProfile?.id;
 
-    // Workspace owner's userId — used to identify the owner regardless of
-    // their stored `role` value and regardless of who is currently viewing.
-    // Different backends expose this under different keys, so check the
-    // common variants rather than assuming one exact shape.
     const workspaceOwnerId =
         (workspace as any)?.ownerId ??
         (workspace as any)?.owner?.userId ??
@@ -310,22 +306,12 @@ export const WorkspaceDetail: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen flex-col items-center justify-center bg-white dark:bg-mint-950 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
-                <FontFaces />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(3,48,39,0.06)_0%,_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(11,238,194,0.05)_0%,_transparent_60%)]" />
-
-                <div className="relative flex h-20 w-20 items-center justify-center">
-                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_9s_linear_infinite] opacity-40 dark:opacity-60" fill="none">
-                        <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-mint-700 dark:text-mint-400" strokeWidth="0.75" strokeDasharray="1 5" />
-                        <path d="M50 8 L54 46 L50 50 L46 46 Z" className="fill-mint-700 dark:fill-mint-400" />
-                    </svg>
-                    <div className="relative inline-flex rounded-full h-9 w-9 bg-gradient-to-tr from-mint-900 to-mint-600 shadow-lg shadow-mint-500/30 items-center justify-center">
-                        <span className="text-mint-50 text-sm font-bold">≈</span>
-                    </div>
-                </div>
-                <div className="space-y-1 text-center relative">
-                    <p className="font-display text-base font-bold tracking-tight text-gray-900 dark:text-white">Synchronizing Workspace Core</p>
-                    <p className="font-mono-nav text-[10px] text-mint-800/50 dark:text-mint-300/60 uppercase tracking-[0.25em]">Loading workspace data…</p>
+            <div className="flex h-screen w-full items-center justify-center bg-white dark:bg-mint-950 text-gray-900 dark:text-white">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 rounded-full border-2 border-mint-600 border-t-transparent animate-spin" />
+                    <span className="font-mono-nav text-xs font-bold tracking-wider uppercase text-mint-700 dark:text-mint-400">
+                        Loading Workspace...
+                    </span>
                 </div>
             </div>
         );
@@ -344,19 +330,14 @@ export const WorkspaceDetail: React.FC = () => {
                     backgroundSize: '32px 32px',
                 }}
             />
-            {/* Atmospheric Background Glows */}
             <div className="relative">
-                {/* Background blur effects */}
                 <div className="absolute top-0 right-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-blue-500/10 dark:bg-blue-500/5 blur-[160px] rounded-full pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-cyan-500/10 dark:bg-cyan-500/5 blur-[160px] rounded-full pointer-events-none" />
 
-                {/* JIRA-STYLE GLOBAL NAVIGATION HEADER */}
                 <header className="flex flex-col md:flex-row md:h-14 items-stretch md:items-center justify-between border-b border-mint-900/10 dark:border-slate-800 bg-white/90 dark:bg-mint-950/90 backdrop-blur-xl px-3 md:px-6 py-2.5 md:py-0 sticky top-0 z-40 transition-colors gap-2.5 md:gap-0">
 
-                    {/* Top Row on Mobile / Left Section on Desktop */}
                     <div className="flex items-center justify-between w-full md:w-auto">
                         <div className="flex items-center gap-3 md:gap-6">
-                            {/* Jira-style Branding & Home/Dashboard Nav */}
                             <div className="flex items-center gap-2 md:gap-3">
                                 <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-mint-900 to-mint-600 shadow-sm shadow-mint-500/20 flex-shrink-0">
                                     <span className="text-xs text-mint-50 font-bold">≈</span>
@@ -371,7 +352,6 @@ export const WorkspaceDetail: React.FC = () => {
 
                             <div className="hidden md:block h-4 w-[1px] bg-mint-900/15 dark:bg-mint-300/20" />
 
-                            {/* WORKSPACE SWITCHER NAVIGATION PILLS (Desktop View) */}
                             <div className="hidden md:flex items-center gap-1.5 overflow-x-auto max-w-md py-1 scrollbar-none">
                                 <button
                                     onClick={() => navigate('/dashboard')}
@@ -405,9 +385,7 @@ export const WorkspaceDetail: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Mobile Right-side Control Cluster (Notifications, Theme Toggle, Hamburger Menu, Avatar) */}
                         <div className="flex md:hidden items-center gap-2">
-                            {/* NOTIFICATIONS BUTTON */}
                             <button
                                 onClick={() => navigate(`/workspaces/${workspaceId}/notifications`)}
                                 className="relative p-2 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white transition-all cursor-pointer shadow-sm"
@@ -423,7 +401,6 @@ export const WorkspaceDetail: React.FC = () => {
 
                             <ThemeToggle />
 
-                            {/* Mobile Menu Dropdown Toggle */}
                             <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 className="p-2 bg-mint-900/5 dark:bg-mint-300/10 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white cursor-pointer"
@@ -438,10 +415,8 @@ export const WorkspaceDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Mobile Collapsible Drawer for Workspaces & Project Actions */}
                     {isMobileMenuOpen && (
                         <div className="flex md:hidden flex-col gap-3 pt-3 pb-2 border-t border-mint-900/10 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
-                            {/* Workspace Navigation Pills (Mobile Scrollable) */}
                             <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
                                 <button
                                     onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }}
@@ -475,7 +450,6 @@ export const WorkspaceDetail: React.FC = () => {
                                     })}
                             </div>
 
-                            {/* Project Context Mobile Buttons */}
                             {activeTab === 'projects' && (
                                 <div className="flex items-center gap-2 pt-1">
                                     <button
@@ -495,9 +469,7 @@ export const WorkspaceDetail: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Desktop Right Section (Unchanged, hidden on mobile) */}
                     <div className="hidden md:flex items-center gap-3">
-                        {/* NOTIFICATIONS BUTTON */}
                         <button
                             onClick={() => navigate(`/workspaces/${workspaceId}/notifications`)}
                             className="relative p-2 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white transition-all cursor-pointer shadow-sm"
@@ -539,13 +511,8 @@ export const WorkspaceDetail: React.FC = () => {
             </div>
 
             <div className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-10 flex flex-col lg:flex-row gap-8 relative z-10">
-                {/* INTERACTIVE NAVIGATION CONTROL PANEL */}
                 <aside className="w-full lg:w-64 flex flex-col gap-1.5 flex-shrink-0">
-                    {/* Workspace Identity Mini Card */}
-                    <div className="p-4 rounded-2xl bg-white/80
-dark:bg-slate-950/80
-border-gray-200
-dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
+                    <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-950/80 border-gray-200 dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
                         {previewUrl || logoUrl ? (
                             <img
                                 src={previewUrl || logoUrl || ""}
@@ -606,10 +573,8 @@ dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
                     </div>
                 </aside>
 
-                {/* WORKSPACE OPERATIONS VIEWPORT */}
                 <main className="flex-1 bg-white dark:bg-slate-900/60 border border-mint-900/10 dark:border-slate-800 p-6 md:p-8 rounded-2xl min-h-[480px] shadow-sm backdrop-blur-md transition-all">
 
-                    {/* PROJECTS TAB */}
                     {activeTab === 'projects' && (
                         <div className="space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -631,7 +596,6 @@ dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
                                 </div>
                             </div>
 
-                            {/* INLINE CREATE PROJECT FORM */}
                             {isCreateFormOpen && (
                                 <div className="p-5 border border-mint-700/30 bg-mint-500/[0.03] rounded-2xl space-y-3">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -689,7 +653,6 @@ dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
                                 </div>
                             )}
 
-                            {/* PROJECTS LIST OR GRID */}
                             {isProjectsLoading ? (
                                 <div className="p-12 text-center">
                                     <p className="font-mono-nav text-xs text-mint-800/50 dark:text-mint-300/50 uppercase tracking-widest">Loading projects...</p>
@@ -715,10 +678,7 @@ dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
                                                         navigate(`/workspaces/${workspaceId}/projects/${project.id}`);
                                                     }
                                                 }}
-                                                className="group relative p-5 rounded-2xl bg-white dark:bg-mint-900/70 border border-mint-900/10 dark:border-slate-800 hover:border-blue-500/40
-hover:-translate-y-1
-hover:shadow-xl
-transition-all duration-300 transition-all flex flex-col justify-between shadow-sm cursor-pointer"
+                                                className="group relative p-5 rounded-2xl bg-white dark:bg-mint-900/70 border border-mint-900/10 dark:border-slate-800 hover:border-blue-500/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shadow-sm cursor-pointer"
                                             >
                                                 <div>
                                                     <div className="flex items-start justify-between gap-3 mb-2">
@@ -777,15 +737,12 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                         </div>
                     )}
 
-                    {/* TASKS TAB */}
                     {activeTab === 'tasks' && (
                         <div className="space-y-6">
-
                             <TaskBoard workspaceId={workspaceId} projects={projects} />
                         </div>
                     )}
 
-                    {/* MEMBERS TAB */}
                     {activeTab === 'members' && (
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
@@ -874,7 +831,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                         </div>
                     )}
 
-                    {/* SETTINGS TAB */}
                     {activeTab === 'settings' && (
                         <div className="space-y-8 max-w-2xl">
                             <div>
@@ -882,7 +838,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                                 <p className="text-xs text-gray-900/60 dark:text-gray-400 mt-1">Configure general workspace preferences, branding identity, and safety controls.</p>
                             </div>
 
-                            {/* Branding Section */}
                             <div className="p-6 bg-white/60 dark:bg-slate-900/60 border border-mint-900/10 dark:border-slate-800 rounded-2xl space-y-4 backdrop-blur-md">
                                 <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-mint-800/70 dark:text-mint-300/70">Workspace Logo Identity</h3>
                                 <div className="flex items-center gap-5">
@@ -910,7 +865,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                                 </div>
                             </div>
 
-                            {/* Rename Section */}
                             <div className="p-6 bg-white/60 dark:bg-slate-900/60 border border-mint-900/10 dark:border-slate-800 rounded-2xl space-y-4 backdrop-blur-md">
                                 <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-mint-800/70 dark:text-mint-300/70">Workspace Name</h3>
                                 <div className="flex items-center gap-3">
@@ -930,7 +884,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                                 </div>
                             </div>
 
-                            {/* Danger Zone */}
                             <div className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-2xl space-y-4 backdrop-blur-md">
                                 <h3 className="font-mono-nav text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Danger Zone</h3>
                                 <div className="flex items-center justify-between gap-4">
@@ -951,7 +904,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                 </main>
             </div>
 
-            {/* EDIT PROJECT MODAL */}
             {editingProject && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
                     <div className="w-full max-w-md p-6 rounded-2xl bg-white dark:bg-slate-950 border border-mint-900/20 dark:border-mint-300/25 shadow-2xl space-y-4">
@@ -1018,7 +970,7 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
                             <button
                                 onClick={() => setEditingProject(null)}
-                                className="font-mono-nav px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700text-mint-900 dark:text-mint-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                                className="font-mono-nav px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-mint-900 dark:text-mint-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
                             >
                                 Cancel
                             </button>
@@ -1034,7 +986,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                 </div>
             )}
 
-            {/* CONFIRM MODALS */}
             <ConfirmModal
                 isOpen={Boolean(projectToDelete)}
                 title="Delete Project Track"
@@ -1064,7 +1015,6 @@ transition-all duration-300 transition-all flex flex-col justify-between shadow-
                 message={`Are you absolutely sure you want to delete "${workspace?.name || workspace?.workspaceName}"? All ongoing data will be lost forever.`}
                 confirmLabel="Delete Workspace"
                 cancelLabel="Cancel"
-                isDangerous={true}
                 onConfirm={confirmDeleteWorkspace}
                 onCancel={() => setIsDeleteWorkspaceModalOpen(false)}
             />

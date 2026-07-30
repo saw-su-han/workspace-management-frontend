@@ -574,7 +574,7 @@ export const useAssignTask = (workspaceId: number, taskId: number) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks', 'detail', workspaceId, taskId] });
-            queryClient.invalidateQueries({ queryKey: ['tasks', 'list'] });
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'list', workspaceId, taskId] });
         },
     });
 };
@@ -663,9 +663,7 @@ export const useCreateComment = (workspaceId: number, taskId: number) => {
             return data.data as CommentItem;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ['tasks', 'comments', workspaceId, taskId],
-            });
+            queryClient.invalidateQueries({ queryKey: ['tasks', 'comments', workspaceId, taskId], });
         },
     });
 }
