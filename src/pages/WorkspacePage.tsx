@@ -391,8 +391,8 @@ export const WorkspaceDetail: React.FC = () => {
                                                     if (!isCurrent) navigate(`/workspaces/${wsInfo.id}`);
                                                 }}
                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 cursor-pointer ${isCurrent
-                                                        ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
-                                                        : 'bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
+                                                    ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
+                                                    : 'bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
                                                     }`}
                                             >
                                                 <div className="w-4 h-4 rounded bg-gradient-to-tr from-mint-900 to-mint-600 flex items-center justify-center text-[9px] font-black text-mint-50">
@@ -462,8 +462,8 @@ export const WorkspaceDetail: React.FC = () => {
                                                     setIsMobileMenuOpen(false);
                                                 }}
                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold flex-shrink-0 cursor-pointer ${isCurrent
-                                                        ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
-                                                        : 'bg-mint-900/5 dark:bg-mint-300/10 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
+                                                    ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
+                                                    : 'bg-mint-900/5 dark:bg-mint-300/10 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
                                                     }`}
                                             >
                                                 <div className="w-4 h-4 rounded bg-gradient-to-tr from-mint-900 to-mint-600 flex items-center justify-center text-[9px] font-black text-mint-50">
@@ -670,7 +670,14 @@ dark:border-slate-800 shadow-sm backdrop-blur-md mb-4 flex items-center gap-3">
                                         </div>
                                     </div>
                                     {createError && <p className="font-mono-nav text-[11px] text-rose-500 dark:text-rose-400 font-semibold">{createError}</p>}
-                                    <div className="flex justify-end">
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsCreateFormOpen(false)}
+                                            className="font-mono-nav px-4 py-2 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 text-gray-900 dark:text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
+                                        >
+                                            Cancel
+                                        </button>
                                         <button
                                             onClick={handleCreateProject}
                                             disabled={isCreatingProject}
