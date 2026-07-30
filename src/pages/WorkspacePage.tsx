@@ -86,6 +86,7 @@ export const WorkspaceDetail: React.FC = () => {
     const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMember(workspaceId);
     const [memberToRemove, setMemberToRemove] = useState<WorkspaceMemberItem | null>(null);
 
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const handleCreateProject = () => {
         const trimmed = newProjectName.trim();
         if (!trimmed) {
@@ -344,102 +345,198 @@ export const WorkspaceDetail: React.FC = () => {
                 }}
             />
             {/* Atmospheric Background Glows */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/10 dark:bg-blue-500/5 blur-[160px] rounded-full" />
+            <div className="relative">
+                {/* Background blur effects */}
+                <div className="absolute top-0 right-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-blue-500/10 dark:bg-blue-500/5 blur-[160px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-cyan-500/10 dark:bg-cyan-500/5 blur-[160px] rounded-full pointer-events-none" />
 
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 dark:bg-cyan-500/5 blur-[160px] rounded-full" />
+                {/* JIRA-STYLE GLOBAL NAVIGATION HEADER */}
+                <header className="flex flex-col md:flex-row md:h-14 items-stretch md:items-center justify-between border-b border-mint-900/10 dark:border-slate-800 bg-white/90 dark:bg-mint-950/90 backdrop-blur-xl px-3 md:px-6 py-2.5 md:py-0 sticky top-0 z-40 transition-colors gap-2.5 md:gap-0">
 
-            {/* JIRA-STYLE GLOBAL NAVIGATION HEADER */}
-            <header className="flex h-14 items-center justify-between border-b border-mint-900/10 dark:border-slate-800 bg-white/90 dark:bg-mint-950/90 backdrop-blur-xl px-4 md:px-6 sticky top-0 z-40 transition-colors">
-                <div className="flex items-center gap-6">
-                    {/* Jira-style Branding & Home/Dashboard Nav */}
-                    <div className="flex items-center gap-3">
-                        <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-mint-900 to-mint-600 shadow-sm shadow-mint-500/20">
-                            <span className="text-xs text-mint-50 font-bold">≈</span>
+                    {/* Top Row on Mobile / Left Section on Desktop */}
+                    <div className="flex items-center justify-between w-full md:w-auto">
+                        <div className="flex items-center gap-3 md:gap-6">
+                            {/* Jira-style Branding & Home/Dashboard Nav */}
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-mint-900 to-mint-600 shadow-sm shadow-mint-500/20 flex-shrink-0">
+                                    <span className="text-xs text-mint-50 font-bold">≈</span>
+                                </div>
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="font-display font-bold text-sm tracking-tight text-gray-900 dark:text-white hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1.5"
+                                >
+                                    <span>Home</span>
+                                </button>
+                            </div>
+
+                            <div className="hidden md:block h-4 w-[1px] bg-mint-900/15 dark:bg-mint-300/20" />
+
+                            {/* WORKSPACE SWITCHER NAVIGATION PILLS (Desktop View) */}
+                            <div className="hidden md:flex items-center gap-1.5 overflow-x-auto max-w-md py-1 scrollbar-none">
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-lg text-[11px] font-bold text-mint-800 dark:text-mint-300 transition-all flex-shrink-0 cursor-pointer"
+                                >
+                                    <Icon icon="lucide:arrow-left" className="w-3.5 h-3.5" /> Dashboard
+                                </button>
+                                {allWorkspaces
+                                    .filter((ws: any) => ws.isDeleted !== true)
+                                    .map((ws: any) => {
+                                        const wsInfo = ws.workspace || ws;
+                                        const isCurrent = wsInfo.id === workspaceId;
+                                        return (
+                                            <button
+                                                key={wsInfo.id}
+                                                onClick={() => {
+                                                    if (!isCurrent) navigate(`/workspaces/${wsInfo.id}`);
+                                                }}
+                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 cursor-pointer ${isCurrent
+                                                        ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
+                                                        : 'bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
+                                                    }`}
+                                            >
+                                                <div className="w-4 h-4 rounded bg-gradient-to-tr from-mint-900 to-mint-600 flex items-center justify-center text-[9px] font-black text-mint-50">
+                                                    {wsInfo.name?.charAt(0).toUpperCase() || 'W'}
+                                                </div>
+                                                <span className="truncate max-w-[100px]">{wsInfo.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                            </div>
                         </div>
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="font-display font-bold text-sm tracking-tight text-gray-900 dark:text-white hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1.5"
-                        >
-                            <span>Home</span>
-                        </button>
+
+                        {/* Mobile Right-side Control Cluster (Notifications, Theme Toggle, Hamburger Menu, Avatar) */}
+                        <div className="flex md:hidden items-center gap-2">
+                            {/* NOTIFICATIONS BUTTON */}
+                            <button
+                                onClick={() => navigate(`/workspaces/${workspaceId}/notifications`)}
+                                className="relative p-2 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white transition-all cursor-pointer shadow-sm"
+                                title="View Notifications"
+                            >
+                                <Icon icon="lucide:bell" className="w-4 h-4" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            <ThemeToggle />
+
+                            {/* Mobile Menu Dropdown Toggle */}
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="p-2 bg-mint-900/5 dark:bg-mint-300/10 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white cursor-pointer"
+                            >
+                                <Icon icon={isMobileMenuOpen ? "lucide:x" : "lucide:menu"} className="w-4 h-4" />
+                            </button>
+
+                            <UserAvatar
+                                userProfile={userProfile}
+                                className="h-8 w-8 rounded-full object-cover border border-mint-700/40 shadow-sm"
+                            />
+                        </div>
                     </div>
 
-                    <div className="h-4 w-[1px] bg-mint-900/15 dark:bg-mint-300/20" />
+                    {/* Mobile Collapsible Drawer for Workspaces & Project Actions */}
+                    {isMobileMenuOpen && (
+                        <div className="flex md:hidden flex-col gap-3 pt-3 pb-2 border-t border-mint-900/10 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
+                            {/* Workspace Navigation Pills (Mobile Scrollable) */}
+                            <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
+                                <button
+                                    onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-mint-900/5 dark:bg-mint-300/10 border border-mint-900/10 dark:border-slate-800 rounded-lg text-[11px] font-bold text-mint-800 dark:text-mint-300 flex-shrink-0 cursor-pointer"
+                                >
+                                    <Icon icon="lucide:arrow-left" className="w-3.5 h-3.5" /> Dashboard
+                                </button>
+                                {allWorkspaces
+                                    .filter((ws: any) => ws.isDeleted !== true)
+                                    .map((ws: any) => {
+                                        const wsInfo = ws.workspace || ws;
+                                        const isCurrent = wsInfo.id === workspaceId;
+                                        return (
+                                            <button
+                                                key={wsInfo.id}
+                                                onClick={() => {
+                                                    if (!isCurrent) navigate(`/workspaces/${wsInfo.id}`);
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold flex-shrink-0 cursor-pointer ${isCurrent
+                                                        ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
+                                                        : 'bg-mint-900/5 dark:bg-mint-300/10 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
+                                                    }`}
+                                            >
+                                                <div className="w-4 h-4 rounded bg-gradient-to-tr from-mint-900 to-mint-600 flex items-center justify-center text-[9px] font-black text-mint-50">
+                                                    {wsInfo.name?.charAt(0).toUpperCase() || 'W'}
+                                                </div>
+                                                <span className="truncate max-w-[120px]">{wsInfo.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                            </div>
 
-                    {/* WORKSPACE SWITCHER NAVIGATION PILLS */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto max-w-md py-1">
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-lg text-[11px] font-bold text-mint-800 dark:text-mint-300 transition-all flex-shrink-0 cursor-pointer"
-                        >
-                            <Icon icon="lucide:arrow-left" className="w-3.5 h-3.5" /> Dashboard
-                        </button>
-                        {allWorkspaces
-                            .filter((ws: any) => ws.isDeleted !== true)
-                            .map((ws: any) => {
-                                const wsInfo = ws.workspace || ws;
-                                const isCurrent = wsInfo.id === workspaceId;
-                                return (
+                            {/* Project Context Mobile Buttons */}
+                            {activeTab === 'projects' && (
+                                <div className="flex items-center gap-2 pt-1">
                                     <button
-                                        key={wsInfo.id}
-                                        onClick={() => {
-                                            if (!isCurrent) navigate(`/workspaces/${wsInfo.id}`);
-                                        }}
-                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 cursor-pointer ${isCurrent
-                                            ? 'bg-mint-900/10 dark:bg-mint-300/15 text-gray-900 dark:text-white border border-mint-900/20 dark:border-mint-300/30'
-                                            : 'bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 text-mint-800/70 dark:text-mint-300/70 border border-mint-900/10 dark:border-slate-800'
-                                            }`}
+                                        onClick={() => { navigate(`/workspaces/${workspaceId}/invite`); setIsMobileMenuOpen(false); }}
+                                        className="flex-1 px-3 py-2 bg-mint-900/5 dark:bg-mint-300/10 border border-mint-900/10 dark:border-slate-800 text-gray-900 dark:text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                                     >
-                                        <div className="w-4 h-4 rounded bg-gradient-to-tr from-mint-900 to-mint-600 flex items-center justify-center text-[9px] font-black text-mint-50">
-                                            {wsInfo.name?.charAt(0).toUpperCase() || 'W'}
-                                        </div>
-                                        <span className="truncate max-w-[100px]">{wsInfo.name}</span>
+                                        <Icon icon="lucide:mail-plus" className="w-3.5 h-3.5 text-mint-700 dark:text-mint-400" /> Invite Member
                                     </button>
-                                );
-                            })}
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    {/* NOTIFICATIONS BUTTON */}
-                    <button
-                        onClick={() => navigate(`/workspaces/${workspaceId}/notifications`)}
-                        className="relative p-2 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white transition-all cursor-pointer shadow-sm"
-                        title="View Notifications"
-                    >
-                        <Icon icon="lucide:bell" className="w-4 h-4" />
-                        {unreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
-                                {unreadCount}
-                            </span>
-                        )}
-                    </button>
-
-                    {activeTab === 'projects' && (
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => navigate(`/workspaces/${workspaceId}/invite`)}
-                                className="px-3.5 py-1.5 bg-mint-900/5 dark:bg-mint-300/10 border border-mint-900/10 dark:border-slate-800 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 text-gray-900 dark:text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-                            >
-                                <Icon icon="lucide:mail-plus" className="w-3.5 h-3.5 text-mint-700 dark:text-mint-400" /> Invite Member
-                            </button>
-                            <button
-                                onClick={() => setIsCreateFormOpen((prev) => !prev)}
-                                className="px-3.5 py-1.5 bg-mint-900 dark:bg-mint-400 hover:bg-mint-800 dark:hover:bg-mint-300 text-mint-50 dark:text-mint-950 font-bold text-xs rounded-xl transition-all shadow-md shadow-mint-500/20 flex items-center gap-1.5 cursor-pointer"
-                            >
-                                <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-3.5 h-3.5" /> {isCreateFormOpen ? 'Cancel' : 'Create Project'}
-                            </button>
+                                    <button
+                                        onClick={() => { setIsCreateFormOpen((prev: boolean) => !prev); setIsMobileMenuOpen(false); }}
+                                        className="flex-1 px-3 py-2 bg-mint-900 dark:bg-mint-400 text-mint-50 dark:text-mint-950 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-mint-500/20 cursor-pointer"
+                                    >
+                                        <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-3.5 h-3.5" /> {isCreateFormOpen ? 'Cancel' : 'Create Project'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
-                    <ThemeToggle />
-                    <div className="flex items-center pl-2 border-l border-mint-900/10 dark:border-slate-800">
-                        <UserAvatar
-                            userProfile={userProfile}
-                            className="h-8 w-8 rounded-full object-cover border border-mint-700/40 shadow-sm"
-                        />
+
+                    {/* Desktop Right Section (Unchanged, hidden on mobile) */}
+                    <div className="hidden md:flex items-center gap-3">
+                        {/* NOTIFICATIONS BUTTON */}
+                        <button
+                            onClick={() => navigate(`/workspaces/${workspaceId}/notifications`)}
+                            className="relative p-2 bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 border border-mint-900/10 dark:border-slate-800 rounded-xl text-gray-900 dark:text-white transition-all cursor-pointer shadow-sm"
+                            title="View Notifications"
+                        >
+                            <Icon icon="lucide:bell" className="w-4 h-4" />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+                                    {unreadCount}
+                                </span>
+                            )}
+                        </button>
+
+                        {activeTab === 'projects' && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => navigate(`/workspaces/${workspaceId}/invite`)}
+                                    className="px-3.5 py-1.5 bg-mint-900/5 dark:bg-mint-300/10 border border-mint-900/10 dark:border-slate-800 hover:bg-mint-900/10 dark:hover:bg-mint-300/15 text-gray-900 dark:text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                                >
+                                    <Icon icon="lucide:mail-plus" className="w-3.5 h-3.5 text-mint-700 dark:text-mint-400" /> Invite Member
+                                </button>
+                                <button
+                                    onClick={() => setIsCreateFormOpen((prev: boolean) => !prev)}
+                                    className="px-3.5 py-1.5 bg-mint-900 dark:bg-mint-400 hover:bg-mint-800 dark:hover:bg-mint-300 text-mint-50 dark:text-mint-950 font-bold text-xs rounded-xl transition-all shadow-md shadow-mint-500/20 flex items-center gap-1.5 cursor-pointer"
+                                >
+                                    <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-3.5 h-3.5" /> {isCreateFormOpen ? 'Cancel' : 'Create Project'}
+                                </button>
+                            </div>
+                        )}
+                        <ThemeToggle />
+                        <div className="flex items-center pl-2 border-l border-mint-900/10 dark:border-slate-800">
+                            <UserAvatar
+                                userProfile={userProfile}
+                                className="h-8 w-8 rounded-full object-cover border border-mint-700/40 shadow-sm"
+                            />
+                        </div>
                     </div>
-                </div>
-            </header>
+                </header>
+            </div>
 
             <div className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-10 flex flex-col lg:flex-row gap-8 relative z-10">
                 {/* INTERACTIVE NAVIGATION CONTROL PANEL */}
