@@ -16,6 +16,7 @@ import { AssignMemberPage } from './pages/AssignMemberPage';
 import { TaskDetail } from './pages/TaskDetail';
 import { TaskAssign } from './pages/TaskAssign';
 import { NotificationsPage } from './Components/NotificationsModal';
+import { WorkspaceDashboard } from './pages/workspaceDashboard';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -117,7 +118,15 @@ export default function App() {
       <Route path="/workspaces/:workspaceId/tasks/:taskId" element={<TaskDetail />} />
       <Route path="/workspaces/:workspaceId/tasks/:taskId/assign" element={<TaskAssign />} />
       <Route path="/workspaces/:workspaceId/notifications" element={<NotificationsPage />} />
-
+      {/* Replace your existing unwrapped dashboard route with this */}
+      <Route
+        path="/workspaces/:workspaceId/dashboard"
+        element={
+          <ProtectedRoute>
+            <WorkspaceDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Catch-all Routing Redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />

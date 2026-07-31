@@ -537,6 +537,7 @@ export const WorkspaceDetail: React.FC = () => {
                     <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-slate-800 shadow-sm backdrop-blur-md">
                         <div className="font-mono-nav text-[10px] font-bold uppercase tracking-widest text-mint-800/50 dark:text-mint-300/50 px-2 mb-3">Navigation</div>
                         <div className="space-y-1">
+
                             <button
                                 onClick={() => setActiveTab('projects')}
                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-mono-nav text-xs font-bold transition-all text-left cursor-pointer ${activeTab === 'projects' ? 'bg-mint-900/10 dark:bg-mint-300/15 text-mint-950 dark:text-white shadow-sm' : 'hover:bg-mint-900/5 dark:hover:bg-mint-300/10 text-mint-950/80 dark:text-mint-200'}`}
@@ -569,6 +570,15 @@ export const WorkspaceDetail: React.FC = () => {
                                     <Icon icon="lucide:settings" className="w-4 h-4 text-gray-900 dark:text-mint-300" /> Settings
                                 </span>
                             </button>
+                            <button
+                                onClick={() => navigate(`/workspaces/${workspaceId}/dashboard`)}
+                                className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-mono-nav text-xs font-bold transition-all text-left cursor-pointer hover:bg-mint-900/5 dark:hover:bg-mint-300/10 text-mint-950/80 dark:text-mint-200"
+                            >
+                                <span className="flex items-center gap-2.5">
+                                    <Icon icon="lucide:layout-dashboard" className="w-4 h-4 text-gray-900 dark:text-mint-300" /> Dashboard
+                                </span>
+                            </button>
+
                         </div>
                     </div>
                 </aside>
@@ -712,10 +722,10 @@ export const WorkspaceDetail: React.FC = () => {
                                                                 e.stopPropagation();
                                                                 openEditProject(project);
                                                             }}
-                                                            className="p-1.5 rounded-lg bg-mint-900/5 dark:bg-mint-300/10 hover:bg-mint-900/10 text-mint-800 dark:text-mint-200 transition-colors cursor-pointer"
+                                                            className="p-2 bg-slate-100 dark:bg-gray-800 hover:bg-emerald-500/10 text-slate-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-all border border-slate-200 dark:border-gray-700 flex items-center justify-center cursor-pointer shadow-sm"
                                                             title="Edit project"
                                                         >
-                                                            <Icon icon="lucide:edit-3" className="w-3.5 h-3.5" />
+                                                            <Icon icon="solar:pen-bold-duotone" className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={(e) => {

@@ -5,6 +5,7 @@ import { useProfile, useLogout } from '../hooks/useAuth';
 import { CreateWorkspaceModal } from '../Components/CreateWorkspceModel';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { UserAvatar } from '../Components/UserAvatar';
+import { Icon } from "@iconify/react";
 
 export const DashboardLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -73,8 +74,8 @@ export const DashboardLayout: React.FC = () => {
                         <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-emerald-600 dark:text-emerald-400" strokeWidth="0.75" strokeDasharray="1 5" />
                         <path d="M50 8 L54 46 L50 50 L46 46 Z" className="fill-emerald-600 dark:fill-emerald-400" />
                     </svg>
-                    <div className="relative inline-flex rounded-full h-9 w-9 bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-lg shadow-emerald-500/30 items-center justify-center">
-                        <span className="text-white text-sm font-bold">≈</span>
+                    <div className="relative inline-flex rounded-full h-9 w-9 bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-lg shadow-emerald-500/30 items-center justify-center text-white">
+                        <Icon icon="lucide:hexagon" className="w-5 h-5 animate-pulse" />
                     </div>
                 </div>
                 <div className="space-y-1 text-center relative px-4">
@@ -102,18 +103,17 @@ export const DashboardLayout: React.FC = () => {
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 dark:bg-emerald-600/5 blur-[160px] rounded-full pointer-events-none" />
 
             {/* HEADER - RESPONSIVE MOBILE & DESKTOP */}
-            <header className="h-16 md:h-20 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl px-4 md:px-8 sticky top-0 z-40 transition-colors flex items-center justify-between gap-3">
+            <header className="h-16 md:h-20 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl px-4 md:px-8 sticky top-0 z-40 transition-colors flex items-center justify-between gap-3 shadow-sm">
                 <div className="flex items-center gap-3.5 flex-shrink-0">
-                    <div className="relative flex h-9 w-9 md:h-10 md:w-10 items-center justify-center">
-                        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_14s_linear_infinite] opacity-70" fill="none">
-                            <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-emerald-600 dark:text-emerald-400" strokeWidth="1" strokeDasharray="0.5 7" />
-                        </svg>
-                        <div className="relative flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500/30">
-                            <span className="text-sm text-white font-bold">≈</span>
-                        </div>
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg shadow-emerald-500/20">
+                        <Icon icon="lucide:hexagon" className="w-6 h-6 animate-[spin_10s_linear_infinite]" />
+                        <Icon icon="lucide:cpu" className="absolute w-3.5 h-3.5 text-white" />
+                        <div className="absolute -inset-0.5 bg-emerald-400 rounded-xl blur opacity-30"></div>
                     </div>
                     <div>
-                        <h1 className="font-display font-extrabold text-sm md:text-base tracking-tight text-gray-900 dark:text-white">Workspace</h1>
+                        <h1 className="font-display font-extrabold text-sm md:text-base tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
+                            Project<span className="text-emerald-600 dark:text-emerald-400">Hive</span>
+                        </h1>
                         <p className="font-mono-nav text-[9px] font-semibold text-gray-500 dark:text-gray-400 tracking-[0.25em] uppercase -mt-0.5">Dashboard</p>
                     </div>
                 </div>
@@ -121,16 +121,14 @@ export const DashboardLayout: React.FC = () => {
                 {/* DESKTOP SEARCH */}
                 <div className="hidden md:block max-w-sm w-full relative group">
                     <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-emerald-600 transition-colors">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <Icon icon="lucide:search" className="w-4 h-4" />
                     </div>
                     <input
                         type="text"
                         placeholder="Search workspaces..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="font-mono-nav w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 rounded-xl outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all"
+                        className="font-mono-nav w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 rounded-xl outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all shadow-inner"
                     />
                 </div>
 
@@ -144,9 +142,7 @@ export const DashboardLayout: React.FC = () => {
                         className="h-10 w-10 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 cursor-pointer"
                         title="Logout"
                     >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
+                        <Icon icon="lucide:log-out" className="w-5 h-5" />
                     </button>
 
                     <button
@@ -165,25 +161,19 @@ export const DashboardLayout: React.FC = () => {
                     <ThemeToggle />
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="p-2 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800"
+                        className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 shadow-sm"
                     >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            {isMobileMenuOpen ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                            )}
-                        </svg>
+                        <Icon icon={isMobileMenuOpen ? "lucide:x" : "lucide:menu"} className="w-5 h-5" />
                     </button>
                 </div>
             </header>
 
             {/* MOBILE DROPDOWN MENU */}
             {isMobileMenuOpen && (
-                <div className="md:hidden border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-xl z-30">
+                <div className="md:hidden border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-4 space-y-3 shadow-xl z-30">
                     <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-800">
                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/profile')}>
-                            <UserAvatar userProfile={userProfile} className="h-10 w-10 rounded-full object-cover border border-emerald-600/40" />
+                            <UserAvatar userProfile={userProfile} className="h-10 w-10 rounded-full object-cover border border-emerald-600/40 shadow-sm" />
                             <div>
                                 <p className="font-bold text-sm text-gray-900 dark:text-white">{userProfile?.name || 'User'}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">{userProfile?.email || 'View Profile'}</p>
@@ -191,8 +181,9 @@ export const DashboardLayout: React.FC = () => {
                         </div>
                         <button
                             onClick={() => navigate('/profile')}
-                            className="font-mono-nav text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600/10 text-emerald-600 dark:text-emerald-400"
+                            className="font-mono-nav text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5"
                         >
+                            <Icon icon="lucide:user" className="w-3.5 h-3.5" />
                             Profile
                         </button>
                     </div>
@@ -200,8 +191,9 @@ export const DashboardLayout: React.FC = () => {
                     <div className="grid grid-cols-2 gap-2 pt-1">
                         <button
                             onClick={() => navigate('/login')}
-                            className="font-mono-nav w-full py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700"
+                            className="font-mono-nav w-full py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 shadow-sm"
                         >
+                            <Icon icon="lucide:log-in" className="w-4 h-4 text-emerald-500" />
                             <span>Sign In</span>
                         </button>
                         <button
@@ -209,6 +201,7 @@ export const DashboardLayout: React.FC = () => {
                             disabled={isLoggingOut}
                             className="font-mono-nav w-full py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center gap-1.5"
                         >
+                            <Icon icon="lucide:log-out" className="w-4 h-4" />
                             <span>Log out</span>
                         </button>
                     </div>
@@ -221,16 +214,21 @@ export const DashboardLayout: React.FC = () => {
                 {/* CLEAN & SIMPLE DASHBOARD HEADER SECTION */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
                     <div>
-                        <h2 className="font-display font-bold text-2xl sm:text-3xl text-gray-900 dark:text-white tracking-tight">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase mb-3">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                            Secure Orchestration Hub
+                        </div>
+                        <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-gray-900 dark:text-white tracking-tight">
                             Workspaces Dashboard
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">
-                            Select a workspace below to manage your projects, members, and settings.
+                            Select a workspace below to manage your projects, members, and secure pipelines.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="font-mono-nav text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-800">
+                        <span className="font-mono-nav text-xs font-semibold px-3.5 py-2 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-2 shadow-sm">
+                            <Icon icon="lucide:layers" className="w-4 h-4" />
                             {workspaces.length} Total Workspaces
                         </span>
                     </div>
@@ -240,9 +238,7 @@ export const DashboardLayout: React.FC = () => {
                 <div className="block md:hidden w-full">
                     <div className="relative">
                         <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                            <Icon icon="lucide:search" className="w-4 h-4" />
                         </div>
                         <input
                             type="text"
@@ -255,21 +251,22 @@ export const DashboardLayout: React.FC = () => {
                 </div>
 
                 {/* ROLE FILTER BAR & CREATE WORKSPACE BUTTON */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 shadow-sm backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/60 shadow-xl shadow-black/[0.02] backdrop-blur-xl">
                     {/* Role Filter Tabs */}
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 w-full no-scrollbar">
-                        <span className="font-mono-nav text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1 hidden lg:inline flex-shrink-0">
-                            Filter:
+                        <span className="font-mono-nav text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1 hidden lg:inline flex-shrink-0 flex items-center gap-1">
+                            <Icon icon="lucide:filter" className="w-3.5 h-3.5" /> Filter:
                         </span>
                         {(['ALL', 'OWNER', 'ADMIN', 'MEMBER'] as const).map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveFilter(tab)}
-                                className={`font-mono-nav text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer flex-shrink-0 ${activeFilter === tab
+                                className={`font-mono-nav text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer flex-shrink-0 flex items-center gap-1.5 shadow-sm ${activeFilter === tab
                                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
                                     : 'bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-emerald-500/40'
                                     }`}
                             >
+                                <Icon icon={tab === 'OWNER' ? 'lucide:shield-check' : tab === 'ADMIN' ? 'lucide:shield' : tab === 'MEMBER' ? 'lucide:users' : 'lucide:layout-grid'} className="w-3.5 h-3.5" />
                                 {tab === 'ALL' ? `All (${workspaces.length})` : tab}
                             </button>
                         ))}
@@ -278,9 +275,10 @@ export const DashboardLayout: React.FC = () => {
                     {/* Create Workspace Button inside the Filter Bar */}
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="font-mono-nav inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer flex-shrink-0"
+                        className="font-mono-nav inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer flex-shrink-0"
                     >
-                        <span>+ New Workspace</span>
+                        <Icon icon="lucide:plus-circle" className="w-4 h-4" />
+                        <span>New Workspace</span>
                     </button>
                 </div>
 
@@ -296,7 +294,10 @@ export const DashboardLayout: React.FC = () => {
 
                 {/* WORKSPACE CARDS GRID */}
                 {filteredWorkspaces.length === 0 ? (
-                    <div className="text-center p-12 border border-dashed border-gray-300 dark:border-gray-800 rounded-3xl bg-white/50 dark:bg-gray-900/20">
+                    <div className="text-center p-16 border border-dashed border-gray-300 dark:border-gray-800 rounded-3xl bg-white/50 dark:bg-gray-900/20 space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto text-gray-400">
+                            <Icon icon="lucide:folder-search" className="w-6 h-6" />
+                        </div>
                         <p className="font-mono-nav text-xs text-gray-500 dark:text-gray-400 tracking-wide">No workspaces found for this filter. Try adjusting your search query or tab.</p>
                     </div>
                 ) : (
@@ -308,13 +309,14 @@ export const DashboardLayout: React.FC = () => {
                                 <div
                                     key={workspaceInfo.id}
                                     onClick={() => navigateToWorkspace(workspaceInfo.id)}
-                                    className="group relative flex flex-col justify-between p-6 rounded-3xl bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-xl"
+                                    className="group relative flex flex-col justify-between p-6 rounded-3xl bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/[0.02] hover:shadow-2xl hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-xl"
                                 >
                                     {/* Top accent line */}
                                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-emerald-500/10 transition-all" />
 
                                     {/* Card Header */}
-                                    <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-center justify-between gap-3 relative z-10">
                                         <div className="flex items-center gap-3.5">
                                             <UserAvatar
                                                 userProfile={{
@@ -327,30 +329,31 @@ export const DashboardLayout: React.FC = () => {
                                                 <h4 className="font-display font-bold text-base text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">
                                                     {workspaceInfo.name}
                                                 </h4>
-                                                <span className="font-mono-nav text-[11px] text-gray-400 dark:text-gray-500 tracking-wider">
-                                                    ID: #{workspaceInfo.id}
+                                                <span className="font-mono-nav text-[11px] text-gray-400 dark:text-gray-500 tracking-wider flex items-center gap-1 mt-0.5">
+                                                    Active Workspace
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* Clean Status Dot */}
-                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10 mt-2 flex-shrink-0" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10 flex-shrink-0 animate-pulse" />
                                     </div>
 
                                     {/* Card Footer / Details */}
-                                    <div className="flex items-center justify-between pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
-                                        <span className={`font-mono-nav text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${roleText === 'OWNER'
+                                    <div className="flex items-center justify-between pt-6 mt-6 border-t border-gray-100 dark:border-gray-800 relative z-10">
+                                        <span className={`font-mono-nav text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${roleText === 'OWNER'
                                             ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
                                             : roleText === 'ADMIN'
                                                 ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20'
                                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
                                             }`}>
+                                            <Icon icon={roleText === 'OWNER' ? 'lucide:shield-check' : roleText === 'ADMIN' ? 'lucide:shield' : 'lucide:user'} className="w-3 h-3" />
                                             {roleText}
                                         </span>
 
-                                        <div className="flex items-center gap-1.5 font-mono-nav text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                            <span>Open</span>
-                                            <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                                        <div className="flex items-center gap-1.5 font-mono-nav text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform">
+                                            <span>Open Space</span>
+                                            <Icon icon="lucide:arrow-right" className="w-4 h-4" />
                                         </div>
                                     </div>
                                 </div>

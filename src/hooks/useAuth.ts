@@ -176,6 +176,45 @@ export interface UserNotificationItem {
     notification: NotificationItem;
     isRead?: boolean;
 }
+
+export interface DashboardStatas {
+    totalMembers: number;
+    totalAdmins: number;
+    totalOwners: number;
+    totalTasks: number;
+    completedTasks: number;
+    pendingTasks: number;
+    overdueTasks: number;
+}
+
+export interface DashboardMemberProject {
+    id: number;
+    name: string;
+    status: string;
+}
+
+export interface DashboardMemberTask {
+    id: number;
+    title: string;
+    status: string;
+    priority: string;
+    dueDate: string | null;
+}
+
+export interface DashboardMemberData {
+    assignedProjects: DashboardMemberProject[];
+    assignedTasks: DashboardMemberTask[];
+    completedTasks: number;
+    pendingTasks: number;
+    pagination: {
+        page: number;
+        limit: number;
+        totalProjects: number;
+        totalTasks: number;
+        totalProjectPages: number;
+        totalTaskPages: number;
+    };
+}
 export const useWorkspaceMembers = (workspaceId: number) => {
     return useQuery<WorkspaceMemberItem[]>({
         queryKey: ["workspaceMembers", workspaceId],
@@ -755,3 +794,35 @@ export const useDeleteComment = (workspaceId: number, taskId: number) => {
         }
     })
 }
+
+export const useDashboard = (workspaceId: number) => {
+    return useQuery<DashboardStatas>({
+        queryKey: ["dashboard", workspaceId],
+        queryFn: async () => {
+            const { data } = await api.get(`/workspaces/${workspaceId}/dashboard`);
+            return data.data || data;
+        },
+        enabled: !!workspaceId,
+        retry: false,
+    });
+};
+
+export const useDashboardMember = (
+    workspaceId: number,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+) => {
+    return useQuery<DashboardMemberData>({
+        queryKey: ["dashboard-member", workspaceId, page, limit, search],
+        queryFn: async () => {
+            const { data } = await api.get(
+                `/workspaces/${workspaceId}/dashboard-details`,
+                { params: { page, limit, search } },
+            );
+            return data.data || data;
+        },
+        enabled: !!workspaceId,
+        retry: false,
+    });
+};

@@ -7,6 +7,7 @@ import { FileField } from "../Components/FileField";
 import { Input } from "../Components/Input";
 import { registerSchema, type RegisterInput } from "../schema/auth.schema";
 import { ThemeToggle } from "../Components/ThemeToggle";
+import { Icon } from "@iconify/react";
 
 const EyeIcon = () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -85,76 +86,82 @@ export const Register = () => {
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 dark:bg-emerald-600/5 blur-[160px] rounded-full pointer-events-none" />
 
-            {/* TOP NAVIGATION BAR */}
-            <header className="relative w-full max-w-5xl flex items-center justify-between py-3.5 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-sm z-30 mb-8">
-                <Link to="/" className="flex items-center gap-2.5 group">
-                    <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-md shadow-emerald-500/20">
-                        <span className="font-display text-sm font-bold text-white">≈</span>
-                    </div>
-                    <span className="font-display font-extrabold text-lg text-gray-900 dark:text-white tracking-tight">
-                        ProjectHive
-                    </span>
-                </Link>
-
-                {/* DESKTOP NAV */}
-                <div className="hidden md:flex items-center gap-4">
-                    <Link
-                        to="/"
-                        className="font-mono-nav text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 transition-colors"
-                    >
-                        Home
+            {/* TOP NAVIGATION BAR - FIXED */}
+            <div className="fixed top-0 left-0 right-0 w-full z-50 px-4 pt-4">
+                <header className="w-full max-w-7xl mx-auto flex items-center justify-between py-3 px-5 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl shadow-black/[0.02]">
+                    <Link to="/" className="flex items-center gap-3 group">
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
+                            <Icon icon="lucide:hexagon" className="w-6 h-6 animate-[spin_10s_linear_infinite]" />
+                            <Icon icon="lucide:cpu" className="absolute w-3.5 h-3.5 text-white" />
+                            <div className="absolute -inset-0.5 bg-emerald-400 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                        </div>
+                        <span className="font-display font-bold text-xl text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
+                            Project<span className="text-emerald-600 dark:text-emerald-400">Hive</span>
+                        </span>
                     </Link>
-                    <Link
-                        to="/login"
-                        className="font-mono-nav rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20 active:scale-[0.98]"
-                    >
-                        Sign In
-                    </Link>
-                    <ThemeToggle />
-                </div>
 
-                {/* MOBILE NAV TOGGLE */}
-                <div className="flex md:hidden items-center gap-2">
-                    <ThemeToggle />
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"
-                    >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            {isMobileMenuOpen ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                            )}
-                        </svg>
-                    </button>
-                </div>
-            </header>
+                    {/* DESKTOP NAV */}
+                    <nav className="hidden md:flex items-center gap-1.5 font-code text-xs font-medium bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+                        {['Workflow', 'Features', 'Architecture', 'Security'].map(item => (
+                            <Link key={item} to={`/#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all">
+                                {item}
+                            </Link>
+                        ))}
+                    </nav>
 
-            {/* MOBILE DROPDOWN MENU */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden w-full max-w-5xl border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-xl z-30 mb-6 rounded-2xl">
-                    <div className="flex flex-col gap-2">
-                        <Link
-                            to="/"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="font-mono-nav w-full py-2.5 px-4 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-semibold uppercase tracking-wider"
-                        >
-                            Home
-                        </Link>
-                        <Link
-                            to="/login"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="font-mono-nav w-full py-2.5 px-4 rounded-xl bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider text-center shadow-md shadow-emerald-500/20"
-                        >
+                    <div className="hidden md:flex items-center gap-3">
+                        <ThemeToggle />
+                        <Link to="/login" className="font-code text-xs font-bold uppercase tracking-wider bg-gray-950 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-gray-950 px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-[0.98]">
                             Sign In
                         </Link>
                     </div>
-                </div>
-            )}
+
+                    {/* MOBILE NAV TOGGLE */}
+                    <div className="flex md:hidden items-center gap-2">
+                        <ThemeToggle />
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                {isMobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
+                    </div>
+                </header>
+
+                {/* MOBILE DROPDOWN MENU */}
+                {isMobileMenuOpen && (
+                    <div className="md:hidden w-full max-w-7xl mx-auto mt-2 border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-4 space-y-3 shadow-2xl rounded-2xl">
+                        <div className="flex flex-col gap-1.5">
+                            {['Workflow', 'Features', 'Architecture', 'Security'].map(item => (
+                                <Link
+                                    key={item}
+                                    to={`/#${item.toLowerCase()}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="font-code w-full py-2.5 px-4 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-semibold uppercase tracking-wider"
+                                >
+                                    {item}
+                                </Link>
+                            ))}
+                            <Link
+                                to="/login"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="font-code w-full mt-2 py-3 px-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-xs font-bold uppercase tracking-wider text-center shadow-md"
+                            >
+                                Sign In
+                            </Link>
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* MAIN CONTENT AREA MATCHING HOME & LOGIN ARCHITECTURE */}
-            <div className="relative my-auto flex flex-col items-center max-w-xl w-full z-10 py-6">
+            <div className="relative my-auto flex flex-col items-center max-w-xl w-full z-10 pt-32 pb-24">
 
                 {/* Hero / Header Intro */}
                 <div className="relative max-w-lg text-center mb-8 space-y-3">
@@ -259,9 +266,17 @@ export const Register = () => {
             </div>
 
             {/* FOOTER */}
-            <span className="relative font-mono-nav text-[9px] font-semibold tracking-[0.25em] text-gray-400 dark:text-gray-500 uppercase select-none my-4">
-                Secure Corporate Provisioning · v1.0.0
-            </span>
+            <footer className="w-full max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800 pt-8 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 text-white text-xs font-bold shadow-sm">
+                        <Icon icon="lucide:hexagon" className="w-4 h-4" />
+                    </div>
+                    <span className="font-display font-bold text-sm text-gray-900 dark:text-white">ProjectHive</span>
+                </div>
+                <div className="font-code text-xs text-gray-500">
+                    Secure Corporate Provisioning · v1.3.0
+                </div>
+            </footer>
         </div>
     );
 };

@@ -1,9 +1,9 @@
-// src/pages/AssignMemberPage.tsx
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useWorkspaceMembers, useAssignProjectMember, useProjectDetails } from '../hooks/useAuth';
 import { AsideNav } from '../Components/Asidenav';
+import { ThemeToggle } from '../Components/ThemeToggle';
 
 const FontFaces = () => (
     <style>{`
@@ -93,8 +93,9 @@ export function AssignMemberPage() {
                             </div>
                         </div>
 
-                        {/* Right: Actions */}
-                        <div className="flex items-center gap-2.5">
+                        {/* Right: Actions & Theme Toggle */}
+                        <div className="flex items-center gap-3">
+                            <ThemeToggle />
                             <button
                                 onClick={() => navigate(`/workspaces/${workspaceId}/projects/${projectId}`)}
                                 className="font-mono-nav px-3.5 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
