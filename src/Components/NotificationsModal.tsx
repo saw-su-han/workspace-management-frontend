@@ -67,9 +67,12 @@ export function NotificationsPage() {
         return item;
     });
 
-    // Updated unread count calculation utilizing your exact logic combined with overrides
+
     const unreadCount = Array.isArray(list)
-        ? list.filter((n: any) => !(n.isRead ?? n.notification?.isRead)).length
+        ? list.filter((n: any) => {
+            const isRead = n.isRead ?? n.notification?.isRead;
+            return isRead === false || isRead === undefined;
+        }).length
         : 0;
 
     const updateUnreadCountInStorageAndDispatch = (newOverrides: Record<number, boolean>) => {
@@ -153,7 +156,7 @@ export function NotificationsPage() {
                 {/* Action Bar */}
                 <div className="flex items-center justify-between gap-3 mb-5">
                     <p className="font-mono-nav text-xs text-mint-900/60 dark:text-mint-100/60">
-                        {list.length} notification{list.length === 1 ? '' : 's'} total
+                        {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}` : 'No unread notifications'}
                     </p>
                     <div className="flex items-center gap-2">
                         <button
@@ -174,7 +177,6 @@ export function NotificationsPage() {
                         </button>
                     </div>
                 </div>
-
                 {/* Notifications List */}
                 <div className="bg-white/60 dark:bg-mint-900/40 border border-mint-900/10 dark:border-mint-300/15 rounded-2xl shadow-sm backdrop-blur-md overflow-hidden">
                     {isLoading ? (

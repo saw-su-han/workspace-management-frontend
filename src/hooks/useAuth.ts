@@ -114,7 +114,7 @@ export interface UpdateTaskPayload {
     priority?: TaskPriority;
     status?: TaskStatus;
     dueDate?: string;
-    assignedTo?: number;
+    assignedTo?: number | null;
 }
 export interface CreateTaskPayload {
     workspaceId: number;
@@ -412,6 +412,7 @@ export const useUpdateProject = (projectId: number) => {
 
     return useMutation({
         mutationFn: async (data: {
+            workspaceId?: number,
             name?: string;
             description?: string;
             status?: "PLANNING" | "ACTIVE" | "COMPLETED";
@@ -737,6 +738,8 @@ export const useMarkNotificationAsRead = (workspaceId: number) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread-count', workspaceId] });
+
         },
     });
 };
@@ -750,6 +753,8 @@ export function useMarkAllNotificationsAsRead(workspaceId: number) {
             api.patch(`/workspaces/${workspaceId}/notifications/read-all`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread-count', workspaceId] });
+
         },
     });
 }
@@ -761,6 +766,8 @@ export function useClearAllNotifications(workspaceId: number) {
             api.delete(`/workspaces/${workspaceId}/notifications/delete`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications', workspaceId] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread-count', workspaceId] });
+
         },
     });
 }
@@ -826,3 +833,21 @@ export const useDashboardMember = (
         retry: false,
     });
 };
+
+export const useUnreadNotificationCount = (workspaceId: number) => {
+    return useQuery<{ count: number }>({
+        queryKey: ["notifications-unread-count", workspaceId],
+        queryFn: async () => {
+            const { data } = await api.get(
+                `/workspaces/${workspaceId}/notifications/unread-count`
+            );
+            console.log('unread-count raw response:', data); // add this
+
+            return data.data;
+
+        },
+        enabled: !!workspaceId,
+        refetchInterval: 30000,
+        retry: false,
+    })
+}

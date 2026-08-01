@@ -268,7 +268,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     setIsCreateFormOpen((prev) => !prev);
                                     setEditingTask(null);
                                 }}
-                                className="md:hidden font-mono-nav px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                className="font-mono-nav px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <Icon icon={isCreateFormOpen ? "solar:close-circle-bold" : "solar:add-circle-bold"} className="w-4 h-4 text-white" />
                                 {isCreateFormOpen ? 'Close Form' : 'Create New Task'}
@@ -304,18 +304,19 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     ))}
                                 </select>
                             )}
-                            {(['ALL', 'TODO', 'IN_PROGRESS', 'DONE'] as const).map((s) => (
-                                <button
-                                    key={s}
-                                    onClick={() => setStatusFilter(s)}
-                                    className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer font-mono-nav shadow-sm ${statusFilter === s
-                                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/20'
-                                        : 'bg-slate-50/80 dark:bg-gray-900/80 text-slate-600 dark:text-gray-400 border-slate-200 dark:border-gray-800 hover:border-emerald-500/50'
-                                        }`}
-                                >
-                                    {s === 'ALL' ? 'All Status' : STATUS_STYLES[s].label}
-                                </button>
-                            ))}
+
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value as any)}
+                                className="px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 outline-none cursor-pointer font-mono-nav shadow-sm"
+                            >
+                                <option value="ALL">All Status</option>
+                                {(['TODO', 'IN_PROGRESS', 'DONE'] as const).map((s) => (
+                                    <option key={s} value={s}>
+                                        {STATUS_STYLES[s].label}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
@@ -532,128 +533,126 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                     />
                                                 </div>
                                             </div>
-                                            {editError && <p className="font-mono-nav text-xs text-rose-500 font-semibold bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">{editError}</p>}
-                                            <div className="flex justify-end gap-2.5 pt-2">
+
+                                            {editError && <p className="text-xs text-rose-500 font-semibold font-mono-nav bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">{editError}</p>}
+
+                                            <div className="flex justify-end gap-2 pt-2">
                                                 <button
                                                     onClick={() => setEditingTask(null)}
-                                                    className="font-mono-nav px-4 py-2.5 text-xs text-slate-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold cursor-pointer"
+                                                    className="font-mono-nav px-4 py-2 text-xs font-bold text-slate-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white cursor-pointer"
                                                 >
                                                     Cancel
                                                 </button>
                                                 <button
                                                     onClick={handleUpdateTask}
-                                                    disabled={isMember ? isUpdatingStatus : isUpdatingTask}
-                                                    className="font-mono-nav px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md shadow-emerald-500/20"
+                                                    disabled={isUpdatingTask || isUpdatingStatus}
+                                                    className="font-mono-nav px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
                                                 >
-                                                    {(isMember ? isUpdatingStatus : isUpdatingTask) ? "Saving..." : "Save Changes"}
+                                                    {isUpdatingTask || isUpdatingStatus ? 'Saving...' : 'Save Changes'}
                                                 </button>
                                             </div>
                                         </div>
                                     );
                                 }
 
-                                const pStyle = PRIORITY_STYLES[task.priority];
-                                const sStyle = STATUS_STYLES[task.status];
-                                const taskProjectId = task.projectId;
+                                const priorityStyle = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.MEDIUM;
+                                const statusStyle = STATUS_STYLES[task.status] || STATUS_STYLES.TODO;
+                                const canEditThisTask = !isMember || isOwnTask;
 
                                 return (
                                     <div
                                         key={task.id}
                                         onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${task.id}`)}
-                                        className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border border-slate-200/80 dark:border-gray-800 bg-white/90 dark:bg-gray-900/70 rounded-3xl hover:border-emerald-500/50 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all cursor-pointer backdrop-blur-2xl"
+                                        className="group p-5 bg-white/95 dark:bg-gray-900/80 border border-slate-200/80 dark:border-gray-800/80 rounded-3xl shadow-xl shadow-slate-200/40 dark:shadow-none hover:border-emerald-500/40 transition-all backdrop-blur-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer"
                                     >
-                                        <div className="min-w-0 flex-1 space-y-1">
-                                            <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
-                                                <h3 className="font-display text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                        <div className="space-y-2 flex-1 min-w-0">
+                                            <div className="flex items-center gap-2.5 flex-wrap">
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono-nav border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
+                                                    {statusStyle.label}
+                                                </span>
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-mono-nav border ${priorityStyle.bg} ${priorityStyle.text} ${priorityStyle.border}`}>
+                                                    {priorityStyle.label}
+                                                </span>
+                                                {isWorkspaceWide && task.projectId && (
+                                                    <span className="text-[10px] font-mono-nav font-bold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full border border-slate-200/60 dark:border-gray-700/60 flex items-center gap-1.5">
+                                                        <Icon icon="solar:folder-bold-duotone" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                                        <span>{projectNameFor(task.projectId) || `Project #${task.projectId}`}</span>
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <h3 className="font-display text-sm font-extrabold text-gray-900 dark:text-white tracking-tight truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                     {task.title}
                                                 </h3>
-                                                {isWorkspaceWide && taskProjectId && projectNameFor(taskProjectId) && (
-                                                    <span className="font-mono-nav px-2.5 py-0.5 rounded-xl text-[10px] font-bold bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-400 border border-slate-200 dark:border-gray-700 flex-shrink-0">
-                                                        {projectNameFor(taskProjectId)}
-                                                    </span>
+                                                {task.description && (
+                                                    <p className="font-mono-nav text-xs text-slate-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                                        {task.description}
+                                                    </p>
                                                 )}
                                             </div>
-                                            {task.description && (
-                                                <p className="font-mono-nav text-[11px] text-slate-500 dark:text-gray-400 line-clamp-2 leading-relaxed">{task.description}</p>
-                                            )}
+
+                                            <div className="flex items-center gap-4 text-[11px] font-mono-nav text-slate-400 dark:text-gray-500 pt-1 flex-wrap">
+                                                {task.dueDate && (
+                                                    <span className="flex items-center gap-1">
+                                                        <Icon icon="solar:calendar-linear" className="w-3.5 h-3.5" />
+                                                        Due: {task.dueDate.slice(0, 10)}
+                                                    </span>
+                                                )}
+                                                <span className="flex items-center gap-1">
+                                                    <Icon icon="solar:user-rounded-linear" className="w-3.5 h-3.5" />
+                                                    {task.assignee ? task.assignee.name : 'Currently no user assigned'}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between sm:justify-end pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-gray-800" onClick={(e) => e.stopPropagation()}>
-                                            <div className="flex items-center gap-2.5">
-                                                {task.assignee ? (
-                                                    <div
-                                                        title={task.assignee.name}
-                                                        className="w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white shadow-sm"
-                                                    >
-                                                        {task.assignee.name?.charAt(0).toUpperCase() || '?'}
-                                                    </div>
-                                                ) : (
-                                                    <span className="font-mono-nav text-[10px] font-bold text-slate-400 dark:text-gray-500 italic">Unassigned</span>
-                                                )}
-                                                {task.dueDate && (
-                                                    <span className="font-mono-nav text-[10px] font-bold text-slate-500 dark:text-gray-400 flex items-center gap-1 bg-slate-100 dark:bg-gray-800 px-2.5 py-1 rounded-xl border border-slate-200 dark:border-gray-700">
-                                                        <Icon icon="solar:calendar-bold-duotone" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                                                        {new Date(task.dueDate).toLocaleDateString()}
-                                                    </span>
-                                                )}
-                                            </div>
+                                        <div className="flex items-center gap-2 self-end sm:self-center shrink-0" onClick={(e) => e.stopPropagation()}>
+                                            {/* Quick Status Dropdown for Members or Quick Actions */}
+                                            {isMember && isOwnTask && (
+                                                <select
+                                                    value={task.status}
+                                                    onChange={(e) => handleMemberStatusChange(task.id, e.target.value as TaskStatus)}
+                                                    className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 outline-none cursor-pointer shadow-sm"
+                                                >
+                                                    <option value="TODO">To Do</option>
+                                                    <option value="IN_PROGRESS">In Progress</option>
+                                                    <option value="DONE">Done</option>
+                                                </select>
+                                            )}
 
-                                            <div className="flex items-center gap-2.5">
-                                                <span className={`font-mono-nav px-2.5 py-1 rounded-xl text-[10px] font-extrabold border ${pStyle.bg} ${pStyle.text} ${pStyle.border}`}>
-                                                    {pStyle.label}
-                                                </span>
+                                            {canEditThisTask && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openEditTask(task);
+                                                    }}
+                                                    className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-gray-800 hover:bg-emerald-500 hover:text-white text-gray-700 dark:text-gray-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                                    title="Edit Task"
+                                                >
+                                                    <Icon icon="solar:pen-linear" className="w-3.5 h-3.5" />
+                                                    <span>Edit</span>
+                                                </button>
+                                            )}
 
-                                                {isMember ? (
-                                                    isOwnTask ? (
-                                                        <select
-                                                            value={task.status}
-                                                            onChange={(e) => handleMemberStatusChange(task.id, e.target.value as TaskStatus)}
-                                                            className={`font-mono-nav px-2.5 py-1 rounded-xl text-[10px] font-extrabold border outline-none cursor-pointer ${sStyle.bg} ${sStyle.text} ${sStyle.border}`}
-                                                        >
-                                                            <option value="TODO">To Do</option>
-                                                            <option value="IN_PROGRESS">In Progress</option>
-                                                            <option value="DONE">Done</option>
-                                                        </select>
-                                                    ) : (
-                                                        <span className={`font-mono-nav px-2.5 py-1 rounded-xl text-[10px] font-extrabold flex items-center gap-1.5 border ${sStyle.bg} ${sStyle.text} ${sStyle.border}`}>
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${sStyle.dot}`} />
-                                                            {sStyle.label}
-                                                        </span>
-                                                    )
-                                                ) : (
-                                                    <span className={`font-mono-nav px-2.5 py-1 rounded-xl text-[10px] font-extrabold flex items-center gap-1.5 border ${sStyle.bg} ${sStyle.text} ${sStyle.border}`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${sStyle.dot}`} />
-                                                        {sStyle.label}
-                                                    </span>
-                                                )}
-
-                                                {(!isMember || isOwnTask) && (
-                                                    <button
-                                                        onClick={() => openEditTask(task)}
-                                                        className="p-2 bg-slate-100 dark:bg-gray-800 hover:bg-emerald-500/10 text-slate-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-all border border-slate-200 dark:border-gray-700 flex items-center justify-center cursor-pointer shadow-sm"
-                                                        title="Edit task"
-                                                    >
-                                                        <Icon icon="solar:pen-bold-duotone" className="w-4 h-4" />
-                                                    </button>
-                                                )}
-
-                                                {!isMember && (
-                                                    <button
-                                                        onClick={() => setTaskToDelete(task.id)}
-                                                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 transition-colors cursor-pointer"
-                                                        title="Delete task"
-                                                    >
-                                                        <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
-                                                    </button>
-                                                )}
-                                            </div>
+                                            {!isMember && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setTaskToDelete(task.id);
+                                                    }}
+                                                    className="p-2 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-rose-500 hover:text-white text-slate-400 dark:text-gray-400 transition-all cursor-pointer shadow-sm"
+                                                    title="Delete Task"
+                                                >
+                                                    <Icon icon="solar:trash-bin-trash-linear" className="w-4 h-4" />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
                     )}
-
                 </div>
             </div>
         </div>
