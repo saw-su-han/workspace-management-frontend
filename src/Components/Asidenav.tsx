@@ -68,7 +68,7 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
             key: 'dashboard',
             label: 'Dashboard',
             icon: 'solar:widget-5-bold-duotone',
-            path: '/dashboard',
+            path: `/workspaces/${workspaceId}`,
         },
         {
             key: 'project',

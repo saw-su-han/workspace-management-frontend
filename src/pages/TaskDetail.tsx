@@ -83,25 +83,20 @@ export const TaskDetail: React.FC = () => {
     const [status, setStatus] = useState<TaskStatus>('TODO');
     const [dueDate, setDueDate] = useState('');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isReassignConfirmOpen, setIsReassignConfirmOpen] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [savedFlash, setSavedFlash] = useState(false);
-    const [isResigning, setIsResigning] = useState(false);
 
-    const handleResign = () => {
-        setIsResigning(true);
-        updateTask(
-            { workspaceId, assignedTo: null },
-            {
-                onSuccess: () => {
-                    setIsResigning(false);
-                    refetch();
-                },
-                onError: (err: any) => {
-                    setIsResigning(false);
-                    setSaveError(err?.response?.data?.message || "Couldn't resign task.");
-                },
-            }
-        );
+    const goToAssignPage = () => {
+        navigate(`/workspaces/${workspaceId}/tasks/${taskId}/assign`);
+    };
+
+    const handleAssignClick = () => {
+        if (task?.assignee) {
+            setIsReassignConfirmOpen(true);
+        } else {
+            goToAssignPage();
+        }
     };
 
     // --- Comments ---
@@ -338,11 +333,11 @@ export const TaskDetail: React.FC = () => {
                             <ThemeToggle />
                             {!isMember && (
                                 <button
-                                    onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}/assign`)}
+                                    onClick={handleAssignClick}
                                     className="font-mono-nav px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
                                 >
                                     <Icon icon="solar:users-group-rounded-bold" className="w-3.5 h-3.5" />
-                                    <span>Assign</span>
+                                    <span>{task.assignee ? 'Reassign' : 'Assign'}</span>
                                 </button>
                             )}
                         </div>
@@ -386,27 +381,14 @@ export const TaskDetail: React.FC = () => {
                                     </p>
                                 )}
                             </div>
-                            <div className="flex items-center gap-2">
-                                {task.assignee && (
-                                    <button
-                                        onClick={handleResign}
-                                        disabled={isResigning}
-                                        className="font-mono-nav px-3.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-[11px] font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
-                                        title="Resign assignment"
-                                    >
-                                        <Icon icon="solar:user-minus-bold-duotone" className="w-3.5 h-3.5" />
-                                        <span>{isResigning ? 'Resigning...' : 'Resign'}</span>
-                                    </button>
-                                )}
-                                {!isMember && (
-                                    <button
-                                        onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}/assign`)}
-                                        className="font-mono-nav px-3 py-1.5 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 text-[11px] font-semibold text-gray-700 dark:text-gray-300 rounded-xl transition-all cursor-pointer flex-shrink-0"
-                                    >
-                                        {task.assignee ? 'Reassign' : 'Assign'}
-                                    </button>
-                                )}
-                            </div>
+                            {!isMember && (
+                                <button
+                                    onClick={handleAssignClick}
+                                    className="font-mono-nav px-3 py-1.5 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 text-[11px] font-semibold text-gray-700 dark:text-gray-300 rounded-xl transition-all cursor-pointer flex-shrink-0"
+                                >
+                                    {task.assignee ? 'Reassign' : 'Assign'}
+                                </button>
+                            )}
                         </div>
 
                         {isEditing ? (
@@ -744,6 +726,20 @@ export const TaskDetail: React.FC = () => {
                     confirmLabel="Delete"
                     onConfirm={handleDeleteComment}
                     onCancel={() => setCommentToDelete(null)}
+                />
+
+                <ConfirmModal
+                    isOpen={isReassignConfirmOpen}
+                    title="Reassign task"
+                    message={`This task is currently assigned to ${task.assignee?.name || 'someone'}. Do you want to reassign it to a different member?`}
+                    confirmLabel="Reassign"
+                    cancelLabel="Cancel"
+                    isDangerous={false}
+                    onConfirm={() => {
+                        setIsReassignConfirmOpen(false);
+                        goToAssignPage();
+                    }}
+                    onCancel={() => setIsReassignConfirmOpen(false)}
                 />
             </div>
         </div>

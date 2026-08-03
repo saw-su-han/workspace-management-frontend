@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile, useLogout } from '../hooks/useAuth';
 import { CreateWorkspaceModal } from '../Components/CreateWorkspceModel';
+import { ConfirmModal } from '../Components/ConfirmModel';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { UserAvatar } from '../Components/UserAvatar';
 import { Icon } from "@iconify/react";
@@ -14,6 +15,7 @@ export const DashboardLayout: React.FC = () => {
     const { mutate: handleLogoutServer, isPending: isLoggingOut } = useLogout();
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState<'ALL' | 'ADMIN' | 'OWNER' | 'MEMBER'>('ALL');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -48,6 +50,11 @@ export const DashboardLayout: React.FC = () => {
                 window.location.href = "/login";
             }
         });
+    };
+
+    const handleLogoutClick = () => {
+        setIsMobileMenuOpen(false); // close mobile menu if open, so modal isn't hidden behind it
+        setIsLogoutConfirmOpen(true);
     };
 
     const navigateToWorkspace = (workspaceId: number) => {
@@ -137,7 +144,7 @@ export const DashboardLayout: React.FC = () => {
                     <ThemeToggle />
 
                     <button
-                        onClick={executeLogoutPipeline}
+                        onClick={handleLogoutClick}
                         disabled={isLoggingOut}
                         className="h-10 w-10 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 cursor-pointer"
                         title="Logout"
@@ -197,7 +204,7 @@ export const DashboardLayout: React.FC = () => {
                             <span>Sign In</span>
                         </button>
                         <button
-                            onClick={executeLogoutPipeline}
+                            onClick={handleLogoutClick}
                             disabled={isLoggingOut}
                             className="font-mono-nav w-full py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center gap-1.5"
                         >
@@ -369,6 +376,20 @@ export const DashboardLayout: React.FC = () => {
                     onSuccess={() => refetchProfile()}
                 />
             )}
+
+            <ConfirmModal
+                isOpen={isLogoutConfirmOpen}
+                title="Log out?"
+                message="You'll need to sign in again to access your workspaces."
+                confirmLabel="Log out"
+                cancelLabel="Stay signed in"
+                isDangerous={true}
+                isLoading={isLoggingOut}
+                onConfirm={() => {
+                    executeLogoutPipeline();
+                }}
+                onCancel={() => setIsLogoutConfirmOpen(false)}
+            />
         </div>
     );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { AsideNav } from '../Components/Asidenav';
+import { ConfirmModal } from '../Components/ConfirmModel';
 import {
     useTaskDetails,
     useWorkspaceMembers,
@@ -80,6 +81,7 @@ export const TaskAssign: React.FC = () => {
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const filteredMembers = members?.filter((member) => {
         const query = searchQuery.toLowerCase();
@@ -88,17 +90,31 @@ export const TaskAssign: React.FC = () => {
         return nameMatch || emailMatch;
     });
 
-    const handleAssign = () => {
+    // Use the presence of the assignee object itself, not just its id,
+    // so a falsy-but-valid id (e.g. 0) can't silently break this check.
+    const hasCurrentAssignee = Boolean(task?.assignee);
+    const currentAssigneeId = task?.assignee?.id;
+
+    const selectedMember = members?.find((m) => m.userId === selectedUserId);
+
+    const handleAssignClick = () => {
         if (selectedUserId === null) {
             setError('Pick a member to assign.');
             return;
         }
         setError(null);
+        setIsConfirmOpen(true);
+    };
+
+    const confirmAssign = () => {
+        if (selectedUserId === null) return;
         assignTask(selectedUserId, {
             onSuccess: () => {
+                setIsConfirmOpen(false);
                 navigate(`/workspaces/${workspaceId}/tasks/${taskId}`);
             },
             onError: (err: any) => {
+                setIsConfirmOpen(false);
                 setError(err?.response?.data?.message || "Couldn't assign task.");
             }
         });
@@ -116,8 +132,6 @@ export const TaskAssign: React.FC = () => {
             </div>
         );
     }
-
-    const currentAssigneeId = task?.assignee?.id;
 
     return (
         <div className="flex min-h-screen w-full bg-white dark:bg-gray-950 font-sans">
@@ -182,10 +196,10 @@ export const TaskAssign: React.FC = () => {
                 <div className="max-w-xl mx-auto p-4 sm:p-6 md:p-8 mt-4 relative z-10">
                     <div className="mb-6">
                         <h1 className="font-display text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-1">
-                            Assign Task
+                            {hasCurrentAssignee ? 'Reassign Task' : 'Assign Task'}
                         </h1>
                         <p className="font-mono-nav text-xs text-gray-500 dark:text-gray-400 truncate">
-                            Assigning: <span className="text-gray-700 dark:text-gray-300 font-bold">{task?.title}</span>
+                            {hasCurrentAssignee ? 'Reassigning' : 'Assigning'}: <span className="text-gray-700 dark:text-gray-300 font-bold">{task?.title}</span>
                         </p>
                     </div>
 
@@ -279,15 +293,31 @@ export const TaskAssign: React.FC = () => {
                         )}
 
                         <button
-                            onClick={handleAssign}
+                            onClick={handleAssignClick}
                             disabled={isPending || selectedUserId === null}
                             className="w-full font-mono-nav px-4 py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
                         >
                             <Icon icon="solar:user-check-rounded-bold-duotone" className="w-4 h-4" />
-                            <span>{isPending ? 'Assigning...' : 'Confirm Assignment'}</span>
+                            <span>{isPending ? 'Assigning...' : hasCurrentAssignee ? 'Confirm Reassignment' : 'Confirm Assignment'}</span>
                         </button>
                     </div>
                 </div>
+
+                <ConfirmModal
+                    isOpen={isConfirmOpen}
+                    title={hasCurrentAssignee ? 'Reassign task' : 'Assign task'}
+                    message={
+                        hasCurrentAssignee
+                            ? `Reassign this task from ${task?.assignee?.name || 'the current assignee'} to ${selectedMember?.name || 'this member'}?`
+                            : `Assign this task to ${selectedMember?.name || 'this member'}?`
+                    }
+                    confirmLabel={isPending ? 'Assigning...' : hasCurrentAssignee ? 'Reassign' : 'Assign'}
+                    cancelLabel="Cancel"
+                    isDangerous={false}
+                    isLoading={isPending}
+                    onConfirm={confirmAssign}
+                    onCancel={() => setIsConfirmOpen(false)}
+                />
             </div>
         </div>
     );

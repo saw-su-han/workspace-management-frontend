@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React from 'react';
 
 interface ConfirmModalProps {
@@ -39,11 +40,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                     <div
                         className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-lg ${isDangerous
                             ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-500'
-                            : 'bg-cyan-50 dark:bg-cyan-400/10 text-cyan-600 dark:text-cyan-300'
+                            : 'bg-emerald-50 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-300'
                             }`}
                     >
-                        {isDangerous ? '⚠️' : 'ℹ️'}
-                    </div>
+                        {isDangerous ? (
+                            <Icon icon="lucide:triangle-alert" className="w-5 h-5 text-amber-500" />
+                        ) : (
+                            <Icon icon="lucide:info" className="w-5 h-5 text-emerald-500" />
+                        )}                    </div>
                     <div className="min-w-0">
                         <h3 className="text-sm font-extrabold text-sky-950 dark:text-cyan-50">{title}</h3>
                         <p className="text-xs text-sky-500/80 dark:text-cyan-400/50 mt-1.5 leading-relaxed">
@@ -65,7 +69,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                         disabled={isLoading}
                         className={`px-4 py-2 text-white text-xs font-extrabold rounded-xl shadow-sm transition-colors disabled:opacity-50 ${isDangerous
                             ? 'bg-rose-500 hover:bg-rose-600'
-                            : 'bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400'
+                            : 'bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400'
                             }`}
                     >
                         {isLoading ? 'Please wait...' : confirmLabel}

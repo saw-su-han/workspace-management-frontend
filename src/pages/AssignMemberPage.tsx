@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react';
 import { useWorkspaceMembers, useAssignProjectMember, useProjectDetails } from '../hooks/useAuth';
 import { AsideNav } from '../Components/Asidenav';
 import { ThemeToggle } from '../Components/ThemeToggle';
+import { ConfirmModal } from '../Components/ConfirmModel';
 
 const FontFaces = () => (
     <style>{`
@@ -26,6 +27,7 @@ export function AssignMemberPage() {
 
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const assignedUserIds = new Set(
         (project as any)?.members?.map((m: any) => m.user?.id) ?? []
@@ -33,16 +35,27 @@ export function AssignMemberPage() {
 
     const availableMembers = (members ?? []).filter((m) => !assignedUserIds.has(m.userId));
 
-    const handleAssign = () => {
+    const selectedMember = availableMembers.find((m) => m.userId === selectedUserId);
+
+    const handleAssignClick = () => {
         if (!selectedUserId) {
             setError('Pick a member to assign.');
             return;
         }
         setError(null);
+        setIsConfirmOpen(true);
+    };
+
+    const confirmAssign = () => {
+        if (!selectedUserId) return;
         assignMember(
             { workspaceId, projectId, userId: selectedUserId },
             {
+                onSuccess: () => {
+                    setIsConfirmOpen(false);
+                },
                 onError: (err: any) => {
+                    setIsConfirmOpen(false);
                     setError(err?.response?.data?.message || "Couldn't assign member.");
                 },
             }
@@ -188,7 +201,7 @@ export function AssignMemberPage() {
                         )}
 
                         <button
-                            onClick={handleAssign}
+                            onClick={handleAssignClick}
                             disabled={isPending || availableMembers.length === 0}
                             className="w-full font-mono-nav px-4 py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
                         >
@@ -197,6 +210,18 @@ export function AssignMemberPage() {
                         </button>
                     </div>
                 </div>
+
+                <ConfirmModal
+                    isOpen={isConfirmOpen}
+                    title="Assign member"
+                    message={`Add ${selectedMember?.name || 'this member'} to "${project?.name || `Project #${projectId}`}"?`}
+                    confirmLabel={isPending ? 'Assigning...' : 'Assign'}
+                    cancelLabel="Cancel"
+                    isDangerous={false}
+                    isLoading={isPending}
+                    onConfirm={confirmAssign}
+                    onCancel={() => setIsConfirmOpen(false)}
+                />
             </div>
         </div>
     );
