@@ -1,4 +1,3 @@
-// src/components/AsideNav.tsx
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useEffect, useState } from 'react';
@@ -114,16 +113,55 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
     const isActive = (path: string) => location.pathname === path;
 
     return (
-        <aside className="hidden md:flex w-60 shrink-0 h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl flex-col z-40">
-            {/* Brand / Workspace tag */}
-            <div className="h-16 md:h-20 flex flex-col justify-center px-5 border-b border-gray-200 dark:border-gray-800">
-                <span className="font-mono-nav text-[9px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Workspace #{workspaceId}
-                </span>
-            </div>
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden md:flex w-60 shrink-0 h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl flex-col z-40">
+                {/* Brand / Workspace tag */}
+                <div className="h-16 md:h-20 flex flex-col justify-center px-5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="font-mono-nav text-[9px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                        Workspace #{workspaceId}
+                    </span>
+                </div>
 
-            {/* Nav items */}
-            <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+                {/* Nav items */}
+                <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+                    {items.map((item) => {
+                        const active = isActive(item.path);
+                        return (
+                            <button
+                                key={item.key}
+                                type="button"
+                                disabled={item.disabled}
+                                title={item.disabled ? item.hint : undefined}
+                                onClick={() => !item.disabled && navigate(item.path)}
+                                className={`w-full font-mono-nav flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer
+                                    ${item.disabled
+                                        ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
+                                        : active
+                                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-transparent hover:border-gray-200 dark:hover:border-gray-800'
+                                    }`}
+                            >
+                                <Icon
+                                    icon={item.icon}
+                                    className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}
+                                />
+                                <span className="truncate">{item.label}</span>
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                {/* Footer */}
+                <div className="px-5 py-4 border-t border-gray-200 dark:border-gray-800">
+                    <p className="font-mono-nav text-[9px] text-gray-400 dark:text-gray-600 uppercase tracking-wider">
+                        v1.0 · Project Console
+                    </p>
+                </div>
+            </aside>
+
+            {/* Mobile Bottom Navigation Bar */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl flex items-center justify-around px-2 z-40">
                 {items.map((item) => {
                     const active = isActive(item.path);
                     return (
@@ -133,30 +171,25 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
                             disabled={item.disabled}
                             title={item.disabled ? item.hint : undefined}
                             onClick={() => !item.disabled && navigate(item.path)}
-                            className={`w-full font-mono-nav flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer
                                 ${item.disabled
                                     ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
                                     : active
-                                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-transparent hover:border-gray-200 dark:hover:border-gray-800'
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                                 }`}
                         >
                             <Icon
                                 icon={item.icon}
-                                className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}
+                                className={`w-5 h-5 shrink-0 ${active ? 'scale-110' : ''} transition-transform`}
                             />
-                            <span className="truncate">{item.label}</span>
+                            <span className="font-mono-nav text-[9px] font-semibold mt-1 max-w-[56px] truncate">
+                                {item.label}
+                            </span>
                         </button>
                     );
                 })}
-            </nav>
-
-            {/* Footer */}
-            <div className="px-5 py-4 border-t border-gray-200 dark:border-gray-800">
-                <p className="font-mono-nav text-[9px] text-gray-400 dark:text-gray-600 uppercase tracking-wider">
-                    v1.0 · Project Console
-                </p>
             </div>
-        </aside>
+        </>
     );
 }

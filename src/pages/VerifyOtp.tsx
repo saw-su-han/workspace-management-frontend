@@ -1,74 +1,76 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRegister } from "../hooks/useAuth";
-import { FileField } from "../Components/FileField";
-import { Input } from "../Components/Input";
-import { registerSchema, type RegisterInput } from "../schema/auth.schema";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useVerifyEmail } from "../hooks/useAuth";
 import { ThemeToggle } from "../Components/ThemeToggle";
 import { Icon } from "@iconify/react";
 
-const EyeIcon = () => (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-);
-
-const EyeOffIcon = () => (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.774 3.162 10.066 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-    </svg>
-);
-
-export const Register = () => {
-    const [avatar, setAvatar] = useState<File | null>(null);
-    const [logo, setLogo] = useState<File | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+export const VerifyEmail = () => {
     const navigate = useNavigate();
-    const registerMutation = useRegister();
+    const location = useLocation();
+    const verifyMutation = useVerifyEmail();
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterInput>({
-        resolver: zodResolver(registerSchema),
-        defaultValues: { name: "", email: "", password: "", confirmPassword: "", workspaceName: "" } as any,
-    });
+    // email passed from Register page via navigate state
+    const emailFromState = (location.state as { email?: string } | null)?.email ?? "";
+    const [email] = useState(emailFromState);
+    const [code, setCode] = useState<string[]>(Array(6).fill(""));
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
-    const onSubmit = (values: any) => {
-        const data = new FormData();
-        data.append("name", values.name || "");
-        data.append("email", values.email || "");
-        data.append("password", values.password || "");
-
-        if (values.workspaceName && values.workspaceName.trim() !== "") {
-            data.append("workspaceName", values.workspaceName.trim());
-        }
-
-        if (avatar) data.append("avatar", avatar);
-        if (logo) data.append("logo", logo);
-
-        registerMutation.mutate(data);
-    };
-
-    const onValidationError = (formErrors: any) => {
-        console.error("🅫 Form validation blocked submission:", formErrors);
-    };
-
-    // On success, registration only sent a verification code — no user/workspace
-    // exists yet, so we route to /verify-email and pass the email along so that
-    // page knows who to verify.
+    // Redirect back to register if someone lands here without an email (e.g. refresh)
     useEffect(() => {
-        if (registerMutation.isSuccess) {
-            const emailValue = watch("email");
-            const timer = setTimeout(() => {
-                navigate("/verify-email", { state: { email: emailValue } });
-            }, 2000);
+        if (!emailFromState) {
+            navigate("/register");
+        }
+    }, [emailFromState, navigate]);
+
+    useEffect(() => {
+        if (verifyMutation.isSuccess) {
+            const timer = setTimeout(() => navigate("/login"), 1500);
             return () => clearTimeout(timer);
         }
-    }, [registerMutation.isSuccess, navigate, watch]);
+    }, [verifyMutation.isSuccess, navigate]);
+
+    const handleChange = (index: number, value: string) => {
+        if (!/^[0-9]?$/.test(value)) return; // digits only, max 1 char
+
+        const next = [...code];
+        next[index] = value;
+        setCode(next);
+
+        if (value && index < 5) {
+            inputsRef.current[index + 1]?.focus();
+        }
+    };
+
+    const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Backspace" && !code[index] && index > 0) {
+            inputsRef.current[index - 1]?.focus();
+        }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+        const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+        if (!pasted) return;
+        e.preventDefault();
+        const next = Array(6).fill("");
+        for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
+        setCode(next);
+        inputsRef.current[Math.min(pasted.length, 5)]?.focus();
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const fullCode = code.join("");
+        if (fullCode.length !== 6) return;
+        verifyMutation.mutate({ email, code: fullCode });
+    };
+
+    const handleResend = () => {
+        // Wire this to your resend-code endpoint / mutation if you have one
+        console.log("Resend code for", email);
+    };
+
+    const isComplete = code.every((d) => d !== "");
 
     return (
         <div className="relative flex min-h-screen w-full flex-col items-center justify-between bg-white dark:bg-gray-950 px-4 py-6 text-gray-900 dark:text-gray-50 transition-colors duration-300 overflow-x-hidden font-sans">
@@ -106,7 +108,6 @@ export const Register = () => {
                         </span>
                     </Link>
 
-                    {/* DESKTOP NAV */}
                     <nav className="hidden md:flex items-center gap-1.5 font-code text-xs font-medium bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
                         {['Workflow', 'Features', 'Architecture', 'Security'].map(item => (
                             <Link key={item} to={`/#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all">
@@ -122,7 +123,6 @@ export const Register = () => {
                         </Link>
                     </div>
 
-                    {/* MOBILE NAV TOGGLE */}
                     <div className="flex md:hidden items-center gap-2">
                         <ThemeToggle />
                         <button
@@ -140,7 +140,6 @@ export const Register = () => {
                     </div>
                 </header>
 
-                {/* MOBILE DROPDOWN MENU */}
                 {isMobileMenuOpen && (
                     <div className="md:hidden w-full max-w-7xl mx-auto mt-2 border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-4 space-y-3 shadow-2xl rounded-2xl">
                         <div className="flex flex-col gap-1.5">
@@ -166,105 +165,77 @@ export const Register = () => {
                 )}
             </div>
 
-            {/* MAIN CONTENT AREA MATCHING HOME & LOGIN ARCHITECTURE */}
-            <div className="relative my-auto flex flex-col items-center max-w-xl w-full z-10 pt-32 pb-24">
+            {/* MAIN CONTENT */}
+            <div className="relative my-auto flex flex-col items-center max-w-md w-full z-10 pt-32 pb-24">
 
-                {/* Hero / Header Intro */}
                 <div className="relative max-w-lg text-center mb-8 space-y-3">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                        Workspace Provisioning Portal
+                        Identity Confirmation
                     </div>
                     <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-gray-900 dark:text-white tracking-tight">
-                        Establish Your Team Workspace
+                        Verify Your Email
                     </h1>
                     <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
-                        Configure organizational credentials, upload brand assets, and launch your pipelines.
+                        Enter the 6-digit code sent to{" "}
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{email || "your email"}</span>
                     </p>
                 </div>
 
-                {/* Styled Register Card Container */}
                 <div className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 sm:p-10 rounded-3xl shadow-xl space-y-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
 
-                    {registerMutation.isSuccess && (
+                    {verifyMutation.isSuccess && (
                         <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs font-semibold text-emerald-700 dark:text-emerald-400 text-center tracking-wide font-mono-nav">
-                            Verification code sent! Redirecting...
+                            Email verified! Redirecting to login...
                         </div>
                     )}
-                    {registerMutation.isError && (
+                    {verifyMutation.isError && (
                         <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-600 dark:text-red-400 text-center tracking-wide font-mono-nav">
-                            {(registerMutation.error as any).response?.data?.message || "Registration failed"}
+                            {(verifyMutation.error as any).response?.data?.message || "Invalid or expired code"}
                         </div>
                     )}
 
-                    <form className="space-y-4 relative z-10" onSubmit={handleSubmit(onSubmit, onValidationError)}>
-                        <Input label="Your Name" type="text" placeholder="Alex Carter" error={errors.name?.message} {...register("name")} />
-                        <Input label="Work Email" type="email" placeholder="alex@company.com" error={errors.email?.message} {...register("email")} />
-
-                        <div className="relative">
-                            <Input
-                                label="Password"
-                                type={showPassword ? "text" : "password"}
-                                placeholder="At least 8 chars, 1 uppercase, 1 number"
-                                error={errors.password?.message}
-                                {...register("password")}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword((prev) => !prev)}
-                                tabIndex={-1}
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                                className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                            >
-                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                            </button>
-                        </div>
-
-                        <div className="relative">
-                            <Input
-                                label="Confirm Password"
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Re-enter your password"
-                                error={errors.confirmPassword?.message}
-                                {...register("confirmPassword")}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                                tabIndex={-1}
-                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                                className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                            >
-                                {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
-                            </button>
-                        </div>
-
-                        <Input label="Workspace Name" type="text" placeholder="Acme Labs" error={errors.workspaceName?.message} {...register("workspaceName")} />
-
-                        <div className="grid grid-cols-2 gap-3 pt-1">
-                            <FileField label="User Avatar" onChange={setAvatar} />
-                            <FileField label="Brand Logo" onChange={setLogo} />
+                    <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
+                        <div className="flex justify-between gap-2 sm:gap-3">
+                            {code.map((digit, i) => (
+                                <input
+                                    key={i}
+                                    ref={(el) => { inputsRef.current[i] = el; }}
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={1}
+                                    value={digit}
+                                    onChange={(e) => handleChange(i, e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(i, e)}
+                                    onPaste={handlePaste}
+                                    className="w-full aspect-square text-center text-xl font-bold font-mono-nav rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                                />
+                            ))}
                         </div>
 
                         <button
                             type="submit"
-                            disabled={registerMutation.isPending || registerMutation.isSuccess}
-                            className="font-mono-nav w-full mt-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+                            disabled={!isComplete || verifyMutation.isPending || verifyMutation.isSuccess}
+                            className="font-mono-nav w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
                         >
-                            {registerMutation.isPending ? "Creating Space..." : "Register Workspace →"}
+                            {verifyMutation.isPending ? "Verifying..." : "Verify Email →"}
                         </button>
                     </form>
 
                     <div className="mt-6 flex flex-col items-center gap-3 border-t border-gray-200 dark:border-gray-800 pt-5 text-xs font-medium text-gray-500 dark:text-gray-400 relative z-10">
                         <span>
-                            Have an active account?{" "}
-                            <Link to="/login" className="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
-                                Log in
-                            </Link>
+                            Didn't get a code?{" "}
+                            <button
+                                type="button"
+                                onClick={handleResend}
+                                className="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
+                            >
+                                Resend code
+                            </button>
                         </span>
-                        <Link to="/" className="font-mono-nav text-[11px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 flex items-center gap-1 transition-colors mt-1">
-                            ← Return to Home Overview
+                        <Link to="/register" className="font-mono-nav text-[11px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 flex items-center gap-1 transition-colors mt-1">
+                            ← Back to Registration
                         </Link>
                     </div>
                 </div>

@@ -208,6 +208,15 @@ export const Login = () => {
                             </button>
                         </div>
 
+                        <div className="flex justify-end -mt-1">
+                            <Link
+                                to="/forgot-password"
+                                className="font-mono-nav text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:opacity-80 transition-opacity"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+
                         <button
                             type="submit"
                             disabled={loginMutation.isPending}

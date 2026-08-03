@@ -17,6 +17,10 @@ import { TaskDetail } from './pages/TaskDetail';
 import { TaskAssign } from './pages/TaskAssign';
 import { NotificationsPage } from './Components/NotificationsModal';
 import { WorkspaceDashboard } from './pages/workspaceDashboard';
+import { VerifyEmail } from './pages/VerifyOtp';
+import { ForgotPassword } from './pages/ForgotPasword';
+import { ResetPassword } from './pages/ResetPassword';
+import { VerifyCode } from './pages/VerifyCode';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -49,6 +53,7 @@ export default function App() {
       {/* Public Pages */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/register" element={<Register />} />
 
       {/* Main Account & Core Landing */}
@@ -114,10 +119,18 @@ export default function App() {
           <AssignMemberPage />
         </ProtectedRoute>
         } />
-
+      <Route path="/verify-code" element={<VerifyCode />} />
       <Route path="/workspaces/:workspaceId/tasks/:taskId" element={<TaskDetail />} />
       <Route path="/workspaces/:workspaceId/tasks/:taskId/assign" element={<TaskAssign />} />
       <Route path="/workspaces/:workspaceId/notifications" element={<NotificationsPage />} />
+
+
+      <Route path="/forgot-password" element={
+        <ForgotPassword />
+      } />
+      <Route path="/reset-password" element={
+        <ResetPassword />
+      } />
       {/* Replace your existing unwrapped dashboard route with this */}
       <Route
         path="/workspaces/:workspaceId/dashboard"
@@ -127,6 +140,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+
 
       {/* Catch-all Routing Redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />

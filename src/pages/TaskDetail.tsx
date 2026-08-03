@@ -44,6 +44,17 @@ const STATUS_STYLES: Record<TaskStatus, { label: string; dot: string; text: stri
 const toBackendStatus = (status: TaskStatus): 'todo' | 'in-progress' | 'done' =>
     status === 'TODO' ? 'todo' : status === 'IN_PROGRESS' ? 'in-progress' : 'done';
 
+// Returns true if a comment has been edited since creation.
+// Falls back gracefully if updatedAt isn't present on the type/data yet.
+const isCommentEdited = (c: { createdAt: string; updatedAt?: string }): boolean => {
+    if (!c.updatedAt) return false;
+    const created = new Date(c.createdAt).getTime();
+    const updated = new Date(c.updatedAt).getTime();
+    // Small threshold to absorb sub-second precision differences some backends
+    // introduce even on initial creation (e.g. separate createdAt/updatedAt writes).
+    return updated - created > 1000;
+};
+
 export const TaskDetail: React.FC = () => {
     const { workspaceId: workspaceIdParam, taskId: taskIdParam } = useParams<{ workspaceId: string; taskId: string }>();
     const workspaceId = Number(workspaceIdParam);
@@ -104,6 +115,9 @@ export const TaskDetail: React.FC = () => {
     const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
     const [editingContent, setEditingContent] = useState('');
     const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
+    // Optimistically mark comments as edited the instant a save succeeds,
+    // so the "(edited)" tag shows before the refetch resolves.
+    const [locallyEditedIds, setLocallyEditedIds] = useState<Set<number>>(new Set());
 
     const resetFormFromTask = () => {
         if (!task) return;
@@ -225,10 +239,12 @@ export const TaskDetail: React.FC = () => {
             return;
         }
         setCommentError(null);
+        const idBeingEdited = editingCommentId;
         updateComment(
-            { commentId: editingCommentId, content: trimmed },
+            { commentId: idBeingEdited, content: trimmed },
             {
                 onSuccess: () => {
+                    setLocallyEditedIds((prev) => new Set(prev).add(idBeingEdited));
                     setEditingCommentId(null);
                     setEditingContent('');
                     refetchComments();
@@ -589,6 +605,7 @@ export const TaskDetail: React.FC = () => {
                                 {comments.map((c) => {
                                     const isOwnComment = c.author.id === currentUserId;
                                     const isEditingThis = editingCommentId === c.id;
+                                    const edited = isCommentEdited(c) || locallyEditedIds.has(c.id);
 
                                     return (
                                         <div
@@ -612,8 +629,20 @@ export const TaskDetail: React.FC = () => {
                                                         <p className="font-display text-xs font-bold text-gray-900 dark:text-white truncate">
                                                             {c.author.name}
                                                         </p>
-                                                        <p className="font-mono-nav text-[10px] text-gray-400 dark:text-gray-500 flex-shrink-0">
-                                                            {new Date(c.createdAt).toLocaleString()}
+                                                        <p className="font-mono-nav text-[10px] text-gray-400 dark:text-gray-500 flex-shrink-0 flex items-center gap-1">
+                                                            <span>
+                                                                {edited && c.updatedAt
+                                                                    ? new Date(c.updatedAt).toLocaleString()
+                                                                    : new Date(c.createdAt).toLocaleString()}
+                                                            </span>
+                                                            {edited && (
+                                                                <span
+                                                                    className="italic text-gray-400 dark:text-gray-500"
+                                                                    title={`Created ${new Date(c.createdAt).toLocaleString()}`}
+                                                                >
+                                                                    (edited)
+                                                                </span>
+                                                            )}
                                                         </p>
                                                     </div>
 

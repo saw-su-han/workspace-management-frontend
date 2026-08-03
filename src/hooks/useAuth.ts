@@ -1,6 +1,7 @@
 // src/hooks/useAuth.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../Api/axiosClient";
+import type { ForgotPasswordInput } from "../schema/auth.schema";
 
 export interface WorkspaceDetails {
     name: string;
@@ -215,6 +216,47 @@ export interface DashboardMemberData {
         totalTaskPages: number;
     };
 }
+
+
+export interface RegisterResponse {
+    success: boolean;
+    message: string;
+}
+
+export interface VerifyEmailInput {
+    email: string;
+    code: string;
+}
+
+export interface VerifyEmailResponse {
+    success: boolean;
+    message: string;
+    data: {
+        token: string;
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            avatar: string | null;
+            workspaceId: number;
+            role: string;
+        };
+    };
+}
+
+
+export const useVerifyEmail = () => {
+    return useMutation({
+        mutationFn: (data: VerifyEmailInput) =>
+            api
+                .post<VerifyEmailResponse>("/auth/verify-email", data)
+                .then((res) => res.data),
+        onSuccess: (res) => {
+            localStorage.setItem("token", res.data.token);
+        },
+    });
+};
+
 export const useWorkspaceMembers = (workspaceId: number) => {
     return useQuery<WorkspaceMemberItem[]>({
         queryKey: ["workspaceMembers", workspaceId],
@@ -266,7 +308,10 @@ export const useUpdateProfile = () => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
         },
     });
-}; export const useRegister = () => {
+};
+
+//register
+export const useRegister = () => {
     return useMutation({
         mutationFn: async (formData: FormData) => {
             const res = await api.post("/auth/register", formData);
@@ -274,6 +319,8 @@ export const useUpdateProfile = () => {
         }
     });
 };
+
+//verify with email
 
 export const useLogout = () => {
     const queryClient = useQueryClient();
@@ -851,3 +898,17 @@ export const useUnreadNotificationCount = (workspaceId: number) => {
         retry: false,
     })
 }
+
+export const useForgotPassword = () => {
+    return useMutation({
+        mutationFn: (data: ForgotPasswordInput) =>
+            api.post("/auth/forgot-password", data).then((res) => res.data),
+    });
+};
+
+export const useResetPassword = () => {
+    return useMutation({
+        mutationFn: (data: { email: string; code: string; newPassword: string }) =>
+            api.post("/auth/reset-password", data).then((res) => res.data),
+    });
+};
