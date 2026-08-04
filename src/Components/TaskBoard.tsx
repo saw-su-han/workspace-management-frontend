@@ -223,7 +223,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
     const projectNameFor = (pid: number) => projects?.find((p) => p.id === pid)?.name;
 
     return (
-        <div className="min-h-screen w-full bg-slate-50/60 dark:bg-gray-950 font-sans">
+        <div className="min-h-screen w-full bg-white dark:bg-gray-950 font-sans">
             <div className="w-full text-gray-900 dark:text-gray-50 transition-colors duration-300 antialiased relative overflow-x-hidden flex flex-col min-h-screen">
                 <FontFaces />
 

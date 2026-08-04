@@ -157,13 +157,13 @@ export const TaskAssign: React.FC = () => {
 
                         {/* Left: Back Button + Breadcrumbs */}
                         <div className="flex items-center gap-4">
-                            <button
+                            {/* <button
                                 onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`)}
                                 className="font-mono-nav px-3.5 py-2 bg-gray-100 dark:bg-gray-900 hover:border-emerald-500/40 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-all cursor-pointer flex items-center gap-2"
                             >
                                 <Icon icon="solar:arrow-left-linear" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                 <span>Back to Task</span>
-                            </button>
+                            </button> */}
 
                             <div className="hidden sm:block space-y-0.5 border-l border-gray-200 dark:border-gray-800 pl-4">
                                 <div className="font-mono-nav flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -180,13 +180,13 @@ export const TaskAssign: React.FC = () => {
                         {/* Right: Actions */}
                         <div className="flex items-center gap-2.5">
                             <ThemeToggle />
-                            <button
+                            {/* <button
                                 onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${taskId}`)}
                                 className="font-mono-nav px-3.5 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                             >
                                 <Icon icon="solar:checklist-minimalistic-bold-duotone" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                 Task Details
-                            </button>
+                            </button> */}
                         </div>
 
                     </div>

@@ -1,5 +1,5 @@
 // src/pages/DashboardLayout.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile, useLogout } from '../hooks/useAuth';
 import { CreateWorkspaceModal } from '../Components/CreateWorkspceModel';
@@ -19,8 +19,22 @@ export const DashboardLayout: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState<'ALL' | 'ADMIN' | 'OWNER' | 'MEMBER'>('ALL');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+    const profileMenuRef = useRef<HTMLDivElement>(null);
 
     const workspaces = userProfile?.workspaces || [];
+
+    // Close the profile dropdown when clicking outside of it
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const filteredWorkspaces = workspaces.filter((ws: any) => {
         const workspaceInfo = ws.workspace || ws;
@@ -54,6 +68,7 @@ export const DashboardLayout: React.FC = () => {
 
     const handleLogoutClick = () => {
         setIsMobileMenuOpen(false); // close mobile menu if open, so modal isn't hidden behind it
+        setIsProfileMenuOpen(false); // close profile dropdown if open
         setIsLogoutConfirmOpen(true);
     };
 
@@ -143,24 +158,77 @@ export const DashboardLayout: React.FC = () => {
                 <div className="hidden md:flex items-center gap-3 flex-shrink-0">
                     <ThemeToggle />
 
-                    <button
-                        onClick={handleLogoutClick}
-                        disabled={isLoggingOut}
-                        className="h-10 w-10 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 cursor-pointer"
-                        title="Logout"
-                    >
-                        <Icon icon="lucide:log-out" className="w-5 h-5" />
-                    </button>
+                    {/* PROFILE DROPDOWN */}
+                    <div className="relative" ref={profileMenuRef}>
+                        <button
+                            onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                            className="flex items-center gap-1 focus:outline-none rounded-full hover:ring-4 hover:ring-emerald-500/20 transition-all duration-200 cursor-pointer"
+                        >
+                            <UserAvatar
+                                userProfile={userProfile}
+                                className="h-9 w-9 rounded-full object-cover border-2 border-emerald-600/50 shadow-sm"
+                            />
+                            <Icon
+                                icon="lucide:chevron-down"
+                                className={`w-3.5 h-3.5 text-gray-400 dark:text-gray-500 mr-1 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`}
+                            />
+                        </button>
 
-                    <button
-                        onClick={() => navigate('/profile')}
-                        className="flex items-center focus:outline-none rounded-full hover:ring-4 hover:ring-emerald-500/20 transition-all duration-200 cursor-pointer"
-                    >
-                        <UserAvatar
-                            userProfile={userProfile}
-                            className="h-9 w-9 rounded-full object-cover border-2 border-emerald-600/50 shadow-sm"
-                        />
-                    </button>
+                        {isProfileMenuOpen && (
+                            <div className="absolute right-0 mt-3 w-64 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                                {/* User summary header */}
+                                <div className="flex items-center gap-3 p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-950/40">
+                                    <UserAvatar
+                                        userProfile={userProfile}
+                                        className="h-10 w-10 rounded-full object-cover border border-emerald-600/40 shadow-sm flex-shrink-0"
+                                    />
+                                    <div className="min-w-0">
+                                        <p className="font-display font-bold text-sm text-gray-900 dark:text-white truncate">
+                                            {userProfile?.name || 'User'}
+                                        </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                            {userProfile?.email || ''}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="p-1.5">
+                                    <button
+                                        onClick={() => {
+                                            setIsProfileMenuOpen(false);
+                                            navigate('/profile');
+                                        }}
+                                        className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                                    >
+                                        <Icon icon="lucide:user-circle" className="w-4.5 h-4.5" />
+                                        <span>Profile information</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setIsProfileMenuOpen(false);
+                                            navigate('/settings/change-password');
+                                        }}
+                                        className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                                    >
+                                        <Icon icon="lucide:shield-check" className="w-4.5 h-4.5" />
+                                        <span>Settings &amp; privacy</span>
+                                    </button>
+                                </div>
+
+                                <div className="p-1.5 border-t border-gray-100 dark:border-gray-800">
+                                    <button
+                                        onClick={handleLogoutClick}
+                                        disabled={isLoggingOut}
+                                        className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors disabled:opacity-50 cursor-pointer"
+                                    >
+                                        <Icon icon="lucide:log-out" className="w-4.5 h-4.5" />
+                                        <span>Log out</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* MOBILE MENU TOGGLE BUTTON */}
@@ -179,29 +247,29 @@ export const DashboardLayout: React.FC = () => {
             {isMobileMenuOpen && (
                 <div className="md:hidden border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-4 space-y-3 shadow-xl z-30">
                     <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/profile')}>
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); navigate('/profile'); }}>
                             <UserAvatar userProfile={userProfile} className="h-10 w-10 rounded-full object-cover border border-emerald-600/40 shadow-sm" />
                             <div>
                                 <p className="font-bold text-sm text-gray-900 dark:text-white">{userProfile?.name || 'User'}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">{userProfile?.email || 'View Profile'}</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => navigate('/profile')}
-                            className="font-mono-nav text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5"
-                        >
-                            <Icon icon="lucide:user" className="w-3.5 h-3.5" />
-                            Profile
-                        </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="grid grid-cols-1 gap-2 pt-1">
                         <button
-                            onClick={() => navigate('/login')}
+                            onClick={() => { setIsMobileMenuOpen(false); navigate('/profile'); }}
                             className="font-mono-nav w-full py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 shadow-sm"
                         >
-                            <Icon icon="lucide:log-in" className="w-4 h-4 text-emerald-500" />
-                            <span>Sign In</span>
+                            <Icon icon="lucide:user-circle" className="w-4 h-4 text-emerald-500" />
+                            <span>Profile information</span>
+                        </button>
+                        <button
+                            onClick={() => { setIsMobileMenuOpen(false); navigate('/settings/change-password'); }}
+                            className="font-mono-nav w-full py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 shadow-sm"
+                        >
+                            <Icon icon="lucide:shield-check" className="w-4 h-4 text-emerald-500" />
+                            <span>Settings &amp; privacy</span>
                         </button>
                         <button
                             onClick={handleLogoutClick}

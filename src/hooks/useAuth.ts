@@ -912,3 +912,29 @@ export const useResetPassword = () => {
             api.post("/auth/reset-password", data).then((res) => res.data),
     });
 };
+
+export const useChangePassword = () => {
+    return useMutation({
+        mutationFn: (payload: { currentPassword: string; newPassword: string }) =>
+            api.post('/auth/change-password', payload), // adjust endpoint to match your API
+    });
+};
+
+interface VerifyResetCodePayload {
+    email: string;
+    code: string;
+}
+
+interface VerifyResetCodeResponse {
+    success: boolean;
+    message: string;
+}
+
+export const useVerifyResetCode = () => {
+    return useMutation<VerifyResetCodeResponse, any, VerifyResetCodePayload>({
+        mutationFn: async (payload: VerifyResetCodePayload) => {
+            const response = await api.post("/auth/verify-reset-code", payload);
+            return response.data;
+        },
+    });
+};

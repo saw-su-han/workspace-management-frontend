@@ -83,8 +83,7 @@ export function InviteMember() {
     }
 
     return (
-        <div className="flex min-h-screen w-full bg-slate-50/60 dark:bg-gray-950 font-sans">
-            <AsideNav workspaceId={wId} />
+        <div className="flex min-h-screen w-full bg-white dark:bg-gray-950 font-sans">            <AsideNav workspaceId={wId} />
             <div className="relative flex-1 bg-transparent text-gray-900 dark:text-gray-50 flex flex-col transition-colors duration-300 antialiased overflow-x-hidden">
                 <FontFaces />
 
@@ -128,14 +127,14 @@ export function InviteMember() {
 
                     <nav className="flex items-center gap-2.5 font-mono-nav text-xs font-bold">
                         <ThemeToggle />
-                        <button
+                        {/* <button
                             type="button"
                             onClick={() => navigate(`/workspaces/${wId}`)}
                             className="hidden sm:flex px-4 py-2.5 rounded-2xl bg-white dark:bg-gray-900/80 text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 hover:border-emerald-500/50 shadow-sm transition-all cursor-pointer items-center gap-1.5"
                         >
                             <Icon icon="solar:folder-bold-duotone" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                             Overview
-                        </button>
+                        </button> */}
                         <span className="px-4 py-2.5 rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
                             <Icon icon="solar:user-plus-bold" className="w-4 h-4" />
                             <span className="hidden xs:inline">Invite Member</span>
@@ -145,7 +144,7 @@ export function InviteMember() {
 
                 {/* MAIN FORM CARD */}
                 <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 md:p-8 relative z-10 flex flex-col justify-center">
-                    <div className="relative rounded-3xl bg-white/90 dark:bg-gray-900/70 border border-slate-200/80 dark:border-gray-800 p-6 sm:p-8 md:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-2xl overflow-hidden space-y-6">
+                    <div className="relative rounded-3xl bg-white dark:bg-gray-900/70 border border-slate-200/80 dark:border-gray-800 p-6 sm:p-8 md:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-2xl overflow-hidden space-y-6">
 
                         {/* Decorative top accent glow border */}
                         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 opacity-80" />

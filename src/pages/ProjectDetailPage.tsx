@@ -104,7 +104,7 @@ export function ProjectDetail() {
     };
 
     return (
-        <div className="flex min-h-screen w-full bg-slate-50/60 dark:bg-gray-950 font-sans">
+        <div className="flex min-h-screen w-full bg-white dark:bg-gray-950 font-sans">
             <AsideNav workspaceId={wId} projectId={pId} />
             <div className="flex-1 text-gray-900 dark:text-gray-50 transition-colors duration-300 antialiased relative overflow-x-hidden">
                 <FontFaces />
@@ -127,13 +127,13 @@ export function ProjectDetail() {
 
                         {/* Left: Back Button + Breadcrumbs */}
                         <div className="flex items-center gap-3.5 min-w-0">
-                            <button
+                            {/* <button
                                 onClick={() => navigate(`/workspaces/${wId}`)}
                                 className="font-mono-nav px-3.5 py-2.5 bg-white dark:bg-gray-900/80 hover:border-emerald-500/50 border border-slate-200 dark:border-gray-800 rounded-2xl text-xs font-bold text-slate-700 dark:text-gray-300 shadow-sm transition-all cursor-pointer flex items-center gap-2 flex-shrink-0"
                             >
                                 <Icon icon="solar:arrow-left-linear" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                 <span className="hidden sm:inline">Workspace</span>
-                            </button>
+                            </button> */}
 
                             <div className="hidden sm:flex flex-col border-l border-slate-200 dark:border-gray-800 pl-4 min-w-0">
                                 <div className="font-mono-nav flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-gray-500">
@@ -151,13 +151,13 @@ export function ProjectDetail() {
                         <div className="flex items-center gap-2.5 flex-shrink-0">
                             <ThemeToggle />
 
-                            <button
+                            {/* <button
                                 onClick={() => navigate(`/workspaces/${wId}`)}
                                 className="hidden md:flex font-mono-nav px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-gray-300 bg-white dark:bg-gray-900/80 hover:bg-slate-100 dark:hover:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-sm transition-all cursor-pointer items-center gap-2"
                             >
                                 <Icon icon="solar:folder-bold-duotone" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                 All Projects
-                            </button>
+                            </button> */}
 
                             <button
                                 onClick={() => navigate(`/workspaces/${wId}/projects/${pId}/assign`)}
@@ -175,7 +175,7 @@ export function ProjectDetail() {
                 <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8 relative z-10 space-y-6">
 
                     {/* Main Project Card */}
-                    <div className="rounded-3xl bg-white/90 dark:bg-gray-900/70 border border-slate-200/80 dark:border-gray-800 p-6 sm:p-8 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-2xl space-y-8 relative overflow-hidden">
+                    <div className="rounded-3xl bg-white dark:bg-gray-900/70 border border-slate-200/80 dark:border-gray-800 p-6 sm:p-8 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-2xl space-y-8 relative overflow-hidden">
 
                         {/* Decorative top accent glow border */}
                         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 opacity-80" />

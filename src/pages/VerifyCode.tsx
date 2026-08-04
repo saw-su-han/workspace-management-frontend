@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { verifyCodeSchema, type VerifyCodeInput } from "../schema/auth.schema";
+import { useVerifyResetCode } from "../hooks/useAuth";
 import { ThemeToggle } from "../Components/ThemeToggle";
 import { Icon } from "@iconify/react";
 
@@ -11,6 +12,8 @@ export const VerifyCode = () => {
     const location = useLocation();
     const emailFromState = (location.state as { email?: string })?.email || "";
     const [customError, setCustomError] = useState<string | null>(null);
+
+    const verifyResetCodeMutation = useVerifyResetCode();
 
     const { handleSubmit, setValue, watch, formState: { errors } } = useForm<VerifyCodeInput>({
         resolver: zodResolver(verifyCodeSchema),
@@ -52,7 +55,18 @@ export const VerifyCode = () => {
 
     const onSubmit = (values: VerifyCodeInput) => {
         setCustomError(null);
-        navigate("/reset-password", { state: { email: values.email, code: values.code } });
+
+        verifyResetCodeMutation.mutate(
+            { email: values.email, code: values.code },
+            {
+                onSuccess: () => {
+                    navigate("/reset-password", { state: { email: values.email, code: values.code } });
+                },
+                onError: (err: any) => {
+                    setCustomError(err?.response?.data?.message || "Invalid or expired code. Please try again.");
+                },
+            }
+        );
     };
 
     return (
@@ -147,9 +161,10 @@ export const VerifyCode = () => {
 
                         <button
                             type="submit"
+                            disabled={verifyResetCodeMutation.isPending}
                             className="font-mono-nav w-full mt-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
                         >
-                            Verify Code →
+                            {verifyResetCodeMutation.isPending ? "Verifying..." : "Verify Code →"}
                         </button>
                     </form>
 

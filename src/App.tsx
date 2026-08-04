@@ -21,6 +21,7 @@ import { VerifyEmail } from './pages/VerifyOtp';
 import { ForgotPassword } from './pages/ForgotPasword';
 import { ResetPassword } from './pages/ResetPassword';
 import { VerifyCode } from './pages/VerifyCode';
+import { ChangePasswordPage } from './pages/changepassword';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -123,8 +124,7 @@ export default function App() {
       <Route path="/workspaces/:workspaceId/tasks/:taskId" element={<TaskDetail />} />
       <Route path="/workspaces/:workspaceId/tasks/:taskId/assign" element={<TaskAssign />} />
       <Route path="/workspaces/:workspaceId/notifications" element={<NotificationsPage />} />
-
-
+      <Route path="/settings/change-password" element={<ChangePasswordPage />} />
       <Route path="/forgot-password" element={
         <ForgotPassword />
       } />
