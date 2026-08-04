@@ -304,13 +304,13 @@ export const TaskDetail: React.FC = () => {
 
                         {/* Left: Back Button & Breadcrumbs */}
                         <div className="flex items-center gap-4">
-                            <button
+                            {/* <button
                                 onClick={() => navigate(task?.project?.id ? `/workspaces/${workspaceId}/projects/${task.project.id}` : `/workspaces/${workspaceId}`)}
                                 className="font-mono-nav px-3.5 py-2 bg-gray-100 dark:bg-gray-900 hover:border-emerald-500/40 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-all cursor-pointer flex items-center gap-2"
                             >
                                 <Icon icon="solar:arrow-left-linear" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                 <span>{task?.project?.name ? 'Back to Project' : 'Back to Workspace'}</span>
-                            </button>
+                            </button> */}
 
                             <div className="hidden sm:block space-y-0.5 border-l border-gray-200 dark:border-gray-800 pl-4">
                                 <div className="font-mono-nav flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -331,7 +331,7 @@ export const TaskDetail: React.FC = () => {
                         {/* Right: Actions & Theme Toggle */}
                         <div className="flex items-center gap-3">
                             <ThemeToggle />
-                            {!isMember && (
+                            {/* {!isMember && (
                                 <button
                                     onClick={handleAssignClick}
                                     className="font-mono-nav px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
@@ -339,7 +339,7 @@ export const TaskDetail: React.FC = () => {
                                     <Icon icon="solar:users-group-rounded-bold" className="w-3.5 h-3.5" />
                                     <span>{task.assignee ? 'Reassign' : 'Assign'}</span>
                                 </button>
-                            )}
+                            )} */}
                         </div>
 
                     </div>

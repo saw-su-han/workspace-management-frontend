@@ -8,7 +8,6 @@ import { Register } from './pages/Register';
 import { DashboardLayout } from './pages/DashboardLayout';
 import { WorkspaceDetail } from './pages/WorkspacePage';
 import { ProjectDetail } from './pages/ProjectDetailPage'; // Ensure you have/create this view page
-import { InviteMember } from './pages/ProjectInvitation';
 import { ProfilePage } from './pages/Profile';
 import { AcceptInvitation } from './pages/AcceptInvitation';
 import { SignupInvitation } from './pages/SignupInvitation';
@@ -96,12 +95,12 @@ export default function App() {
       />
 
       {/* Project Task / Member Assignments */}
-      <Route
+      {/* <Route
         path="/workspaces/:workspaceId/invite"
         element={<ProtectedRoute>
           <InviteMember />
         </ProtectedRoute>}
-      />
+      /> */}
       <Route path="/accept-invitation/:token" element={
         <AcceptInvitation />
       }
@@ -124,6 +123,7 @@ export default function App() {
       <Route path="/workspaces/:workspaceId/tasks/:taskId" element={<TaskDetail />} />
       <Route path="/workspaces/:workspaceId/tasks/:taskId/assign" element={<TaskAssign />} />
       <Route path="/workspaces/:workspaceId/notifications" element={<NotificationsPage />} />
+
       <Route path="/settings/change-password" element={<ChangePasswordPage />} />
       <Route path="/forgot-password" element={
         <ForgotPassword />

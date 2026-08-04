@@ -25,6 +25,9 @@ const FontFaces = () => (
     `}</style>
 );
 
+// Semantic status/priority colors are intentionally kept distinct (rose/amber/emerald)
+// since they convey meaning, not brand — this matches how STATUS_STYLES badges look
+// elsewhere in the app (e.g. project status pills).
 const PRIORITY_STYLES: Record<TaskPriority, { label: string; text: string; bg: string; border: string }> = {
     LOW: { label: 'Low', text: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
     MEDIUM: { label: 'Medium', text: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
@@ -223,21 +226,20 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
     const projectNameFor = (pid: number) => projects?.find((p) => p.id === pid)?.name;
 
     return (
-        <div className="min-h-screen w-full bg-white dark:bg-gray-950 font-sans">
+        <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 font-sans">
             <div className="w-full text-gray-900 dark:text-gray-50 transition-colors duration-300 antialiased relative overflow-x-hidden flex flex-col min-h-screen">
                 <FontFaces />
 
-                {/* Background Styling */}
+                {/* Background Styling — matches the ambient orbs used on WorkspaceDetail */}
                 <div
-                    className="absolute inset-0 opacity-[0.35] dark:opacity-[0.12] pointer-events-none"
+                    className="absolute inset-0 opacity-[0.25] dark:opacity-[0.15] pointer-events-none"
                     style={{
-                        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.2) 1px, transparent 0)',
+                        backgroundImage: 'radial-gradient(circle at 1.5px 1.5px, rgba(16, 185, 129, 0.25) 1px, transparent 0)',
                         backgroundSize: '36px 36px'
                     }}
                 />
-                <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[180px] rounded-full pointer-events-none" />
-                <div className="absolute bottom-1/3 left-0 w-[600px] h-[600px] bg-teal-600/10 dark:bg-teal-600/5 blur-[180px] rounded-full pointer-events-none" />
-
+                <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-mint-500/15 via-teal-500/10 to-transparent blur-[140px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-1/3 -left-40 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-transparent blur-[140px] rounded-full pointer-events-none" />
 
                 {/* Main Content Container */}
                 <div className="max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8 relative z-10 space-y-6 flex-1">
@@ -251,7 +253,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                     />
 
                     {/* Header info banner / description */}
-                    <div className="rounded-3xl bg-white/90 dark:bg-gray-900/70 border border-slate-200/80 dark:border-gray-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs backdrop-blur-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h2 className="font-display text-lg font-extrabold tracking-tight text-gray-900 dark:text-white">
                                 {isWorkspaceWide ? 'Workspace Wide Tasks' : 'Project Assignment Board'}
@@ -268,26 +270,26 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     setIsCreateFormOpen((prev) => !prev);
                                     setEditingTask(null);
                                 }}
-                                className="font-mono-nav px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                className="font-mono-nav px-4 py-2.5 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-md shadow-mint-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                             >
-                                <Icon icon={isCreateFormOpen ? "solar:close-circle-bold" : "solar:add-circle-bold"} className="w-4 h-4 text-white" />
+                                <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-4 h-4 text-white" />
                                 {isCreateFormOpen ? 'Close Form' : 'Create New Task'}
                             </button>
                         )}
                     </div>
 
                     {/* FILTER & SEARCH BAR */}
-                    <div className="rounded-3xl bg-white/90 dark:bg-gray-900/70 border border-slate-200/80 dark:border-gray-800 p-4 sm:p-5 shadow-xl shadow-slate-200/50 dark:shadow-none backdrop-blur-2xl flex flex-col md:flex-row items-stretch md:items-center gap-3.5 justify-between">
+                    <div className="rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs backdrop-blur-2xl flex flex-col md:flex-row items-stretch md:items-center gap-3.5 justify-between">
                         <div className="relative flex-1 max-w-md w-full">
                             <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400 dark:text-gray-500">
-                                <Icon icon="solar:magnifer-linear" className="w-4 h-4" />
+                                <Icon icon="lucide:search" className="w-4 h-4" />
                             </div>
                             <input
                                 type="text"
                                 placeholder="Search tasks by title..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-2xl outline-none text-gray-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono-nav shadow-sm"
+                                className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none text-gray-900 dark:text-white placeholder:text-slate-400 focus:border-mint-500 focus:ring-4 focus:ring-mint-500/10 transition-all font-mono-nav shadow-xs"
                             />
                         </div>
 
@@ -296,7 +298,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                 <select
                                     value={projectFilter}
                                     onChange={(e) => setProjectFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
-                                    className="px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 outline-none cursor-pointer font-mono-nav shadow-sm"
+                                    className="px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 outline-none cursor-pointer font-mono-nav shadow-xs"
                                 >
                                     <option value="ALL">All projects</option>
                                     {projects.map((p) => (
@@ -308,7 +310,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                                className="px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 outline-none cursor-pointer font-mono-nav shadow-sm"
+                                className="px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 outline-none cursor-pointer font-mono-nav shadow-xs"
                             >
                                 <option value="ALL">All Status</option>
                                 {(['TODO', 'IN_PROGRESS', 'DONE'] as const).map((s) => (
@@ -322,19 +324,19 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
 
                     {/* CREATE TASK FORM MODAL/EXPANDABLE PANEL */}
                     {!isMember && isCreateFormOpen && (
-                        <div className="rounded-3xl bg-white dark:bg-gray-900 border border-emerald-500/30 p-6 sm:p-8 shadow-2xl shadow-emerald-500/10 space-y-5 animate-in fade-in zoom-in-95 duration-200 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400" />
+                        <div className="rounded-3xl bg-white dark:bg-slate-900 border border-mint-500/30 p-6 sm:p-8 shadow-xl shadow-mint-500/5 space-y-5 animate-in fade-in zoom-in-95 duration-200 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-mint-500 via-teal-500 to-mint-400" />
 
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-800 pb-4">
+                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                                 <h3 className="font-display text-sm font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Icon icon="solar:add-square-bold-duotone" className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    <Icon icon="lucide:list-plus" className="w-5 h-5 text-mint-600 dark:text-mint-400" />
                                     Create New Task
                                 </h3>
                                 <button
                                     onClick={() => setIsCreateFormOpen(false)}
                                     className="p-1 rounded-xl text-slate-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                                 >
-                                    <Icon icon="solar:close-circle-bold" className="w-5 h-5" />
+                                    <Icon icon="lucide:x" className="w-5 h-5" />
                                 </button>
                             </div>
 
@@ -346,7 +348,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                         placeholder="e.g. Implement user authentication flow"
                                         value={newTitle}
                                         onChange={(e) => setNewTitle(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-2xl text-xs outline-none border bg-slate-50/80 dark:bg-gray-900/80 border-slate-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-mono-nav shadow-sm"
+                                        className="w-full px-4 py-3 rounded-2xl text-xs outline-none border bg-slate-50/80 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 text-gray-900 dark:text-white placeholder:text-slate-400 focus:border-mint-500 focus:ring-4 focus:ring-mint-500/10 font-mono-nav shadow-xs"
                                     />
                                 </div>
 
@@ -357,7 +359,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                         value={newDescription}
                                         onChange={(e) => setNewDescription(e.target.value)}
                                         rows={3}
-                                        className="w-full px-4 py-3 rounded-2xl text-xs outline-none border bg-slate-50/80 dark:bg-gray-900/80 border-slate-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-mono-nav shadow-sm resize-none"
+                                        className="w-full px-4 py-3 rounded-2xl text-xs outline-none border bg-slate-50/80 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 text-gray-900 dark:text-white placeholder:text-slate-400 focus:border-mint-500 focus:ring-4 focus:ring-mint-500/10 font-mono-nav shadow-xs resize-none"
                                     />
                                 </div>
 
@@ -367,7 +369,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                         <select
                                             value={newProjectId}
                                             onChange={(e) => setNewProjectId(e.target.value ? Number(e.target.value) : '')}
-                                            className="w-full px-4 py-3 bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-sm"
+                                            className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-xs"
                                         >
                                             <option value="">Select target project...</option>
                                             {projects?.map((p) => (
@@ -382,7 +384,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     <select
                                         value={newPriority}
                                         onChange={(e) => setNewPriority(e.target.value as TaskPriority)}
-                                        className="w-full px-4 py-3 bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-sm"
+                                        className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-xs"
                                     >
                                         <option value="LOW">Low Priority</option>
                                         <option value="MEDIUM">Medium Priority</option>
@@ -396,7 +398,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                         type="date"
                                         value={newDueDate}
                                         onChange={(e) => setNewDueDate(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-2xl text-xs outline-none border bg-slate-50/80 dark:bg-gray-900/80 border-slate-200 dark:border-gray-800 text-gray-900 dark:text-white font-mono-nav shadow-sm"
+                                        className="w-full px-4 py-3 rounded-2xl text-xs outline-none border bg-slate-50/80 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 text-gray-900 dark:text-white font-mono-nav shadow-xs"
                                     />
                                 </div>
 
@@ -405,7 +407,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     <select
                                         value={newAssignedTo}
                                         onChange={(e) => setNewAssignedTo(e.target.value ? Number(e.target.value) : '')}
-                                        className="w-full px-4 py-3 bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-sm"
+                                        className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-xs"
                                     >
                                         <option value="">Unassigned</option>
                                         {members?.map((m) => (
@@ -427,10 +429,10 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                 <button
                                     onClick={handleCreateTask}
                                     disabled={isCreatingTask}
-                                    className="font-mono-nav px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-emerald-500/20 cursor-pointer flex items-center gap-2"
+                                    className="font-mono-nav px-6 py-2.5 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md shadow-mint-500/20 cursor-pointer flex items-center gap-2"
                                 >
                                     <span>{isCreatingTask ? 'Creating...' : 'Confirm & Create'}</span>
-                                    <Icon icon="solar:check-read-bold" className="w-4 h-4" />
+                                    <Icon icon="lucide:check" className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
@@ -445,15 +447,15 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                         <div className="flex items-center justify-center py-20">
                             <div className="relative flex h-16 w-16 items-center justify-center">
                                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_10s_linear_infinite] opacity-40" fill="none">
-                                    <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-emerald-500" strokeWidth="2" strokeDasharray="4 8" />
+                                    <circle cx="50" cy="50" r="46" stroke="currentColor" className="text-mint-500" strokeWidth="2" strokeDasharray="4 8" />
                                 </svg>
-                                <div className="h-8 w-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-emerald-500/30">✦</div>
+                                <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-mint-600 to-teal-500 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-mint-500/30">✦</div>
                             </div>
                         </div>
                     ) : !tasks || tasks.length === 0 ? (
-                        <div className="text-center p-16 border border-dashed border-slate-200 dark:border-gray-800 rounded-3xl bg-white/40 dark:bg-gray-900/40 backdrop-blur-md">
-                            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-gray-800 flex items-center justify-center text-slate-400 mx-auto mb-3 shadow-inner">
-                                <Icon icon="solar:clipboard-remove-bold-duotone" className="w-7 h-7" />
+                        <div className="text-center p-16 border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
+                            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mx-auto mb-3 shadow-inner">
+                                <Icon icon="lucide:clipboard-x" className="w-7 h-7" />
                             </div>
                             <h3 className="font-display text-sm font-bold text-gray-900 dark:text-white mb-1">No tasks found</h3>
                             <p className="font-mono-nav text-xs text-slate-500 dark:text-gray-400 max-w-sm mx-auto">
@@ -467,12 +469,12 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                 const isOwnTask = isTaskOwnedByCurrentUser(task);
 
                                 if (isEditingThis) {
-                                    const inputCls = `w-full px-4 py-3 bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none font-mono-nav shadow-sm${isMember ? ' opacity-50 cursor-not-allowed' : ''}`;
+                                    const inputCls = `w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none font-mono-nav shadow-xs${isMember ? ' opacity-50 cursor-not-allowed' : ''}`;
 
                                     return (
-                                        <div key={task.id} className="p-6 border border-emerald-500/30 bg-white dark:bg-gray-900 rounded-3xl space-y-4 shadow-xl backdrop-blur-md">
+                                        <div key={task.id} className="p-6 border border-mint-500/30 bg-white dark:bg-slate-900 rounded-3xl space-y-4 shadow-xl backdrop-blur-md">
                                             {isMember && (
-                                                <p className="font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
+                                                <p className="font-mono-nav text-[10px] font-bold text-mint-600 dark:text-mint-400 uppercase tracking-wider bg-mint-500/10 p-2.5 rounded-xl border border-mint-500/20">
                                                     Member permission: You can only update the status of this task.
                                                 </p>
                                             )}
@@ -515,7 +517,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                     <select
                                                         value={editStatus}
                                                         onChange={(e) => setEditStatus(e.target.value as TaskStatus)}
-                                                        className="w-full px-4 py-3 bg-slate-50/80 dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-sm"
+                                                        className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-gray-900 dark:text-white outline-none cursor-pointer font-mono-nav shadow-xs"
                                                     >
                                                         <option value="TODO">To Do</option>
                                                         <option value="IN_PROGRESS">In Progress</option>
@@ -546,7 +548,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                 <button
                                                     onClick={handleUpdateTask}
                                                     disabled={isUpdatingTask || isUpdatingStatus}
-                                                    className="font-mono-nav px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
+                                                    className="font-mono-nav px-5 py-2 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-mint-500/20 cursor-pointer"
                                                 >
                                                     {isUpdatingTask || isUpdatingStatus ? 'Saving...' : 'Save Changes'}
                                                 </button>
@@ -563,7 +565,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     <div
                                         key={task.id}
                                         onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${task.id}`)}
-                                        className="group p-5 bg-white/95 dark:bg-gray-900/80 border border-slate-200/80 dark:border-gray-800/80 rounded-3xl shadow-xl shadow-slate-200/40 dark:shadow-none hover:border-emerald-500/40 transition-all backdrop-blur-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer"
+                                        className="group p-5 bg-white/95 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-xs hover:border-mint-500/40 transition-all backdrop-blur-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer"
                                     >
                                         <div className="space-y-2 flex-1 min-w-0">
                                             <div className="flex items-center gap-2.5 flex-wrap">
@@ -575,15 +577,15 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                     {priorityStyle.label}
                                                 </span>
                                                 {isWorkspaceWide && task.projectId && (
-                                                    <span className="text-[10px] font-mono-nav font-bold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full border border-slate-200/60 dark:border-gray-700/60 flex items-center gap-1.5">
-                                                        <Icon icon="solar:folder-bold-duotone" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                                    <span className="text-[10px] font-mono-nav font-bold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1.5">
+                                                        <Icon icon="lucide:folder" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" />
                                                         <span>{projectNameFor(task.projectId) || `Project #${task.projectId}`}</span>
                                                     </span>
                                                 )}
                                             </div>
 
                                             <div>
-                                                <h3 className="font-display text-sm font-extrabold text-gray-900 dark:text-white tracking-tight truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                                <h3 className="font-display text-sm font-extrabold text-gray-900 dark:text-white tracking-tight truncate group-hover:text-mint-600 dark:group-hover:text-mint-400 transition-colors">
                                                     {task.title}
                                                 </h3>
                                                 {task.description && (
@@ -596,12 +598,12 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                             <div className="flex items-center gap-4 text-[11px] font-mono-nav text-slate-400 dark:text-gray-500 pt-1 flex-wrap">
                                                 {task.dueDate && (
                                                     <span className="flex items-center gap-1">
-                                                        <Icon icon="solar:calendar-linear" className="w-3.5 h-3.5" />
+                                                        <Icon icon="lucide:calendar" className="w-3.5 h-3.5" />
                                                         Due: {task.dueDate.slice(0, 10)}
                                                     </span>
                                                 )}
                                                 <span className="flex items-center gap-1">
-                                                    <Icon icon="solar:user-rounded-linear" className="w-3.5 h-3.5" />
+                                                    <Icon icon="lucide:user" className="w-3.5 h-3.5" />
                                                     {task.assignee ? task.assignee.name : 'Currently no user assigned'}
                                                 </span>
                                             </div>
@@ -613,7 +615,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                 <select
                                                     value={task.status}
                                                     onChange={(e) => handleMemberStatusChange(task.id, e.target.value as TaskStatus)}
-                                                    className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 outline-none cursor-pointer shadow-sm"
+                                                    className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 outline-none cursor-pointer shadow-xs"
                                                 >
                                                     <option value="TODO">To Do</option>
                                                     <option value="IN_PROGRESS">In Progress</option>
@@ -627,10 +629,10 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                         e.stopPropagation();
                                                         openEditTask(task);
                                                     }}
-                                                    className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-gray-800 hover:bg-emerald-500 hover:text-white text-gray-700 dark:text-gray-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                                    className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-slate-800 hover:bg-mint-500 hover:text-white text-gray-700 dark:text-gray-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
                                                     title="Edit Task"
                                                 >
-                                                    <Icon icon="solar:pen-linear" className="w-3.5 h-3.5" />
+                                                    <Icon icon="lucide:pen" className="w-3.5 h-3.5" />
                                                     <span>Edit</span>
                                                 </button>
                                             )}
@@ -641,10 +643,10 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                                         e.stopPropagation();
                                                         setTaskToDelete(task.id);
                                                     }}
-                                                    className="p-2 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-rose-500 hover:text-white text-slate-400 dark:text-gray-400 transition-all cursor-pointer shadow-sm"
+                                                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-400 dark:text-gray-400 transition-all cursor-pointer shadow-xs"
                                                     title="Delete Task"
                                                 >
-                                                    <Icon icon="solar:trash-bin-trash-linear" className="w-4 h-4" />
+                                                    <Icon icon="lucide:trash-2" className="w-4 h-4" />
                                                 </button>
                                             )}
                                         </div>

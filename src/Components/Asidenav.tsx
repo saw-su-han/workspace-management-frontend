@@ -86,14 +86,6 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
             disabled: !hasProject,
             hint: 'Open a project first to enable this',
         },
-        // {
-        //     key: 'task-detail',
-        //     label: 'Task Detail',
-        //     icon: 'solar:checklist-minimalistic-bold-duotone',
-        //     path: `/workspaces/${workspaceId}/tasks/${effectiveTaskId}`,
-        //     disabled: !hasTask,
-        //     hint: 'Open a task first to enable this',
-        // },
         {
             key: 'task-assign',
             label: 'Task Assign',
@@ -101,12 +93,6 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
             path: `/workspaces/${workspaceId}/tasks/${effectiveTaskId}/assign`,
             disabled: !hasTask,
             hint: 'Open a task first to enable this',
-        },
-        {
-            key: 'invite',
-            label: 'Invite Member',
-            icon: 'solar:user-plus-bold-duotone',
-            path: `/workspaces/${workspaceId}/invite`,
         },
     ];
 
@@ -138,13 +124,13 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
                                     ${item.disabled
                                         ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
                                         : active
-                                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                                            ? 'bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 text-white shadow-md shadow-mint-500/20'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-transparent hover:border-gray-200 dark:hover:border-gray-800'
                                     }`}
                             >
                                 <Icon
                                     icon={item.icon}
-                                    className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}
+                                    className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-mint-600 dark:text-mint-400'}`}
                                 />
                                 <span className="truncate">{item.label}</span>
                             </button>
@@ -175,13 +161,13 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
                                 ${item.disabled
                                     ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
                                     : active
-                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        ? 'text-mint-600 dark:text-mint-400 font-bold'
                                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                                 }`}
                         >
                             <Icon
                                 icon={item.icon}
-                                className={`w-5 h-5 shrink-0 ${active ? 'scale-110' : ''} transition-transform`}
+                                className={`w-5 h-5 shrink-0 ${active ? 'scale-110 text-mint-600 dark:text-mint-400' : ''} transition-transform`}
                             />
                             <span className="font-mono-nav text-[9px] font-semibold mt-1 max-w-[56px] truncate">
                                 {item.label}

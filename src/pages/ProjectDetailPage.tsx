@@ -159,13 +159,13 @@ export function ProjectDetail() {
                                 All Projects
                             </button> */}
 
-                            <button
+                            {/* <button
                                 onClick={() => navigate(`/workspaces/${wId}/projects/${pId}/assign`)}
                                 className="font-mono-nav px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer"
                             >
                                 <Icon icon="solar:users-group-rounded-bold" className="w-4 h-4 text-white" />
                                 <span className="hidden xs:inline">Manage Members</span>
-                            </button>
+                            </button> */}
                         </div>
 
                     </div>

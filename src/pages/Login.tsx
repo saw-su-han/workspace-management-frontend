@@ -83,20 +83,20 @@ export const Login = () => {
             <div className="fixed top-0 left-0 right-0 w-full z-50 px-4 pt-4">
                 <header className="w-full max-w-7xl mx-auto flex items-center justify-between py-3 px-5 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl shadow-black/[0.02]">
                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-mint-600 to-teal-700 text-white shadow-lg shadow-mint-600/20 transition-transform group-hover:scale-105">
                             <Icon icon="lucide:hexagon" className="w-6 h-6 animate-[spin_10s_linear_infinite]" />
                             <Icon icon="lucide:cpu" className="absolute w-3.5 h-3.5 text-white" />
-                            <div className="absolute -inset-0.5 bg-emerald-400 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                            <div className="absolute -inset-0.5 bg-mint-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
                         </div>
                         <span className="font-display font-bold text-xl text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
-                            Project<span className="text-emerald-600 dark:text-emerald-400">Hive</span>
+                            Project<span className="text-mint-600 dark:text-mint-400">Hive</span>
                         </span>
                     </Link>
 
                     {/* DESKTOP NAV */}
-                    <nav className="hidden md:flex items-center gap-1.5 font-code text-xs font-medium bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <nav className="hidden md:flex items-center gap-1.5 font-mono-nav text-xs font-medium bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
                         {['Workflow', 'Features', 'Architecture', 'Security'].map(item => (
-                            <Link key={item} to={`/#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all">
+                            <Link key={item} to={`/#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900 hover:text-mint-600 dark:hover:text-mint-400 transition-all">
                                 {item}
                             </Link>
                         ))}
@@ -104,7 +104,7 @@ export const Login = () => {
 
                     <div className="hidden md:flex items-center gap-3">
                         <ThemeToggle />
-                        <Link to="/register" className="font-code rounded-xl bg-gray-950 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-gray-950 px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
+                        <Link to="/register" className="font-mono-nav rounded-xl bg-mint-600 hover:bg-mint-500 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
                             Sign Up
                         </Link>
                     </div>
@@ -136,7 +136,7 @@ export const Login = () => {
                                     key={item}
                                     to={`/#${item.toLowerCase()}`}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="font-code w-full py-2.5 px-4 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-semibold uppercase tracking-wider"
+                                    className="font-mono-nav w-full py-2.5 px-4 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-semibold uppercase tracking-wider"
                                 >
                                     {item}
                                 </Link>
@@ -144,7 +144,7 @@ export const Login = () => {
                             <Link
                                 to="/register"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="font-code w-full mt-2 py-3 px-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-xs font-bold uppercase tracking-wider text-center shadow-md"
+                                className="font-mono-nav w-full mt-2 py-3 px-4 rounded-xl bg-mint-600 hover:bg-mint-500 text-white text-xs font-bold uppercase tracking-wider text-center shadow-md block"
                             >
                                 Provision
                             </Link>
@@ -153,13 +153,13 @@ export const Login = () => {
                 )}
             </div>
 
-            {/* MAIN CONTENT AREA MATCHING HOME PAGE ARCHITECTURE */}
+            {/* MAIN CONTENT AREA */}
             <div className="relative my-auto flex flex-col items-center max-w-xl w-full z-10 pt-32 pb-24">
 
                 {/* Hero / Header Intro */}
                 <div className="relative max-w-lg text-center mb-8 space-y-3">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mint-500/10 dark:bg-mint-950/60 border border-mint-500/20 font-mono-nav text-[10px] font-bold text-mint-600 dark:text-mint-400 tracking-widest uppercase">
+                        <span className="w-2 h-2 rounded-full bg-mint-500 animate-ping" />
                         Secure Authentication Gateway
                     </div>
                     <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-gray-900 dark:text-white tracking-tight">
@@ -172,7 +172,7 @@ export const Login = () => {
 
                 {/* Styled Login Card Container */}
                 <div className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 sm:p-10 rounded-3xl shadow-xl space-y-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-mint-500/5 rounded-full blur-2xl pointer-events-none" />
 
                     {customError && (
                         <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-600 dark:text-red-400 text-center tracking-wide font-mono-nav">
@@ -202,7 +202,7 @@ export const Login = () => {
                                 onClick={() => setShowPassword((prev) => !prev)}
                                 tabIndex={-1}
                                 aria-label={showPassword ? "Hide password" : "Show password"}
-                                className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                                className="absolute right-3 top-[34px] text-gray-400 hover:text-mint-600 dark:text-gray-500 dark:hover:text-mint-400 transition-colors"
                             >
                                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                             </button>
@@ -211,7 +211,7 @@ export const Login = () => {
                         <div className="flex justify-end -mt-1">
                             <Link
                                 to="/forgot-password"
-                                className="font-mono-nav text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:opacity-80 transition-opacity"
+                                className="font-mono-nav text-[11px] text-mint-600 dark:text-mint-400 font-semibold hover:opacity-80 transition-opacity"
                             >
                                 Forgot password?
                             </Link>
@@ -220,7 +220,7 @@ export const Login = () => {
                         <button
                             type="submit"
                             disabled={loginMutation.isPending}
-                            className="font-mono-nav w-full mt-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+                            className="font-mono-nav w-full mt-4 rounded-xl bg-mint-600 hover:bg-mint-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-mint-600/20 cursor-pointer flex items-center justify-center gap-2"
                         >
                             {loginMutation.isPending ? "Verifying Profile..." : "Login to Workspace →"}
                         </button>
@@ -229,7 +229,7 @@ export const Login = () => {
                     <div className="mt-6 flex flex-col items-center gap-3 border-t border-gray-200 dark:border-gray-800 pt-5 text-xs font-medium text-gray-500 dark:text-gray-400 relative z-10">
                         <span>
                             New here?{" "}
-                            <Link to="/register" className="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
+                            <Link to="/register" className="text-mint-600 dark:text-mint-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity">
                                 Register Workspace
                             </Link>
                         </span>
@@ -245,12 +245,12 @@ export const Login = () => {
             {/* FOOTER */}
             <footer className="w-full max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800 pt-8 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 text-white text-xs font-bold shadow-sm">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-mint-600 to-teal-700 text-white text-xs font-bold shadow-sm">
                         <Icon icon="lucide:hexagon" className="w-4 h-4" />
                     </div>
                     <span className="font-display font-bold text-sm text-gray-900 dark:text-white">ProjectHive</span>
                 </div>
-                <div className="font-code text-xs text-gray-500">
+                <div className="font-mono-nav text-xs text-gray-500">
                     Secure Corporate Provisioning · v1.3.0
                 </div>
             </footer>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../Components/ConfirmModel';
 import { TaskBoard } from '../Components/TaskBoard';
+import { InviteMember } from '../Components/ProjectInvitation';
 import { Icon } from '@iconify/react';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { UserAvatar } from '../Components/UserAvatar';
@@ -85,7 +86,7 @@ export const WorkspaceDetail: React.FC = () => {
     const { data: userProfile } = useProfile();
     const allWorkspaces = userProfile?.workspaces || [];
 
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'tasks' | 'members' | 'settings'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'tasks' | 'members' | 'invite' | 'settings'>('dashboard');
     const [nameDraft, setNameDraft] = useState('');
 
     // --- NOTIFICATIONS ---
@@ -126,6 +127,16 @@ export const WorkspaceDetail: React.FC = () => {
     const { data: members, isLoading: isMembersLoading } = useWorkspaceMembers(workspaceId);
     const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMember(workspaceId);
     const [memberToRemove, setMemberToRemove] = useState<WorkspaceMemberItem | null>(null);
+
+    // --- MEMBERS SEARCH ---
+    const [memberSearch, setMemberSearch] = useState('');
+    const filteredMembers = members?.filter((member) => {
+        const q = memberSearch.trim().toLowerCase();
+        if (!q) return true;
+        const name = (member.name || '').toLowerCase();
+        const email = (member.email || '').toLowerCase();
+        return name.includes(q) || email.includes(q);
+    });
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -415,7 +426,7 @@ export const WorkspaceDetail: React.FC = () => {
                                 >
                                     <Icon icon="lucide:arrow-left" className="w-3.5 h-3.5" /> All Workspaces
                                 </button>
-                                {allWorkspaces
+                                {/* {allWorkspaces
                                     .filter((ws: any) => ws.isDeleted !== true)
                                     .map((ws: any) => {
                                         const wsInfo = ws.workspace || ws;
@@ -437,7 +448,7 @@ export const WorkspaceDetail: React.FC = () => {
                                                 <span className="truncate max-w-[110px]">{wsInfo.name}</span>
                                             </button>
                                         );
-                                    })}
+                                    })} */}
                             </div>
                         </div>
 
@@ -455,23 +466,6 @@ export const WorkspaceDetail: React.FC = () => {
                                     </span>
                                 )}
                             </button>
-
-                            {activeTab === 'projects' && (
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => navigate(`/workspaces/${workspaceId}/invite`)}
-                                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                                    >
-                                        <Icon icon="lucide:mail-plus" className="w-4 h-4 text-mint-600 dark:text-mint-400" /> Invite
-                                    </button>
-                                    <button
-                                        onClick={() => setIsCreateFormOpen((prev: boolean) => !prev)}
-                                        className="px-4 py-2 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-mint-500/20 flex items-center gap-1.5 cursor-pointer hover:scale-[1.02]"
-                                    >
-                                        <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-4 h-4" /> {isCreateFormOpen ? 'Cancel' : 'New Project'}
-                                    </button>
-                                </div>
-                            )}
 
                             <ThemeToggle />
 
@@ -550,22 +544,7 @@ export const WorkspaceDetail: React.FC = () => {
                                     })}
                             </div>
 
-                            {activeTab === 'projects' && (
-                                <div className="flex items-center gap-2 pt-1">
-                                    <button
-                                        onClick={() => { navigate(`/workspaces/${workspaceId}/invite`); setIsMobileMenuOpen(false); }}
-                                        className="flex-1 px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
-                                    >
-                                        <Icon icon="lucide:mail-plus" className="w-4 h-4 text-mint-600 dark:text-mint-400" /> Invite Member
-                                    </button>
-                                    <button
-                                        onClick={() => { setIsCreateFormOpen((prev: boolean) => !prev); setIsMobileMenuOpen(false); }}
-                                        className="flex-1 px-3 py-2 bg-mint-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-mint-500/20 cursor-pointer"
-                                    >
-                                        <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-4 h-4" /> {isCreateFormOpen ? 'Cancel' : 'New Project'}
-                                    </button>
-                                </div>
-                            )}
+
                         </div>
                     )}
                 </div>
@@ -602,6 +581,14 @@ export const WorkspaceDetail: React.FC = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Invite Member Button */}
+                    <button
+                        onClick={() => setActiveTab('invite')}
+                        className="w-full px-4 py-2.5 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 text-white font-bold text-xs rounded-2xl shadow-md shadow-mint-500/20 flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-[1.02]"
+                    >
+                        <Icon icon="lucide:user-plus" className="w-4 h-4" /> Invite to Workspace
+                    </button>
 
                     {/* Navigation Links */}
                     <div className="p-3 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800/80 shadow-xs backdrop-blur-xl space-y-1">
@@ -848,17 +835,25 @@ export const WorkspaceDetail: React.FC = () => {
                                     <h2 className="font-display text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Projects & Tracks</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Organize and monitor project deliverables within this workspace.</p>
                                 </div>
-                                <div className="relative max-w-xs w-full">
-                                    <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
-                                        <Icon icon="lucide:search" className="w-4 h-4" />
+                                <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                                    <div className="relative max-w-xs w-full">
+                                        <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
+                                            <Icon icon="lucide:search" className="w-4 h-4" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Search projects..."
+                                            value={projectSearch}
+                                            onChange={(e) => setProjectSearch(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2 text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/20 transition-all shadow-xs"
+                                        />
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Search projects..."
-                                        value={projectSearch}
-                                        onChange={(e) => setProjectSearch(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/20 transition-all shadow-xs"
-                                    />
+                                    <button
+                                        onClick={() => setIsCreateFormOpen((prev: boolean) => !prev)}
+                                        className="px-4 py-2 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-mint-500/20 flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] flex-shrink-0 whitespace-nowrap"
+                                    >
+                                        <Icon icon={isCreateFormOpen ? "lucide:x" : "lucide:plus"} className="w-4 h-4" /> {isCreateFormOpen ? 'Cancel' : 'New Project'}
+                                    </button>
                                 </div>
                             </div>
 
@@ -1006,9 +1001,9 @@ export const WorkspaceDetail: React.FC = () => {
                                                                 e.stopPropagation();
                                                                 openEditProject(project);
                                                             }}
-                                                            className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-gray-800 hover:bg-emerald-500 hover:text-white text-gray-700 dark:text-gray-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm" title="Edit project"
+                                                            className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono-nav bg-slate-100 dark:bg-slate-800 hover:bg-mint-500 hover:text-white text-slate-700 dark:text-slate-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs" title="Edit project"
                                                         >
-                                                            <Icon icon="solar:pen-linear" className="w-3.5 h-3.5" />
+                                                            <Icon icon="lucide:pen" className="w-3.5 h-3.5" />
                                                             <span>Edit</span>
                                                         </button>
                                                         <button
@@ -1017,9 +1012,9 @@ export const WorkspaceDetail: React.FC = () => {
                                                                 setProjectToDelete(project);
                                                             }}
 
-                                                            className="p-2 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-rose-500 hover:text-white text-slate-400 dark:text-gray-400 transition-all cursor-pointer shadow-sm" title="Delete project"
+                                                            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-400 dark:text-slate-400 transition-all cursor-pointer shadow-xs" title="Delete project"
                                                         >
-                                                            <Icon icon="solar:trash-bin-trash-linear" className="w-4 h-4" />                                                        </button>
+                                                            <Icon icon="lucide:trash-2" className="w-4 h-4" />                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1045,25 +1040,37 @@ export const WorkspaceDetail: React.FC = () => {
                                     <h2 className="font-display text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Workspace Members</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage member roles and team access permissions.</p>
                                 </div>
-                                <button
-                                    onClick={() => navigate(`/workspaces/${workspaceId}/invite`)}
-                                    className="px-4 py-2 bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-md shadow-mint-500/20 flex items-center gap-1.5 cursor-pointer"
-                                >
-                                    <Icon icon="lucide:user-plus" className="w-4 h-4" /> Invite Member
-                                </button>
+                            </div>
+
+                            {/* Member Search */}
+                            <div className="relative max-w-xs w-full">
+                                <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <Icon icon="lucide:search" className="w-4 h-4" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Search members by name or email..."
+                                    value={memberSearch}
+                                    onChange={(e) => setMemberSearch(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/20 transition-all shadow-xs"
+                                />
                             </div>
 
                             {isMembersLoading ? (
                                 <div className="flex items-center justify-center py-16">
                                     <div className="w-8 h-8 rounded-full border-2 border-mint-500 border-t-transparent animate-spin" />
                                 </div>
-                            ) : !members || members.length === 0 ? (
+                            ) : !filteredMembers || filteredMembers.length === 0 ? (
                                 <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-950/40">
-                                    <p className="text-xs text-slate-400">No additional members found in this workspace.</p>
+                                    <p className="text-xs text-slate-400">
+                                        {memberSearch
+                                            ? 'No members match your search.'
+                                            : 'No additional members found in this workspace.'}
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {members.map((member) => {
+                                    {filteredMembers.map((member) => {
                                         const isCurrentUser = member.userId === currentUserId;
                                         const isOwner = member.role === "OWNER";
                                         const isUpdatingThisRole = isUpdatingRole && roleUpdateTargetId === member.userId;
@@ -1116,7 +1123,7 @@ export const WorkspaceDetail: React.FC = () => {
                                                             className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg transition-colors border border-rose-500/20 flex items-center justify-center cursor-pointer"
                                                             title="Remove Member"
                                                         >
-                                                            <Icon icon="solar:trash-bin-trash-bold" className="w-3.5 h-3.5" />
+                                                            <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
                                                         </button>
                                                     )}
                                                 </div>
@@ -1125,6 +1132,20 @@ export const WorkspaceDetail: React.FC = () => {
                                     })}
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* INVITE TAB */}
+                    {activeTab === 'invite' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="font-display text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Invite to Workspace</h2>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Send teammates a secure invitation to join this workspace.</p>
+                            </div>
+                            <InviteMember
+                                workspaceId={workspaceId}
+                                workspaceName={workspace?.name || workspace?.workspaceName}
+                            />
                         </div>
                     )}
 
@@ -1155,7 +1176,7 @@ export const WorkspaceDetail: React.FC = () => {
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
                                             <label className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl cursor-pointer shadow-xs transition-all flex items-center gap-1.5">
-                                                <Icon icon="solar:pen-bold" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" /> Change Logo
+                                                <Icon icon="lucide:pen" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" /> Change Logo
                                                 <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                                             </label>
                                         </div>
@@ -1196,7 +1217,7 @@ export const WorkspaceDetail: React.FC = () => {
                                         onClick={handleDeleteWorkspace}
                                         className="font-mono-nav px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold uppercase tracking-wide rounded-xl shadow-md shadow-rose-500/20 transition-all flex-shrink-0 flex items-center gap-1.5 cursor-pointer"
                                     >
-                                        <Icon icon="solar:trash-bin-trash-bold" className="w-3.5 h-3.5" /> Delete Workspace
+                                        <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" /> Delete Workspace
                                     </button>
                                 </div>
                             </div>
@@ -1211,7 +1232,7 @@ export const WorkspaceDetail: React.FC = () => {
                     <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                             <h3 className="font-display font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                                <Icon icon="solar:pen-bold-duotone" className="w-5 h-5 text-mint-600 dark:text-mint-400" />
+                                <Icon icon="lucide:pen" className="w-5 h-5 text-mint-600 dark:text-mint-400" />
                                 Edit Project Track
                             </h3>
                             <button onClick={() => setEditingProject(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">

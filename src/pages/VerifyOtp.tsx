@@ -91,26 +91,26 @@ export const VerifyEmail = () => {
             />
 
             {/* Ambient background glows */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 dark:bg-emerald-600/5 blur-[160px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-mint-500/10 dark:bg-mint-500/5 blur-[160px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-mint-600/10 dark:bg-mint-600/5 blur-[160px] rounded-full pointer-events-none" />
 
             {/* TOP NAVIGATION BAR - FIXED */}
             <div className="fixed top-0 left-0 right-0 w-full z-50 px-4 pt-4">
                 <header className="w-full max-w-7xl mx-auto flex items-center justify-between py-3 px-5 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl shadow-black/[0.02]">
                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-mint-600 to-teal-700 text-white shadow-lg shadow-mint-600/20 transition-transform group-hover:scale-105">
                             <Icon icon="lucide:hexagon" className="w-6 h-6 animate-[spin_10s_linear_infinite]" />
                             <Icon icon="lucide:cpu" className="absolute w-3.5 h-3.5 text-white" />
-                            <div className="absolute -inset-0.5 bg-emerald-400 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                            <div className="absolute -inset-0.5 bg-mint-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
                         </div>
                         <span className="font-display font-bold text-xl text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
-                            Project<span className="text-emerald-600 dark:text-emerald-400">Hive</span>
+                            Project<span className="text-mint-600 dark:text-mint-400">Hive</span>
                         </span>
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-1.5 font-code text-xs font-medium bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
                         {['Workflow', 'Features', 'Architecture', 'Security'].map(item => (
-                            <Link key={item} to={`/#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all">
+                            <Link key={item} to={`/#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900 hover:text-mint-600 dark:hover:text-mint-400 transition-all">
                                 {item}
                             </Link>
                         ))}
@@ -141,7 +141,7 @@ export const VerifyEmail = () => {
                 </header>
 
                 {isMobileMenuOpen && (
-                    <div className="md:hidden w-full max-w-7xl mx-auto mt-2 border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-4 space-y-3 shadow-2xl rounded-2xl">
+                    <div className="md:hidden w-full max-w-7xl mx-auto mt-2 border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-4 space-y-2 shadow-2xl rounded-2xl">
                         <div className="flex flex-col gap-1.5">
                             {['Workflow', 'Features', 'Architecture', 'Security'].map(item => (
                                 <Link
@@ -169,8 +169,8 @@ export const VerifyEmail = () => {
             <div className="relative my-auto flex flex-col items-center max-w-md w-full z-10 pt-32 pb-24">
 
                 <div className="relative max-w-lg text-center mb-8 space-y-3">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 font-mono-nav text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-mint-500/10 dark:bg-mint-950/60 border border-mint-500/20 font-mono-nav text-[10px] font-bold text-mint-600 dark:text-mint-400 tracking-widest uppercase">
+                        <span className="w-2 h-2 rounded-full bg-mint-500 animate-ping" />
                         Identity Confirmation
                     </div>
                     <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-gray-900 dark:text-white tracking-tight">
@@ -183,10 +183,10 @@ export const VerifyEmail = () => {
                 </div>
 
                 <div className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 sm:p-10 rounded-3xl shadow-xl space-y-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-mint-500/5 rounded-full blur-2xl pointer-events-none" />
 
                     {verifyMutation.isSuccess && (
-                        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs font-semibold text-emerald-700 dark:text-emerald-400 text-center tracking-wide font-mono-nav">
+                        <div className="rounded-xl bg-mint-500/10 border border-mint-500/20 p-3 text-xs font-semibold text-mint-700 dark:text-mint-400 text-center tracking-wide font-mono-nav">
                             Email verified! Redirecting to login...
                         </div>
                     )}
@@ -209,7 +209,7 @@ export const VerifyEmail = () => {
                                     onChange={(e) => handleChange(i, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(i, e)}
                                     onPaste={handlePaste}
-                                    className="w-full aspect-square text-center text-xl font-bold font-mono-nav rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                                    className="w-full aspect-square text-center text-xl font-bold font-mono-nav rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-mint-500 focus:border-mint-500 transition-all"
                                 />
                             ))}
                         </div>
@@ -217,7 +217,7 @@ export const VerifyEmail = () => {
                         <button
                             type="submit"
                             disabled={!isComplete || verifyMutation.isPending || verifyMutation.isSuccess}
-                            className="font-mono-nav w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+                            className="font-mono-nav w-full rounded-xl bg-mint-600 hover:bg-mint-500 text-white active:scale-[0.98] disabled:opacity-50 py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-mint-600/20 cursor-pointer"
                         >
                             {verifyMutation.isPending ? "Verifying..." : "Verify Email →"}
                         </button>
@@ -229,12 +229,12 @@ export const VerifyEmail = () => {
                             <button
                                 type="button"
                                 onClick={handleResend}
-                                className="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
+                                className="text-mint-600 dark:text-mint-400 font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
                             >
                                 Resend code
                             </button>
                         </span>
-                        <Link to="/register" className="font-mono-nav text-[11px] text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 flex items-center gap-1 transition-colors mt-1">
+                        <Link to="/register" className="font-mono-nav text-[11px] text-gray-400 hover:text-mint-600 dark:text-gray-500 dark:hover:text-mint-400 flex items-center gap-1 transition-colors mt-1">
                             ← Back to Registration
                         </Link>
                     </div>
@@ -245,7 +245,7 @@ export const VerifyEmail = () => {
             {/* FOOTER */}
             <footer className="w-full max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800 pt-8 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 text-white text-xs font-bold shadow-sm">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-mint-600 to-teal-700 text-white text-xs font-bold shadow-sm">
                         <Icon icon="lucide:hexagon" className="w-4 h-4" />
                     </div>
                     <span className="font-display font-bold text-sm text-gray-900 dark:text-white">ProjectHive</span>
