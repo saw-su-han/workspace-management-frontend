@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Icon } from '@iconify/react';
-import { useProfile, useUpdateProfile, useLogout } from '../hooks/useAuth';
+import { useProfile, useUpdateProfile } from '../hooks/useAuth';
 import { ThemeToggle } from '../Components/ThemeToggle';
 import { UserAvatar } from '../Components/UserAvatar';
 
@@ -14,7 +14,7 @@ export const ProfilePage: React.FC = () => {
 
     const { data: userProfile, isLoading } = useProfile();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
-    const { mutate: handleLogoutServer, isPending: isLoggingOut } = useLogout();
+    //const { mutate: handleLogoutServer, isPending: isLoggingOut } = useLogout();
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,18 +50,18 @@ export const ProfilePage: React.FC = () => {
         };
     }, [localAvatarPreview]);
 
-    const executeLogoutPipeline = () => {
-        handleLogoutServer(undefined, {
-            onSuccess: () => {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            },
-            onError: () => {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            }
-        });
-    };
+    // const executeLogoutPipeline = () => {
+    //     handleLogoutServer(undefined, {
+    //         onSuccess: () => {
+    //             localStorage.removeItem("token");
+    //             window.location.href = "/login";
+    //         },
+    //         onError: () => {
+    //             localStorage.removeItem("token");
+    //             window.location.href = "/login";
+    //         }
+    //     });
+    // };
 
     // --- FILE SELECTION INTERCEPT HANDLER -------------------------------------
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {

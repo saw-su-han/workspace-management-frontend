@@ -1,6 +1,6 @@
 // src/pages/AssignMemberPage.tsx
 import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useWorkspaceMembers, useAssignProjectMember, useProjectDetails } from '../hooks/useAuth';
 import { AsideNav } from '../Components/Asidenav';
@@ -20,7 +20,7 @@ export function AssignMemberPage() {
     const { workspaceId: workspaceIdParam, projectId: projectIdParam } = useParams<{ workspaceId: string; projectId: string }>();
     const workspaceId = Number(workspaceIdParam);
     const projectId = Number(projectIdParam);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const { data: members, isLoading: isMembersLoading } = useWorkspaceMembers(workspaceId);
     const { data: project } = useProjectDetails(projectId, workspaceId);
