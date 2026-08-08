@@ -101,16 +101,29 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="hidden md:flex w-60 shrink-0 h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl flex-col z-40">
+            <aside className="hidden md:flex w-64 shrink-0 h-screen sticky top-0 border-r border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-[#0c121e]/70 backdrop-blur-2xl flex-col z-40 transition-colors">
                 {/* Brand / Workspace tag */}
-                <div className="h-16 md:h-20 flex flex-col justify-center px-5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="font-mono-nav text-[9px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        Workspace #{workspaceId}
-                    </span>
+                <div className="h-20 flex items-center px-6 border-b border-slate-200/80 dark:border-slate-800/80 justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-mint-600 via-teal-500 to-emerald-400 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-mint-500/20 glow-mint">
+                            <Icon icon="solar:layers-bold-duotone" className="w-5 h-5" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                                Workspace Console
+                            </span>
+                            <span className="font-mono-nav text-[10px] font-semibold text-mint-600 dark:text-mint-400">
+                                ID #{workspaceId}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Nav items */}
-                <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+                <nav className="flex-1 px-3.5 py-6 space-y-2 overflow-y-auto">
+                    <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 font-mono-nav">
+                        Navigation
+                    </div>
                     {items.map((item) => {
                         const active = isActive(item.path);
                         return (
@@ -120,34 +133,41 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
                                 disabled={item.disabled}
                                 title={item.disabled ? item.hint : undefined}
                                 onClick={() => !item.disabled && navigate(item.path)}
-                                className={`w-full font-mono-nav flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer
+                                className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer relative group
                                     ${item.disabled
-                                        ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
+                                        ? 'opacity-40 cursor-not-allowed text-slate-400 dark:text-slate-600'
                                         : active
-                                            ? 'bg-gradient-to-r from-mint-600 to-teal-600 hover:from-mint-500 hover:to-teal-500 text-white shadow-md shadow-mint-500/20'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-transparent hover:border-gray-200 dark:hover:border-gray-800'
+                                            ? 'bg-gradient-to-r from-mint-500/15 via-teal-500/10 to-transparent text-slate-900 dark:text-white font-bold border-l-2 border-mint-500 dark:border-mint-400 shadow-sm'
+                                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-slate-100'
                                     }`}
                             >
-                                <Icon
-                                    icon={item.icon}
-                                    className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-mint-600 dark:text-mint-400'}`}
-                                />
-                                <span className="truncate">{item.label}</span>
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                                    active
+                                        ? 'bg-gradient-to-tr from-mint-600 to-teal-500 text-slate-950 shadow-md shadow-mint-500/20'
+                                        : 'bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 group-hover:text-mint-600 dark:group-hover:text-mint-400'
+                                }`}>
+                                    <Icon icon={item.icon} className="w-4 h-4 shrink-0" />
+                                </div>
+                                <span className="truncate flex-1 text-left">{item.label}</span>
+                                {active && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-mint-500 animate-pulse"></span>
+                                )}
                             </button>
                         );
                     })}
                 </nav>
 
                 {/* Footer */}
-                <div className="px-5 py-4 border-t border-gray-200 dark:border-gray-800">
-                    <p className="font-mono-nav text-[9px] text-gray-400 dark:text-gray-600 uppercase tracking-wider">
-                        v1.0 · Project Console
-                    </p>
+                <div className="px-5 py-4 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+                    <span className="font-mono-nav text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                        Workspace Console v2.0
+                    </span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 </div>
             </aside>
 
             {/* Mobile Bottom Navigation Bar */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl flex items-center justify-around px-2 z-40">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0c121e]/90 backdrop-blur-2xl flex items-center justify-around px-3 z-50 shadow-2xl pb-safe">
                 {items.map((item) => {
                     const active = isActive(item.path);
                     return (
@@ -157,19 +177,19 @@ export function AsideNav({ workspaceId, projectId, taskId }: AsideNavProps) {
                             disabled={item.disabled}
                             title={item.disabled ? item.hint : undefined}
                             onClick={() => !item.disabled && navigate(item.path)}
-                            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer
+                            className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer flex-1 max-w-[88px]
                                 ${item.disabled
-                                    ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
+                                    ? 'opacity-40 cursor-not-allowed text-slate-400 dark:text-slate-600'
                                     : active
-                                        ? 'text-mint-600 dark:text-mint-400 font-bold'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                                        ? 'text-mint-600 dark:text-mint-400 font-bold bg-mint-500/10'
+                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                                 }`}
                         >
                             <Icon
                                 icon={item.icon}
                                 className={`w-5 h-5 shrink-0 ${active ? 'scale-110 text-mint-600 dark:text-mint-400' : ''} transition-transform`}
                             />
-                            <span className="font-mono-nav text-[9px] font-semibold mt-1 max-w-[56px] truncate">
+                            <span className="font-mono-nav text-[9px] font-semibold mt-1 w-full text-center truncate">
                                 {item.label}
                             </span>
                         </button>

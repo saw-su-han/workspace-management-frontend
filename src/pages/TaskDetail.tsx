@@ -283,7 +283,7 @@ export const TaskDetail: React.FC = () => {
     return (
         <div className="flex min-h-screen w-full bg-white dark:bg-gray-950 font-sans">
             <AsideNav workspaceId={workspaceId} projectId={task?.project?.id} />
-            <div className="flex-1 text-gray-900 dark:text-gray-50 transition-colors duration-300 antialiased relative overflow-x-hidden">
+            <div className="flex-1 text-gray-900 dark:text-gray-50 transition-colors duration-300 antialiased relative overflow-x-hidden pb-20 md:pb-6">
                 <FontFaces />
 
                 {/* Subtle grid pattern background */}

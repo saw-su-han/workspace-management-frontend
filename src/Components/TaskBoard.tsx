@@ -565,19 +565,22 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                     <div
                                         key={task.id}
                                         onClick={() => navigate(`/workspaces/${workspaceId}/tasks/${task.id}`)}
-                                        className="group p-5 bg-white/95 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-xs hover:border-mint-500/40 transition-all backdrop-blur-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer"
+                                        className="group p-5 sm:p-6 bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-0.5 hover:border-mint-500/50 dark:hover:border-mint-500/50 transition-all duration-300 backdrop-blur-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer overflow-hidden relative"
                                     >
-                                        <div className="space-y-2 flex-1 min-w-0">
+                                        {/* Accent side strip */}
+                                        <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gradient-to-b from-mint-500 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                        <div className="space-y-2.5 flex-1 min-w-0">
                                             <div className="flex items-center gap-2.5 flex-wrap">
-                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono-nav border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold font-mono-nav border shadow-xs ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot} animate-pulse`} />
                                                     {statusStyle.label}
                                                 </span>
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-mono-nav border ${priorityStyle.bg} ${priorityStyle.text} ${priorityStyle.border}`}>
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-mono-nav border shadow-xs ${priorityStyle.bg} ${priorityStyle.text} ${priorityStyle.border}`}>
                                                     {priorityStyle.label}
                                                 </span>
                                                 {isWorkspaceWide && task.projectId && (
-                                                    <span className="text-[10px] font-mono-nav font-bold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1.5">
+                                                    <span className="text-[10px] font-mono-nav font-bold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1.5 shadow-xs">
                                                         <Icon icon="lucide:folder" className="w-3.5 h-3.5 text-mint-600 dark:text-mint-400" />
                                                         <span>{projectNameFor(task.projectId) || `Project #${task.projectId}`}</span>
                                                     </span>
@@ -585,11 +588,11 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
                                             </div>
 
                                             <div>
-                                                <h3 className="font-display text-sm font-extrabold text-gray-900 dark:text-white tracking-tight truncate group-hover:text-mint-600 dark:group-hover:text-mint-400 transition-colors">
+                                                <h3 className="font-display text-sm md:text-base font-extrabold text-gray-900 dark:text-white tracking-tight truncate group-hover:text-mint-600 dark:group-hover:text-mint-400 transition-colors">
                                                     {task.title}
                                                 </h3>
                                                 {task.description && (
-                                                    <p className="font-mono-nav text-xs text-slate-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                                    <p className="font-mono-nav text-xs text-slate-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
                                                         {task.description}
                                                     </p>
                                                 )}
@@ -597,14 +600,14 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ workspaceId, projectId, pr
 
                                             <div className="flex items-center gap-4 text-[11px] font-mono-nav text-slate-400 dark:text-gray-500 pt-1 flex-wrap">
                                                 {task.dueDate && (
-                                                    <span className="flex items-center gap-1">
-                                                        <Icon icon="lucide:calendar" className="w-3.5 h-3.5" />
+                                                    <span className="flex items-center gap-1.5 bg-slate-100/60 dark:bg-slate-800/40 px-2.5 py-1 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
+                                                        <Icon icon="lucide:calendar" className="w-3.5 h-3.5 text-mint-500" />
                                                         Due: {task.dueDate.slice(0, 10)}
                                                     </span>
                                                 )}
-                                                <span className="flex items-center gap-1">
-                                                    <Icon icon="lucide:user" className="w-3.5 h-3.5" />
-                                                    {task.assignee ? task.assignee.name : 'Currently no user assigned'}
+                                                <span className="flex items-center gap-1.5 bg-slate-100/60 dark:bg-slate-800/40 px-2.5 py-1 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
+                                                    <Icon icon="lucide:user" className="w-3.5 h-3.5 text-mint-500" />
+                                                    {task.assignee ? task.assignee.name : 'Unassigned'}
                                                 </span>
                                             </div>
                                         </div>

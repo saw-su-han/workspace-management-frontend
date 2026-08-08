@@ -4,44 +4,29 @@ import { Icon } from "@iconify/react";
 
 export const Home = () => {
     return (
-        <div className="relative flex min-h-screen w-full flex-col items-center justify-between bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300 overflow-x-hidden font-sans antialiased">
-
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
-                body { font-family: 'Plus Jakarta Sans', sans-serif; }
-                .font-display { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; }
-                .font-code { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-                
-                ::-webkit-scrollbar { width: 8px; height: 8px; }
-                ::-webkit-scrollbar-track { background: transparent; }
-                ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-                .dark ::-webkit-scrollbar-thumb { background: #334155; }
-            `}</style>
-
+        <div className="relative flex min-h-screen w-full flex-col items-center justify-between bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-300 overflow-x-hidden font-sans antialiased">
             {/* Absolute Background Elements */}
             <div className="fixed inset-0 -z-10 overflow-hidden">
                 <div
-                    className="absolute inset-0 opacity-[0.3] dark:opacity-[0.1]"
+                    className="absolute inset-0 opacity-[0.25] dark:opacity-[0.12]"
                     style={{
-                        backgroundImage: 'linear-gradient(to right, rgba(16, 185, 129, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(16, 185, 129, 0.2) 1px, transparent 1px)',
-                        backgroundSize: '48px 48px',
-                        maskImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, #000 70%, transparent 110%)'
+                        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(11, 244, 200, 0.25) 1px, transparent 0)',
+                        backgroundSize: '36px 36px',
                     }}
                 />
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-mint-500/5 dark:bg-mint-500/5 blur-[128px] rounded-full" />
-                <div className="absolute -bottom-48 -left-48 w-[600px] h-[600px] bg-teal-500/5 dark:bg-teal-500/5 blur-[128px] rounded-full" />
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-mint-500/10 dark:bg-mint-500/10 blur-[160px] rounded-full pointer-events-none" />
+                <div className="absolute -bottom-48 -left-48 w-[600px] h-[600px] bg-teal-500/10 dark:bg-teal-500/10 blur-[160px] rounded-full pointer-events-none" />
             </div>
 
             {/* TOP NAVIGATION BAR - FIXED */}
             <div className="fixed top-0 left-0 right-0 w-full z-50 px-4 pt-4">
-                <header className="w-full max-w-7xl mx-auto flex items-center justify-between py-3 px-5 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl shadow-black/[0.02]">
+                <header className="w-full max-w-7xl mx-auto flex items-center justify-between py-3 px-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/75 dark:bg-[#090d16]/75 backdrop-blur-2xl shadow-xl shadow-slate-950/5">
                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-mint-600 to-teal-700 text-white shadow-lg shadow-mint-600/20 transition-transform group-hover:scale-105">
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-mint-600 via-teal-500 to-emerald-400 text-slate-950 shadow-lg shadow-mint-500/20 transition-transform group-hover:scale-105 glow-mint">
                             <Icon icon="lucide:hexagon" className="w-6 h-6 animate-[spin_10s_linear_infinite]" />
-                            <Icon icon="lucide:cpu" className="absolute w-3.5 h-3.5 text-white" />
-                            <div className="absolute -inset-0.5 bg-mint-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                            <Icon icon="lucide:cpu" className="absolute w-3.5 h-3.5 text-slate-950" />
                         </div>
-                        <span className="font-display font-bold text-xl text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
+                        <span className="font-display font-extrabold text-xl text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
                             Project<span className="text-mint-600 dark:text-mint-400">Hive</span>
                         </span>
                     </Link>

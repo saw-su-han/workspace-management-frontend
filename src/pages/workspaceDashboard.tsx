@@ -10,17 +10,17 @@ const StatCard: React.FC<{
     label: string;
     value: number | string;
     accent?: string;
-}> = ({ icon, label, value, accent = 'text-emerald-600 dark:text-emerald-400' }) => (
-    <div className="relative rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 p-5 shadow-lg overflow-hidden backdrop-blur-xl flex items-center gap-4">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
-        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0 relative z-10">
+}> = ({ icon, label, value, accent = 'text-mint-600 dark:text-mint-400' }) => (
+    <div className="relative rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-lg shadow-slate-950/5 overflow-hidden backdrop-blur-xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-mint-500/40">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-mint-500/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="w-11 h-11 rounded-xl bg-mint-500/10 dark:bg-mint-500/15 flex items-center justify-center flex-shrink-0 relative z-10">
             <Icon icon={icon} className={`w-5 h-5 ${accent}`} />
         </div>
         <div className="relative z-10">
-            <p className="font-mono-nav text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-400">
+            <p className="font-mono-nav text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">
                 {label}
             </p>
-            <p className="font-display font-extrabold text-xl text-gray-900 dark:text-white mt-0.5">
+            <p className="font-display font-extrabold text-2xl text-slate-900 dark:text-white mt-0.5">
                 {value}
             </p>
         </div>
@@ -59,7 +59,7 @@ export const WorkspaceDashboard: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300 flex flex-col antialiased relative overflow-x-hidden font-sans">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col antialiased relative overflow-x-hidden font-sans">
             <FontFaces />
 
             {/* Subtle grid pattern background */}

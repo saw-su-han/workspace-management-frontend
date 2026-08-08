@@ -35,7 +35,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             />
 
             {/* modal card */}
-            <div className="relative w-full max-w-sm bg-white dark:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/15 rounded-2xl shadow-xl p-6">
+            <div className="relative w-full max-w-sm bg-white dark:bg-[#0a2f4e] border border-sky-200 dark:border-cyan-400/15 rounded-2xl shadow-xl p-6 max-h-[90vh] overflow-y-auto">
                 <div className="flex items-start gap-3">
                     <div
                         className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-lg ${isDangerous
